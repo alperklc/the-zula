@@ -21,7 +21,7 @@ type db struct {
 	collection *mongo.Collection
 }
 
-func NewNotesDraftsRepository(d *mongo.Database) Collection {
+func NewDb(d *mongo.Database) Collection {
 	return &db{
 		collection: d.Collection(collectionName),
 	}
@@ -30,7 +30,7 @@ func NewNotesDraftsRepository(d *mongo.Database) Collection {
 func (d *db) CheckExistence(ids []string) (map[string]bool, error) {
 	result := make(map[string]bool)
 	var noteDraftDocuments []NoteDraftDocument
-	filter := bson.M{"id": bson.M{"$in": ids}}
+	filter := bson.M{"shortId": bson.M{"$in": ids}}
 
 	cursor, findErr := d.collection.Find(context.TODO(), filter)
 	if findErr != nil {
@@ -44,7 +44,7 @@ func (d *db) CheckExistence(ids []string) (map[string]bool, error) {
 	cursor.Close(context.TODO())
 
 	for _, draft := range noteDraftDocuments {
-		result[draft.Id] = true
+		result[draft.ShortId] = true
 	}
 
 	return result, nil
@@ -52,18 +52,18 @@ func (d *db) CheckExistence(ids []string) (map[string]bool, error) {
 
 func (d *db) GetOne(id string) (NoteDraftDocument, error) {
 	var noteDocument NoteDraftDocument
-	filter := bson.M{"_id": id}
+	filter := bson.M{"shortId": id}
 	err := d.collection.FindOne(context.TODO(), filter).Decode(&noteDocument)
 
 	return noteDocument, err
 }
 
-func (d *db) UpsertOne(id, title, content string, tags []string) error {
+func (d *db) UpsertOne(shortId, title, content string, tags []string) error {
 	opts := options.Update().SetUpsert(true)
 
-	filter := bson.M{"id": id}
+	filter := bson.M{"shortId": shortId}
 	noteDraftObject := bson.M{"$set": bson.M{
-		"id":      id,
+		"shortId": shortId,
 		"title":   title,
 		"content": content,
 		"tags":    tags,
@@ -75,7 +75,7 @@ func (d *db) UpsertOne(id, title, content string, tags []string) error {
 }
 
 func (d *db) DeleteOne(id string) error {
-	_, err := d.collection.DeleteOne(context.TODO(), bson.M{"id": id})
+	_, err := d.collection.DeleteOne(context.TODO(), bson.M{"shortId": id})
 
 	return err
 }

@@ -8,6 +8,7 @@ import (
 
 type NoteDocument struct {
 	Id        string    `bson:"_id,omitempty"`
+	ShortId   string    `bson:"shortId"`
 	UpdatedAt time.Time `bson:"updatedAt"`
 	UpdatedBy string    `bson:"updatedBy"`
 	CreatedAt time.Time `bson:"createdAt"`

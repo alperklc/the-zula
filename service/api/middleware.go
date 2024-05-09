@@ -2,8 +2,14 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
+	"os"
+
+	"github.com/rs/zerolog"
+	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
+	"github.com/zitadel/zitadel-go/v3/pkg/authorization/oauth"
+	"github.com/zitadel/zitadel-go/v3/pkg/http/middleware"
+	"github.com/zitadel/zitadel-go/v3/pkg/zitadel"
 )
 
 type APIErrorResponse struct {
@@ -11,21 +17,21 @@ type APIErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+func GetAuthMiddleware(log zerolog.Logger, domain, key string) func(_ http.Handler) http.Handler {
+	ctx := context.Background()
 
-		user, ok := req.Header["Remote-User"]
-		if !ok {
-			response := APIErrorResponse{Message: "User header is missing", Status: "NOT_AUTHENTICATED"}
+	// Initiate the authorization by providing a zitadel configuration and a verifier.
+	// This example will use OAuth2 Introspection for this, therefore you will also need to provide the downloaded api key.json
+	authZ, err := authorization.New(ctx, zitadel.New(domain), oauth.DefaultAuthorization(key))
+	if err != nil {
+		log.Error().Msgf("zitadel sdk could not initialize %s", err)
+		os.Exit(1)
+	}
 
-			res.Header().Set("Content-Type", "application/json")
-			res.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(res).Encode(response)
-			return
-		}
-
-		ctxWithUser := context.WithValue(req.Context(), "user", user[0])
-		next.ServeHTTP(res, req.WithContext(ctxWithUser))
-		return
-	})
+	return middleware.New(authZ).RequireAuthorization()
+	/* return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			next.ServeHTTP(res, req)
+		})
+	} */
 }

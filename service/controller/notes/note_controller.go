@@ -114,7 +114,6 @@ func (d *datasources) ListNotes(userId string, q *string, p, ps *int, sb, sd *st
 			Range:         getPaginationRange(count, page, pageSize),
 		},
 	}, listErr
-
 }
 
 func (d *datasources) CreateNote(userId, clientId string, title, content *string, t *[]string) (Note, error) {
@@ -126,7 +125,7 @@ func (d *datasources) CreateNote(userId, clientId string, title, content *string
 	createdNote, err := d.notes.InsertOne(userId, *title, *content, tags)
 
 	return Note{
-		Id:        createdNote.Id,
+		ShortId:   createdNote.ShortId,
 		UpdatedAt: createdNote.UpdatedAt,
 		UpdatedBy: createdNote.UpdatedBy,
 		CreatedBy: createdNote.CreatedBy,
@@ -171,7 +170,7 @@ func (d *datasources) GetNote(noteId, userId, clientId string) (Note, error) {
 	draftExist, _ := d.notesDrafts.CheckExistence([]string{noteId})
 
 	return Note{
-		Id:        note.Id,
+		ShortId:   note.ShortId,
 		UpdatedAt: note.UpdatedAt,
 		UpdatedBy: note.UpdatedBy,
 		CreatedBy: note.CreatedBy,
@@ -179,17 +178,20 @@ func (d *datasources) GetNote(noteId, userId, clientId string) (Note, error) {
 		Title:     note.Title,
 		Content:   note.Content,
 		Tags:      note.Tags,
-		HasDraft:  draftExist[note.Id],
+		HasDraft:  draftExist[note.ShortId],
 	}, getNoteErr
 }
 
 func (d *datasources) GetNotes(userId string, noteIds, fields []string) ([]Note, error) {
 	notesFound, err := d.notes.GetNotes(noteIds, fields)
 	var items []Note = make([]Note, 0, len(notesFound))
+
+	draftExist, _ := d.notesDrafts.CheckExistence(noteIds)
+
 	for _, b := range notesFound {
 		if b.CreatedBy == userId {
 			note := Note{
-				Id:        b.Id,
+				ShortId:   b.ShortId,
 				UpdatedAt: b.UpdatedAt,
 				UpdatedBy: b.UpdatedBy,
 				CreatedBy: b.CreatedBy,
@@ -197,6 +199,7 @@ func (d *datasources) GetNotes(userId string, noteIds, fields []string) ([]Note,
 				Title:     b.Title,
 				Content:   b.Content,
 				Tags:      b.Tags,
+				HasDraft:  draftExist[b.ShortId],
 			}
 
 			items = append(items, note)
@@ -234,12 +237,12 @@ func (d *datasources) GetDraftOfNote(userId, noteId string) (Note, error) {
 	}
 
 	noteDraft, getDraftErr := d.notesDrafts.GetOne(noteId)
-	if noteDraft.Id == "" {
+	if noteDraft.ShortId == "" {
 		return Note{}, fmt.Errorf("NOT_FOUND")
 	}
 
 	return Note{
-		Id:        note.Id,
+		ShortId:   note.ShortId,
 		UpdatedAt: note.UpdatedAt,
 		UpdatedBy: note.UpdatedBy,
 		CreatedBy: note.CreatedBy,

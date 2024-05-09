@@ -9,6 +9,7 @@ import (
 
 	notectrl "github.com/alperklc/the-zula/service/controller/notes"
 	notesReferencesCtrl "github.com/alperklc/the-zula/service/controller/notesReferences"
+	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
 )
 
 type a struct {
@@ -20,66 +21,63 @@ func NewApi(n notectrl.NoteController, nr notesReferencesCtrl.NotesReferencesCon
 	return &a{notes: n, notesReferences: nr}
 }
 
+func sendResponse(w http.ResponseWriter, code int, data any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(data)
+}
+
 func (s *a) GetApiV1Me(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (s *a) DeleteApiV1NoteIdDraft(w http.ResponseWriter, r *http.Request, id string) {
-	user := r.Context().Value("user").(string)
-	w.Header().Set("Content-Type", "application/json")
+func (s *a) DeleteApiV1NoteShortIdDraft(w http.ResponseWriter, r *http.Request, id string) {
+	user := authorization.UserID(r.Context())
 
 	err := s.notes.DeleteDraft(user, id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		json.NewEncoder(w).Encode(fmt.Sprintf("could not delete draft, %s", err.Error()))
+		sendResponse(w, http.StatusBadRequest, fmt.Sprintf("could not delete draft, %s", err.Error()))
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode("ok")
+	sendResponse(w, http.StatusOK, "ok")
 }
 
-func (s *a) PutApiV1NoteIdDraft(w http.ResponseWriter, r *http.Request, id string) {
-	user := r.Context().Value("user").(string)
-	w.Header().Set("Content-Type", "application/json")
+func (s *a) PutApiV1NoteShortIdDraft(w http.ResponseWriter, r *http.Request, id string) {
+	user := authorization.UserID(r.Context())
 
 	var requestBody NoteInput
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
 	if err != nil || *requestBody.Title == "" {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		json.NewEncoder(w).Encode(fmt.Sprintf("could not create draft, %s", err.Error()))
+		sendResponse(w, http.StatusBadRequest, fmt.Sprintf("could not create draft, %s", err.Error()))
 		return
 	}
 
 	errUpdate := s.notes.UpdateDraft(user, id, *requestBody.Title, *requestBody.Content, *requestBody.Tags)
 	if errUpdate != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		json.NewEncoder(w).Encode(fmt.Sprintf("could not create draft, %s", err.Error()))
+		sendResponse(w, http.StatusBadRequest, fmt.Sprintf("could not create draft, %s", errUpdate.Error()))
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode("ok")
+	sendResponse(w, http.StatusOK, "ok")
 }
 
 func (s *a) GetApiV1Notes(w http.ResponseWriter, r *http.Request, params GetApiV1NotesParams) {
-	user := r.Context().Value("user").(string)
-	w.Header().Set("Content-Type", "application/json")
+	user := authorization.UserID(r.Context())
 
 	response, errGetNotes := s.notes.ListNotes(user, params.Q, params.Page, params.PageSize, params.SortBy, params.SortDirection, params.Tags)
 	if errGetNotes != nil {
-		http.Error(w, errGetNotes.Error(), http.StatusBadRequest)
-		json.NewEncoder(w).Encode(fmt.Sprintf("could not get notes, %s", errGetNotes.Error()))
+		sendResponse(w, http.StatusBadRequest, fmt.Sprintf("could not get notes, %s", errGetNotes.Error()))
 		return
 	}
 
 	converted := make([]Note, 0, len(response.Items))
 	for _, item := range response.Items {
 		formattedUpdatedAt := item.UpdatedAt.Format(time.RFC3339)
-		converted = append(converted, Note{Id: &item.Id, UpdatedAt: &formattedUpdatedAt, Title: &item.Title, Tags: &item.Tags, HasDraft: &item.HasDraft})
+		converted = append(converted, Note{ShortId: &item.ShortId, UpdatedAt: &formattedUpdatedAt, Title: &item.Title, Tags: &item.Tags, HasDraft: &item.HasDraft})
 	}
 
-	json.NewEncoder(w).Encode(NoteSearchResult{
+	sendResponse(w, http.StatusOK, NoteSearchResult{
 		Meta: &PaginationMeta{
 			Count:         &response.Meta.Count,
 			Page:          &response.Meta.Page,
@@ -92,84 +90,88 @@ func (s *a) GetApiV1Notes(w http.ResponseWriter, r *http.Request, params GetApiV
 }
 
 func (s *a) PostApiV1Notes(w http.ResponseWriter, r *http.Request) {
-	user := r.Context().Value("user").(string)
-	w.Header().Set("Content-Type", "application/json")
+	user := authorization.UserID(r.Context())
 
 	var input NoteInput
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		json.NewEncoder(w).Encode(fmt.Sprintf("could not create note, %s", err.Error()))
+		sendResponse(w, http.StatusBadRequest, fmt.Sprintf("could not create note, %s", err.Error()))
 		return
 	}
 
 	noteCreated, errCreateNote := s.notes.CreateNote(user, "1", input.Title, input.Content, input.Tags)
 	if errCreateNote != nil {
-		http.Error(w, errCreateNote.Error(), http.StatusInternalServerError)
+		sendResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not create note, %s", errCreateNote.Error()))
 		return
 	}
 
-	json.NewEncoder(w).Encode(noteCreated)
+	go s.notesReferences.UpsertReferencesOfNote(noteCreated.ShortId, *input.Content)
+
+	sendResponse(w, http.StatusOK, noteCreated)
 }
 
-func (s *a) DeleteApiV1NotesId(w http.ResponseWriter, r *http.Request, id string) {
-	user := r.Context().Value("user").(string)
-	w.Header().Set("Content-Type", "application/json")
+func (s *a) DeleteApiV1NotesShortId(w http.ResponseWriter, r *http.Request, id string) {
+	user := authorization.UserID(r.Context())
 
 	err := s.notes.DeleteNote(id, user, "1")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		json.NewEncoder(w).Encode(fmt.Sprintf("could not delete note, %s", err.Error()))
+		sendResponse(w, http.StatusBadRequest, fmt.Sprintf("could not delete note, %s", err.Error()))
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode("ok")
+	sendResponse(w, http.StatusOK, "ok")
 }
 
-func (s *a) GetApiV1NotesId(w http.ResponseWriter, r *http.Request, id string, params GetApiV1NotesIdParams) {
-	user := r.Context().Value("user").(string)
-	w.Header().Set("Content-Type", "application/json")
+func (s *a) GetApiV1NotesShortId(w http.ResponseWriter, r *http.Request, id string, params GetApiV1NotesShortIdParams) {
+	user := authorization.UserID(r.Context())
 
 	response, errGetNotes := s.notes.GetNote(id, user, "1")
 	if errGetNotes != nil {
-		http.Error(w, errGetNotes.Error(), http.StatusBadRequest)
-		json.NewEncoder(w).Encode(fmt.Sprintf("could not get notes, %s", errGetNotes.Error()))
+		sendResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get notes, %s", errGetNotes.Error()))
 		return
 	}
 
-	json.NewEncoder(w).Encode(response)
+	if params.LoadDraft != nil && *params.LoadDraft {
+		draftOfNote, errGetDraft := s.notes.GetDraftOfNote(user, id)
+		if errGetDraft != nil {
+			sendResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get draft of the note, %s", errGetDraft.Error()))
+			return
+		}
+
+		response.Content = draftOfNote.Content
+		response.Title = draftOfNote.Title
+		response.Tags = draftOfNote.Tags
+	}
+
+	sendResponse(w, http.StatusOK, response)
 }
 
-func (s *a) PutApiV1NotesId(w http.ResponseWriter, r *http.Request, id string) {
-	user := r.Context().Value("user").(string)
-	w.Header().Set("Content-Type", "application/json")
+func (s *a) PutApiV1NotesShortId(w http.ResponseWriter, r *http.Request, id string) {
+	user := authorization.UserID(r.Context())
 
 	var updateInput = make(map[string]interface{})
 	err := json.NewDecoder(r.Body).Decode(&updateInput)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		json.NewEncoder(w).Encode(fmt.Sprintf("could not create note, %s", err.Error()))
+		sendResponse(w, http.StatusBadRequest, fmt.Sprintf("could not create note, %s", err.Error()))
 		return
 	}
 
 	errUpdateNote := s.notes.UpdateNote(id, user, "1", updateInput)
 	if errUpdateNote != nil {
-		http.Error(w, errUpdateNote.Error(), http.StatusInternalServerError)
+		sendResponse(w, http.StatusBadRequest, fmt.Sprintf("could not create note, %s", errUpdateNote.Error()))
 		return
 	}
 
 	content, contentChanged := updateInput["content"]
 	if contentChanged {
-		s.notesReferences.UpsertReferencesOfNote(id, content.(string))
+		go s.notesReferences.UpsertReferencesOfNote(id, content.(string))
 	}
 
-	json.NewEncoder(w).Encode("ok")
+	sendResponse(w, http.StatusOK, "ok")
 }
 
 func (s *a) GetApiV1Tags(w http.ResponseWriter, r *http.Request, params GetApiV1TagsParams) {
-	user := r.Context().Value("user").(string)
-	w.Header().Set("Content-Type", "application/json")
+	user := authorization.UserID(r.Context())
 
 	var limit int = 10
 	l := r.URL.Query().Get("limit")
@@ -184,22 +186,21 @@ func (s *a) GetApiV1Tags(w http.ResponseWriter, r *http.Request, params GetApiV1
 
 	response, errGetTags := s.notes.SearchTags(user, searchKeyword, limit)
 	if errGetTags != nil {
-		http.Error(w, errGetTags.Error(), http.StatusBadRequest)
-		json.NewEncoder(w).Encode(fmt.Sprintf("could not get tags, %s", errGetTags.Error()))
+		sendResponse(w, http.StatusBadRequest, fmt.Sprintf("could not get tags, %s", errGetTags.Error()))
 		return
 	}
 
-	json.NewEncoder(w).Encode(response)
+	sendResponse(w, http.StatusOK, response)
 }
 
-func (s *a) GetApiV1UsersId(w http.ResponseWriter, r *http.Request, id string) {
-
-}
-
-func (s *a) GetApiV1UsersIdActivity(w http.ResponseWriter, r *http.Request, id string, params GetApiV1UsersIdActivityParams) {
+func (s *a) GetApiV1UsersShortId(w http.ResponseWriter, r *http.Request, id string) {
 
 }
 
-func (s *a) GetApiV1UsersIdInsights(w http.ResponseWriter, r *http.Request, id string) {
+func (s *a) GetApiV1UsersShortIdActivity(w http.ResponseWriter, r *http.Request, id string, params GetApiV1UsersShortIdActivityParams) {
+
+}
+
+func (s *a) GetApiV1UsersShortIdInsights(w http.ResponseWriter, r *http.Request, id string) {
 
 }

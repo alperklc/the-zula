@@ -3,7 +3,7 @@ package notectrl
 import "time"
 
 type Note struct {
-	Id        string    `json:"id"`
+	ShortId   string    `json:"id"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	UpdatedBy string    `json:"updatedBy"`
 	CreatedBy string    `json:"createdBy"`

@@ -20,7 +20,7 @@ type db struct {
 	collection *mongo.Collection
 }
 
-func NewRepository(d *mongo.Database) Collection {
+func NewDb(d *mongo.Database) Collection {
 	return &db{
 		collection: d.Collection(collectionName),
 	}

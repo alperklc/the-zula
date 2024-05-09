@@ -15,12 +15,12 @@ func TestListReferencesToNote(t *testing.T) {
 		// arrange mocks
 		expectedLinks := []NoteReferenceLink{{Source: "note1", Target: "note2"}}
 		expectedNodes := []NoteReferenceNode{{ID: "note1", Title: "title of note1"}, {ID: "note2", Title: "title of note2"}}
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(notes.NoteDocument{UID: "noteUID", CreatedBy: "user"}, nil)
-		noteRepository.On("GetNotes", []string{"note1", "note2"}, []string{"uid", "title"}).Return([]notes.NoteDocument{{UID: "note1", Title: "title of note1"}, {UID: "note2", Title: "title of note2"}}, nil)
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("ListReferencesOfNoteInDepth", "noteUID", 1).Return([]notesReferences.ReferencesDocument{{From: "note1", To: "note2"}}, nil)
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(notes.NoteDocument{UID: "noteUID", CreatedBy: "user"}, nil)
+		noteDb.On("GetNotes", []string{"note1", "note2"}, []string{"uid", "title"}).Return([]notes.NoteDocument{{UID: "note1", Title: "title of note1"}, {UID: "note2", Title: "title of note2"}}, nil)
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("ListReferencesOfNoteInDepth", "noteUID", 1).Return([]notesReferences.ReferencesDocument{{From: "note1", To: "note2"}}, nil)
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		page, error := notesReferencesController.ListReferencesToNote("user", "noteUID", 1)
@@ -33,12 +33,12 @@ func TestListReferencesToNote(t *testing.T) {
 
 	t.Run("it returns error if the getnotes method fails", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(notes.NoteDocument{UID: "noteUID", CreatedBy: "user"}, nil)
-		noteRepository.On("GetNotes", []string{"note1", "note2"}, []string{"uid", "title"}).Return([]notes.NoteDocument{}, fmt.Errorf("sorry"))
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("ListReferencesOfNoteInDepth", "noteUID", 1).Return([]notesReferences.ReferencesDocument{{From: "note1", To: "note2"}}, nil)
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(notes.NoteDocument{UID: "noteUID", CreatedBy: "user"}, nil)
+		noteDb.On("GetNotes", []string{"note1", "note2"}, []string{"uid", "title"}).Return([]notes.NoteDocument{}, fmt.Errorf("sorry"))
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("ListReferencesOfNoteInDepth", "noteUID", 1).Return([]notesReferences.ReferencesDocument{{From: "note1", To: "note2"}}, nil)
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		page, error := notesReferencesController.ListReferencesToNote("user", "noteUID", 1)
@@ -51,12 +51,12 @@ func TestListReferencesToNote(t *testing.T) {
 
 	t.Run("it returns error if the ListReferencesOfNoteInDepth method fails", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(notes.NoteDocument{UID: "noteUID", CreatedBy: "user"}, nil)
-		noteRepository.On("GetNotes", []string{}, []string{"uid", "title"}).Return([]notes.NoteDocument{}, fmt.Errorf("sorry"))
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("ListReferencesOfNoteInDepth", "noteUID", 1).Return([]notesReferences.ReferencesDocument{}, fmt.Errorf("sorry"))
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(notes.NoteDocument{UID: "noteUID", CreatedBy: "user"}, nil)
+		noteDb.On("GetNotes", []string{}, []string{"uid", "title"}).Return([]notes.NoteDocument{}, fmt.Errorf("sorry"))
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("ListReferencesOfNoteInDepth", "noteUID", 1).Return([]notesReferences.ReferencesDocument{}, fmt.Errorf("sorry"))
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		page, error := notesReferencesController.ListReferencesToNote("user", "noteUID", 1)
@@ -69,9 +69,9 @@ func TestListReferencesToNote(t *testing.T) {
 
 	t.Run("it returns error if the given note is not found", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
-		notesReferencesController := NewNotesReferencesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
+		notesReferencesController := NewNotesReferencesController(noteDb, nil)
 
 		// act
 		page, error := notesReferencesController.ListReferencesToNote("user", "noteUID", 1)
@@ -84,9 +84,9 @@ func TestListReferencesToNote(t *testing.T) {
 
 	t.Run("it returns error if the given note does not belong to requesting user", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(notes.NoteDocument{UID: "noteUID", CreatedBy: "user1"}, nil)
-		notesReferencesController := NewNotesReferencesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(notes.NoteDocument{UID: "noteUID", CreatedBy: "user1"}, nil)
+		notesReferencesController := NewNotesReferencesController(noteDb, nil)
 
 		// act
 		page, error := notesReferencesController.ListReferencesToNote("user", "noteUID", 1)
@@ -106,12 +106,12 @@ func TestUpsertReferencesOfNote(t *testing.T) {
 
 	t.Run("while upserting references, it returns error if it can not delete current references from the given note", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetNotes", []string{"note1", "note2"}, []string{"uid"}).Return([]notes.NoteDocument{}, nil)
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("DeleteAllReferencesFromNote", "noteUID").Return(fmt.Errorf("can not delete"))
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetNotes", []string{"note1", "note2"}, []string{"uid"}).Return([]notes.NoteDocument{}, nil)
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("DeleteAllReferencesFromNote", "noteUID").Return(fmt.Errorf("can not delete"))
 
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		error := notesReferencesController.UpsertReferencesOfNote("noteUID", noteContent)
@@ -123,12 +123,12 @@ func TestUpsertReferencesOfNote(t *testing.T) {
 
 	t.Run("while upserting references, it returns error if GetNotes fails", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetNotes", []string{"note1", "note2", "note3"}, []string{"uid"}).Return([]notes.NoteDocument{}, fmt.Errorf("getNotes failed"))
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetNotes", []string{"note1", "note2", "note3"}, []string{"uid"}).Return([]notes.NoteDocument{}, fmt.Errorf("getNotes failed"))
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
 
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		error := notesReferencesController.UpsertReferencesOfNote("noteUID", noteContent)
@@ -140,13 +140,13 @@ func TestUpsertReferencesOfNote(t *testing.T) {
 
 	t.Run("while upserting references, it returns error if insertion of references fails", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetNotes", []string{"note1", "note2", "note3"}, []string{"uid"}).Return([]notes.NoteDocument{{UID: "note1"}, {UID: "note3"}}, nil)
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
-		notesReferencesRepository.On("InsertMany", "noteUID", []string{"note1", "note3"}).Return(fmt.Errorf("insertion failed"))
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetNotes", []string{"note1", "note2", "note3"}, []string{"uid"}).Return([]notes.NoteDocument{{UID: "note1"}, {UID: "note3"}}, nil)
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
+		notesReferencesDb.On("InsertMany", "noteUID", []string{"note1", "note3"}).Return(fmt.Errorf("insertion failed"))
 
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		error := notesReferencesController.UpsertReferencesOfNote("noteUID", noteContent)
@@ -158,13 +158,13 @@ func TestUpsertReferencesOfNote(t *testing.T) {
 
 	t.Run("while upserting references, it only adds references to existing notes", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetNotes", []string{"note1", "note2", "note3"}, []string{"uid"}).Return([]notes.NoteDocument{{UID: "note1"}, {UID: "note3"}}, nil)
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
-		notesReferencesRepository.On("InsertMany", "noteUID", []string{"note1", "note3"}).Return(nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetNotes", []string{"note1", "note2", "note3"}, []string{"uid"}).Return([]notes.NoteDocument{{UID: "note1"}, {UID: "note3"}}, nil)
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
+		notesReferencesDb.On("InsertMany", "noteUID", []string{"note1", "note3"}).Return(nil)
 
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		error := notesReferencesController.UpsertReferencesOfNote("noteUID", noteContent)
@@ -178,13 +178,13 @@ func TestUpsertReferencesOfNote(t *testing.T) {
 func TestDeleteReferencesOfNote(t *testing.T) {
 	t.Run("it returns error if it can not delete references from the given note", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("DeleteAllReferencesFromNote", "noteUID").Return(fmt.Errorf("can not delete"))
-		notesReferencesRepository.On("DeleteAllReferencesToNote", "noteUID").Return(nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("DeleteAllReferencesFromNote", "noteUID").Return(fmt.Errorf("can not delete"))
+		notesReferencesDb.On("DeleteAllReferencesToNote", "noteUID").Return(nil)
 
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		error := notesReferencesController.DeleteReferencesOfNote("noteUID")
@@ -196,13 +196,13 @@ func TestDeleteReferencesOfNote(t *testing.T) {
 
 	t.Run("it returns error if it can not delete references to the given note", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
-		notesReferencesRepository.On("DeleteAllReferencesToNote", "noteUID").Return(fmt.Errorf("can not delete"))
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
+		notesReferencesDb.On("DeleteAllReferencesToNote", "noteUID").Return(fmt.Errorf("can not delete"))
 
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		error := notesReferencesController.DeleteReferencesOfNote("noteUID")
@@ -214,13 +214,13 @@ func TestDeleteReferencesOfNote(t *testing.T) {
 
 	t.Run("it deletes all references to and from a note, when requested", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
-		notesReferencesRepository := new(notesReferences.MockedNotesReferences)
-		notesReferencesRepository.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
-		notesReferencesRepository.On("DeleteAllReferencesToNote", "noteUID").Return(nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
+		notesReferencesDb := new(notesReferences.MockedNotesReferences)
+		notesReferencesDb.On("DeleteAllReferencesFromNote", "noteUID").Return(nil)
+		notesReferencesDb.On("DeleteAllReferencesToNote", "noteUID").Return(nil)
 
-		notesReferencesController := NewNotesReferencesController(noteRepository, notesReferencesRepository)
+		notesReferencesController := NewNotesReferencesController(noteDb, notesReferencesDb)
 
 		// act
 		error := notesReferencesController.DeleteReferencesOfNote("noteUID")
@@ -241,13 +241,13 @@ func TestDeleteReferencesOfNote(t *testing.T) {
 			Range:    "",
 		}
 		currentNote := notes.NoteDocument{UID: "noteUID", CreatedBy: "userUID", UpdatedBy: "userUID", CreatedAt: time.Now(), UpdatedAt: time.Now(), Title: "title", Content: "test", Tags: []string{"test"}}
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(currentNote, nil)
-		noteRepository.On("List", "userUID", "noteUID", 1, 10, "title", "asc", []string(nil)).Return([]notes.NoteDocument(nil), 0, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(currentNote, nil)
+		noteDb.On("List", "userUID", "noteUID", 1, 10, "title", "asc", []string(nil)).Return([]notes.NoteDocument(nil), 0, nil)
 
-		notesHistoryRepository := new(notesHistory.MockedNotesHistory)
-		notesHistoryRepository.On("ListHistoryOfNote", "userUID", "noteUID", 1, 10).Return([]notesHistory.NotesHistoryDocument{}, 0, nil)
-		notesHistoryController := NewNotesHistoryController(noteRepository, notesHistoryRepository)
+		notesHistoryDb := new(notesHistory.MockedNotesHistory)
+		notesHistoryDb.On("ListHistoryOfNote", "userUID", "noteUID", 1, 10).Return([]notesHistory.NotesHistoryDocument{}, 0, nil)
+		notesHistoryController := NewNotesHistoryController(noteDb, notesHistoryDb)
 
 		// act
 		listResponse, error := notesHistoryController.ListNotesHistory("userUID", "noteUID", 1, 10)
@@ -260,10 +260,10 @@ func TestDeleteReferencesOfNote(t *testing.T) {
 
 	t.Run("it throws an error if parent note of requested history entry does not exist", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteUID").Return(notes.NoteDocument{}, fmt.Errorf("error"))
 
-		notesHistoryController := NewNotesHistoryController(noteRepository, nil)
+		notesHistoryController := NewNotesHistoryController(noteDb, nil)
 
 		// act
 		_, error := notesHistoryController.GetNotesHistory("userUID", "noteUID", "0001-01-01T22:34:45Z")

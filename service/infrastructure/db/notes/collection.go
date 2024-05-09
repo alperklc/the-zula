@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	gonanoid "github.com/matoous/go-nanoid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,7 +18,7 @@ type Collection interface {
 	Count(userId string) (int64, error)
 	List(userId, searchKeyword string, page, pageSize int, sortBy, sortDirection string, tags []string) ([]NoteDocument, int, error)
 	GetNotes(ids, fields []string) ([]NoteDocument, error)
-	GetOne(Id string) (NoteDocument, error)
+	GetOne(id string) (NoteDocument, error)
 	InsertOne(userId, title, content string, tags []string) (NoteDocument, error)
 	UpdateOne(userId, Id string, update interface{}) error
 	DeleteOne(Id string) error
@@ -27,7 +28,7 @@ type db struct {
 	collection *mongo.Collection
 }
 
-func NewNotesRepository(d *mongo.Database) Collection {
+func NewDb(d *mongo.Database) Collection {
 	return &db{
 		collection: d.Collection(collectionName),
 	}
@@ -138,7 +139,7 @@ func (d *db) List(userId, searchKeyword string, page, pageSize int, sortBy, sort
 
 func (d *db) GetNotes(ids, fields []string) ([]NoteDocument, error) {
 	var noteDocuments []NoteDocument
-	filter := bson.M{"_id": bson.M{"$in": ids}}
+	filter := bson.M{"shortId": bson.M{"$in": ids}}
 
 	var projection = make(map[string]interface{})
 	for _, field := range fields {
@@ -164,7 +165,7 @@ func (d *db) GetOne(Id string) (NoteDocument, error) {
 	oid, _ := primitive.ObjectIDFromHex(Id)
 
 	var noteDocument NoteDocument
-	filter := bson.M{"_id": oid}
+	filter := bson.M{"shortId": oid}
 	err := d.collection.FindOne(context.TODO(), filter).Decode(&noteDocument)
 
 	return noteDocument, err
@@ -172,7 +173,10 @@ func (d *db) GetOne(Id string) (NoteDocument, error) {
 
 func (d *db) InsertOne(userId, title, content string, tags []string) (NoteDocument, error) {
 	createdAt := time.Now()
+	shortId, _ := gonanoid.Generate("abcde", 8)
+
 	noteObject := NoteDocument{
+		ShortId:   shortId,
 		UpdatedAt: createdAt,
 		UpdatedBy: userId,
 		CreatedBy: userId,
@@ -202,12 +206,12 @@ func (d *db) UpdateOne(userId, Id string, updates interface{}) error {
 		return unmarshalErr
 	}
 
-	_, err := d.collection.UpdateOne(context.TODO(), bson.M{"_id": Id}, bson.M{"$set": document})
+	_, err := d.collection.UpdateOne(context.TODO(), bson.M{"shortId": Id}, bson.M{"$set": document})
 	return err
 }
 
 func (d *db) DeleteOne(Id string) error {
-	_, err := d.collection.DeleteOne(context.TODO(), bson.M{"_id": Id})
+	_, err := d.collection.DeleteOne(context.TODO(), bson.M{"shortId": Id})
 
 	return err
 }

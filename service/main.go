@@ -17,13 +17,8 @@ import (
 	"github.com/alperklc/the-zula/service/infrastructure/logger"
 	middleware "github.com/oapi-codegen/nethttp-middleware"
 
-	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/go-chi/chi/v5"
 )
-
-type Application struct {
-	DB *mongo.Database
-}
 
 func main() {
 	config := environment.Read()
@@ -34,22 +29,25 @@ func main() {
 
 	swagger, err := api.GetSwagger()
 	if err != nil {
-		log.Fatalf("Error loading swagger spec\n: %s", err)
+		l.Fatal().Msgf("Error loading swagger spec\n: %s", err)
 	}
 
 	swagger.Servers = nil
 
-	notesRepository := notes.NewNotesRepository(d)
-	notesReferencesRepository := notesReferences.NewRepository(d)
-	notesDraftsRepository := notesDrafts.NewNotesDraftsRepository(d)
+	nr := notes.NewDb(d)
+	ndr := notesDrafts.NewDb(d)
+	nrr := notesReferences.NewDb(d)
 
-	noteController := notesCtrl.NewNotesController(notesRepository, notesDraftsRepository)
-	notesReferencesController := notesReferencesCtrl.NewNotesReferencesController(notesRepository, notesReferencesRepository)
+	noteController := notesCtrl.NewNotesController(nr, ndr)
+	notesReferencesController := notesReferencesCtrl.NewNotesReferencesController(nr, nrr)
 
 	a := api.NewApi(noteController, notesReferencesController)
-	r := mux.NewRouter()
+	r := chi.NewRouter()
 	r.Use(middleware.OapiRequestValidator(swagger))
-	r.Use(api.AuthMiddleware)
+
+	authMW := api.GetAuthMiddleware(l, config.AuthDomain, config.AuthKeyFilePath)
+	r.Use(authMW)
+
 	api.HandlerFromMux(a, r)
 
 	server := &http.Server{

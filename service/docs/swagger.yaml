@@ -22,12 +22,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/user'
 
-  /api/v1/users/{id}:
+  /api/v1/users/{shortId}:
     get:
       summary: Get a user by ID
       parameters:
         - in: path
-          name: id
+          name: shortId
           required: true
           schema:
             type: string
@@ -39,12 +39,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/user'
 
-  /api/v1/users/{id}/activity:
+  /api/v1/users/{shortId}/activity:
     get:
       summary: Get user activity
       parameters:
         - in: path
-          name: id
+          name: shortId
           required: true
           schema:
             type: string
@@ -72,12 +72,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/userActivityResult'
 
-  /api/v1/users/{id}/insights:
+  /api/v1/users/{shortId}/insights:
     get:
       summary: Get dashboard insights
       parameters:
         - in: path
-          name: id
+          name: shortId
           required: true
           schema:
             type: string
@@ -164,12 +164,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/note'
 
-  /api/v1/notes/{id}:
+  /api/v1/notes/{shortId}:
     get:
-      summary: Get a note by ID
+      summary: Get a note by shortId
       parameters:
         - in: path
-          name: id
+          name: shortId
           required: true
           schema:
             type: string
@@ -189,10 +189,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/note'
     put:
-      summary: Update a note by ID
+      summary: Update a note by shortId
       parameters:
         - in: path
-          name: id
+          name: shortId
           required: true
           schema:
             type: string
@@ -210,10 +210,10 @@ paths:
               schema:
                 type: boolean
     delete:
-      summary: Delete a note by ID
+      summary: Delete a note by shortId
       parameters:
         - in: path
-          name: id
+          name: shortId
           required: true
           schema:
             type: string
@@ -225,12 +225,12 @@ paths:
               schema:
                 type: boolean
 
-  /api/v1/note/{id}/draft:
+  /api/v1/note/{shortId}/draft:
     put:
-      summary: Save draft of a note by notes id
+      summary: Save draft of a note by notes shortId
       parameters:
         - in: path
-          name: id
+          name: shortId
           required: true
           schema:
             type: string
@@ -248,10 +248,10 @@ paths:
               schema:
                 type: boolean
     delete:
-      summary: Delete a notes draft by note id
+      summary: Delete a notes draft by note shortId
       parameters:
         - in: path
-          name: id
+          name: shortId
           required: true
           schema:
             type: string
@@ -341,7 +341,7 @@ components:
     noteLite:
       type: object
       properties:
-        id:
+        shortId:
           type: string
         title:
           type: string
@@ -371,7 +371,7 @@ components:
     note:
       type: object
       properties:
-        id:
+        shortId:
           type: string
         tags:
           type: array
@@ -397,7 +397,7 @@ components:
     user:
       type: object
       properties:
-        id:
+        shortId:
           type: string
         fullname:
           type: string

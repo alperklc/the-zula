@@ -30,12 +30,12 @@ func TestNote(t *testing.T) {
 		hasDraft := make(map[string]bool)
 		hasDraft["note1"] = true
 
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("List", "userId", "test", 1, 10, "title", "asc", []string(nil)).Return(page, 0, nil)
-		notesDraftsRepository := new(notesDrafts.MockedNotesDrafts)
-		notesDraftsRepository.On("CheckExistence", "userId", []string{"note1", "note2"}).Return(hasDraft, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("List", "userId", "test", 1, 10, "title", "asc", []string(nil)).Return(page, 0, nil)
+		notesDraftsDb := new(notesDrafts.MockedNotesDrafts)
+		notesDraftsDb.On("CheckExistence", "userId", []string{"note1", "note2"}).Return(hasDraft, nil)
 
-		notesController := NewNotesController(noteRepository, notesDraftsRepository)
+		notesController := NewNotesController(noteDb, notesDraftsDb)
 
 		// act
 		listResponse, error := notesController.ListNotes("userId", PointerTo("test"), 1, 10, PointerTo("title"), PointerTo("asc"), []string(nil))
@@ -62,12 +62,12 @@ func TestNote(t *testing.T) {
 		page := []notes.NoteDocument{{Id: "note1"}, {Id: "note2"}}
 		hasDraft := make(map[string]bool)
 
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("List", "userId", "test", 1, 10, "title", "asc", []string(nil)).Return(page, 0, nil)
-		notesDraftsRepository := new(notesDrafts.MockedNotesDrafts)
-		notesDraftsRepository.On("CheckExistence", "userId", []string{"note1", "note2"}).Return(hasDraft, fmt.Errorf("failed"))
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("List", "userId", "test", 1, 10, "title", "asc", []string(nil)).Return(page, 0, nil)
+		notesDraftsDb := new(notesDrafts.MockedNotesDrafts)
+		notesDraftsDb.On("CheckExistence", "userId", []string{"note1", "note2"}).Return(hasDraft, fmt.Errorf("failed"))
 
-		notesController := NewNotesController(noteRepository, notesDraftsRepository)
+		notesController := NewNotesController(noteDb, notesDraftsDb)
 
 		// act
 		listResponse, error := notesController.ListNotes("userId", "test", 1, 10, "title", "asc", []string(nil))
@@ -91,15 +91,15 @@ func TestNote(t *testing.T) {
 
 			currentNote := notes.NoteDocument{Id: "noteId", CreatedBy: "userId", UpdatedBy: "userId", CreatedAt: time.Now(), UpdatedAt: time.Now(), Title: "title", Content: "old", Tags: []string{"test"}}
 			noteMessage := messageQueue.NoteMessage{UserId: "userId", Action: "UPDATE", ObjectId: "noteId", ClientID: "clientId"}
-			noteRepository := new(notes.MockedNotes)
-			noteRepository.On("GetOne", "noteId").Return(currentNote, nil)
-			noteRepository.On("UpdateOne", "userId", "noteId", expectedUpdates).Return(nil)
-			notesDraftsRepository := new(notesDrafts.MockedNotesDrafts)
-			notesDraftsRepository.On("DeleteOne", "userId", "noteId").Return(nil)
+			noteDb := new(notes.MockedNotes)
+			noteDb.On("GetOne", "noteId").Return(currentNote, nil)
+			noteDb.On("UpdateOne", "userId", "noteId", expectedUpdates).Return(nil)
+			notesDraftsDb := new(notesDrafts.MockedNotesDrafts)
+			notesDraftsDb.On("DeleteOne", "userId", "noteId").Return(nil)
 
 			eventPublisher := new(noteMessagePublisher.MockedEventPublisher)
 			eventPublisher.On("Publish", noteMessage).Return(nil)
-			notesController := NewNotesController(noteRepository, notesDraftsRepository)
+			notesController := NewNotesController(noteDb, notesDraftsDb)
 
 			// act
 			error := notesController.UpdateNote("noteId", "userId", "clientId", initialUpdates)
@@ -107,15 +107,15 @@ func TestNote(t *testing.T) {
 			// assert
 			assert := assert.New(t)
 			assert.Equal(error, nil)
-			noteRepository.MethodCalled("UpdateOne", "userId", "noteId", expectedUpdates)
-			notesDraftsRepository.MethodCalled("DeleteOne", "userId", "noteId")
+			noteDb.MethodCalled("UpdateOne", "userId", "noteId", expectedUpdates)
+			notesDraftsDb.MethodCalled("DeleteOne", "userId", "noteId")
 		})
 	*/
 	t.Run("it throws an error while updating a non existing note", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{}, nil)
-		notesController := NewNotesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{}, nil)
+		notesController := NewNotesController(noteDb, nil)
 
 		// act
 		error := notesController.UpdateNote("noteId", "user2", "clientId", nil)
@@ -127,9 +127,9 @@ func TestNote(t *testing.T) {
 
 	t.Run("it throws an error while deleting a non existing note", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{}, nil)
-		notesController := NewNotesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{}, nil)
+		notesController := NewNotesController(noteDb, nil)
 
 		// act
 		error := notesController.DeleteNote("noteId", "user1", "clientId")
@@ -143,14 +143,14 @@ func TestNote(t *testing.T) {
 			// arrange mocks
 			noteMessage := messageQueue.NoteMessage{UserId: "userId", Action: "READ", ObjectId: "noteId", ClientID: "clientId"}
 
-			noteRepository := new(notes.MockedNotes)
-			noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "userId", Id: "noteId"}, nil)
+			noteDb := new(notes.MockedNotes)
+			noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "userId", Id: "noteId"}, nil)
 			eventPublisher := new(noteMessagePublisher.MockedEventPublisher)
 			eventPublisher.On("Publish", noteMessage).Return(nil)
-			notesDraftsRepository := new(notesDrafts.MockedNotesDrafts)
-			notesDraftsRepository.On("CheckExistence", "userId", []string{"noteId"}).Return(make(map[string]bool), nil)
+			notesDraftsDb := new(notesDrafts.MockedNotesDrafts)
+			notesDraftsDb.On("CheckExistence", "userId", []string{"noteId"}).Return(make(map[string]bool), nil)
 
-			notesController := NewNotesController(noteRepository, nil, notesDraftsRepository, eventPublisher)
+			notesController := NewNotesController(noteDb, nil, notesDraftsDb, eventPublisher)
 
 			// act
 			_, error := notesController.GetNote("noteId", "userId", "clientId", true)
@@ -165,14 +165,14 @@ func TestNote(t *testing.T) {
 			// arrange mocks
 			noteMessage := messageQueue.NoteMessage{UserId: "userId", Action: "READ", ObjectId: "noteId", ClientID: "clientId"}
 
-			noteRepository := new(notes.MockedNotes)
-			noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "userId", Id: "noteId"}, nil)
+			noteDb := new(notes.MockedNotes)
+			noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "userId", Id: "noteId"}, nil)
 			eventPublisher := new(noteMessagePublisher.MockedEventPublisher)
 			eventPublisher.On("Publish", noteMessage).Return(nil)
-			notesDraftsRepository := new(notesDrafts.MockedNotesDrafts)
-			notesDraftsRepository.On("CheckExistence", "userId", []string{"noteId"}).Return(make(map[string]bool), nil)
+			notesDraftsDb := new(notesDrafts.MockedNotesDrafts)
+			notesDraftsDb.On("CheckExistence", "userId", []string{"noteId"}).Return(make(map[string]bool), nil)
 
-			notesController := NewNotesController(noteRepository, nil, notesDraftsRepository, eventPublisher)
+			notesController := NewNotesController(noteDb, nil, notesDraftsDb, eventPublisher)
 
 			// act
 			_, error := notesController.GetNote("noteId", "userId", "clientId", false)
@@ -185,9 +185,9 @@ func TestNote(t *testing.T) {
 	*/
 	t.Run("it wont allow getting a note if the note is not created by the requester", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "user1", Id: "Id"}, nil)
-		notesController := NewNotesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "user1", Id: "Id"}, nil)
+		notesController := NewNotesController(noteDb, nil)
 
 		// act
 		_, error := notesController.GetNote("noteId", "user2", "clientId")
@@ -204,9 +204,9 @@ func TestNote(t *testing.T) {
 		note1 := notes.NoteDocument{CreatedBy: "user", Id: "note1"}
 		note2 := notes.NoteDocument{CreatedBy: "user2", Id: "note2"}
 		note3 := notes.NoteDocument{CreatedBy: "user", Id: "note3"}
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetNotes", noteIds, fields).Return([]notes.NoteDocument{note1, note2, note3}, nil)
-		notesController := NewNotesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetNotes", noteIds, fields).Return([]notes.NoteDocument{note1, note2, note3}, nil)
+		notesController := NewNotesController(noteDb, nil)
 
 		// act
 		notesReturned, error := notesController.GetNotes("user", noteIds, fields)
@@ -221,9 +221,9 @@ func TestNote(t *testing.T) {
 
 	t.Run("it wont allow updating a note if the note is not created by the requester", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "user1", Id: "Id"}, nil)
-		notesController := NewNotesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "user1", Id: "Id"}, nil)
+		notesController := NewNotesController(noteDb, nil)
 
 		// act
 		error := notesController.UpdateNote("noteId", "user2", "", nil)
@@ -235,9 +235,9 @@ func TestNote(t *testing.T) {
 
 	t.Run("it wont allow deleting a note if the note is not created by requester", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "user1", Id: "Id"}, nil)
-		notesController := NewNotesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "user1", Id: "Id"}, nil)
+		notesController := NewNotesController(noteDb, nil)
 
 		// act
 		error := notesController.DeleteNote("noteId", "user2", "")
@@ -249,16 +249,16 @@ func TestNote(t *testing.T) {
 
 	/*	t.Run("it deletes draft after a note gets deleted", func(t *testing.T) {
 			// arrange mocks
-			noteRepository := new(notes.MockedNotes)
-			noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "user1", Id: "noteId"}, nil)
-			noteRepository.On("DeleteOne", "noteId").Return(nil)
-			notesDraftsRepository := new(notesDrafts.MockedNotesDrafts)
-			notesDraftsRepository.On("DeleteOne", "user1", "noteId").Return(nil)
+			noteDb := new(notes.MockedNotes)
+			noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{CreatedBy: "user1", Id: "noteId"}, nil)
+			noteDb.On("DeleteOne", "noteId").Return(nil)
+			notesDraftsDb := new(notesDrafts.MockedNotesDrafts)
+			notesDraftsDb.On("DeleteOne", "user1", "noteId").Return(nil)
 			eventPublisher := new(noteMessagePublisher.MockedEventPublisher)
 			noteMessage := messageQueue.NoteMessage{UserId: "user1", Action: "DELETE", ObjectId: "noteId", ClientID: "clientId"}
 			eventPublisher.On("Publish", noteMessage).Return(nil)
 
-			notesController := NewNotesController(noteRepository, nil, notesDraftsRepository, eventPublisher)
+			notesController := NewNotesController(noteDb, nil, notesDraftsDb, eventPublisher)
 
 			// act
 			error := notesController.DeleteNote("noteId", "user1", "clientId")
@@ -266,15 +266,15 @@ func TestNote(t *testing.T) {
 			// assert
 			assert := assert.New(t)
 			assert.Equal(error, nil)
-			notesDraftsRepository.AssertCalled(t, "DeleteOne", "user1", "noteId")
+			notesDraftsDb.AssertCalled(t, "DeleteOne", "user1", "noteId")
 			eventPublisher.AssertCalled(t, "Publish", noteMessage)
 		})
 	*/
 	t.Run("it throws an error while querying draft of a non existing note", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{}, fmt.Errorf("err"))
-		notesController := NewNotesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{}, fmt.Errorf("err"))
+		notesController := NewNotesController(noteDb, nil)
 
 		// act
 		_, error := notesController.GetDraftOfNote("userId", "noteId")
@@ -286,9 +286,9 @@ func TestNote(t *testing.T) {
 
 	t.Run("it throws an error while updating draft of a note belongs to another user", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{Id: "noteId", CreatedBy: "user0"}, nil)
-		notesController := NewNotesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{Id: "noteId", CreatedBy: "user0"}, nil)
+		notesController := NewNotesController(noteDb, nil)
 
 		// act
 		error := notesController.UpdateDraft("user1", "noteId", "title", "", nil)
@@ -300,9 +300,9 @@ func TestNote(t *testing.T) {
 
 	t.Run("it throws an error while updating draft of a note belongs to another user", func(t *testing.T) {
 		// arrange mocks
-		noteRepository := new(notes.MockedNotes)
-		noteRepository.On("GetOne", "noteId").Return(notes.NoteDocument{Id: "noteId", CreatedBy: "user0"}, nil)
-		notesController := NewNotesController(noteRepository, nil)
+		noteDb := new(notes.MockedNotes)
+		noteDb.On("GetOne", "noteId").Return(notes.NoteDocument{Id: "noteId", CreatedBy: "user0"}, nil)
+		notesController := NewNotesController(noteDb, nil)
 
 		// act
 		error := notesController.DeleteDraft("user1", "noteId")
