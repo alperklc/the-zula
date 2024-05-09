@@ -1,0 +1,447 @@
+openapi: 3.0.3
+info:
+  title: The Zula App
+  description: |-
+     Organize your thoughts by writing notes, uploading files, saving bookmarks and searching easily on any device with a browser. 
+  contact:
+    email: alperkilci@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit/
+  version: 1.0.0
+  
+paths:
+  /api/v1/me:
+    get:
+      summary: Get the authenticated user
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+  /api/v1/users/{id}:
+    get:
+      summary: Get a user by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+  /api/v1/users/{id}/activity:
+    get:
+      summary: Get user activity
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+        - in: query
+          name: sortDirection
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userActivityResult'
+
+  /api/v1/users/{id}/insights:
+    get:
+      summary: Get dashboard insights
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dashboard'
+
+  /api/v1/tags:
+    get:
+      summary: Get tags
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+        - in: query
+          name: q
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/tag'
+
+  /api/v1/notes:
+    get:
+      summary: List notes
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+        - in: query
+          name: sortDirection
+          schema:
+            type: string
+        - in: query
+          name: tags
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/noteSearchResult'
+    post:
+      summary: Create a new note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/noteInput'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/note'
+
+  /api/v1/notes/{id}:
+    get:
+      summary: Get a note by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: loadDraft
+          schema:
+            type: boolean
+        - in: query
+          name: optOutTracking
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/note'
+    put:
+      summary: Update a note by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/noteInput'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: boolean
+    delete:
+      summary: Delete a note by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  /api/v1/note/{id}/draft:
+    put:
+      summary: Save draft of a note by notes id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/noteInput'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: boolean
+    delete:
+      summary: Delete a notes draft by note id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: boolean                
+components:
+  schemas:
+    contentOnDashboard:
+      type: object
+      properties:
+        type:
+          type: string
+        count:
+          type: integer
+
+    activityOnDate:
+      type: object
+      properties:
+        date:
+          type: string
+        count:
+          type: integer
+
+    dashboard:
+      type: object
+      properties:
+        numberOfNotes:
+          type: integer
+        mostVisited:
+          type: array
+          items:
+            $ref: '#/components/schemas/contentOnDashboard'
+        lastVisited:
+          type: array
+          items:
+            $ref: '#/components/schemas/contentOnDashboard'
+        activityGraph:
+          type: array
+          items:
+            $ref: '#/components/schemas/activityOnDate'
+
+    tag:
+      type: object
+      properties:
+        typeOfParent:
+          type: string
+        value:
+          type: string
+        frequency:
+          type: integer
+
+    paginationMeta:
+      type: object
+      properties:
+        range:
+          type: string
+        count:
+          type: integer
+        hasNextPage:
+          type: boolean
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        sortBy:
+          type: string
+        sortDirection:
+          type: string
+
+    noteInput:
+      type: object
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+        title:
+          type: string
+        content:
+          type: string
+
+    noteLite:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+
+    noteReferenceLink:
+      type: object
+      properties:
+        source:
+          type: string
+        target:
+          type: string
+
+    noteReferences:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/paginationMeta'
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/noteLite'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/noteReferenceLink'
+
+    note:
+      type: object
+      properties:
+        id:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        title:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+        createdBy:
+          $ref: '#/components/schemas/user'
+        updatedAt:
+          type: string
+        updatedBy:
+          $ref: '#/components/schemas/user'
+        hasDraft:
+          type: boolean
+        references:
+          $ref: '#/components/schemas/noteReferences'
+
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+        fullname:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+        language:
+          type: string
+        theme:
+          type: string
+
+    userActivity:
+      type: object
+      properties:
+        clientId:
+          type: string
+        resourceType:
+          type: string
+        action:
+          type: string
+        objectId:
+          type: string
+        timestamp:
+          type: string
+
+    noteSearchResult:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/paginationMeta'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/note'
+
+    userActivityResult:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/paginationMeta'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/userActivity'

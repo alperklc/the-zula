@@ -1,0 +1,8 @@
+FirstInstance:
+  InstanceName: ZITADEL
+  DefaultLanguage: en
+  Org:
+    Human:
+      # use the loginname root@zitadel.localhost
+      UserName: root
+      Password: RootPassword1!

@@ -1,0 +1,37 @@
+Log:
+  Level: 'info'
+
+ExternalDomain: 'auth.local.the-zula.app'
+ExternalPort: 8080
+ExternalSecure: true
+
+DefaultInstance:
+  InstanceName: zula
+  DefaultLanguage: en
+  Org:
+    Name: zula
+
+Database:
+  postgres:
+    Host: 'auth-db'
+    Port: 5432
+    Database: zitadel
+    User:
+      SSL:
+        Mode: 'verify-ca'
+        RootCert: /etc/certs/cert.pem
+        Cert: /etc/certs/cert.pem
+        Key: /etc/certs/privkey.key
+    Admin:
+      SSL:
+        Mode: 'verify-ca'
+        RootCert: /etc/certs/cert.pem
+        Cert: /etc/certs/cert.pem
+        Key: /etc/certs/privkey.key        
+
+TLS:
+  Enabled: true
+  KeyPath: /etc/certs/privkey.key
+  # Key: # ZITADEL_TLS_KEY
+  CertPath: /etc/certs/cert.pem
+  # Cert: # ZITADEL_TLS_CERT

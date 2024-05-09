@@ -1,0 +1,5 @@
+/frontend/node_modules
+/dev-setup/certs
+/dev-setup/mongodb
+/dev-setup/postgres-certs
+/service/tmp

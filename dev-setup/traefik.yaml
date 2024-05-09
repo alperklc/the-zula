@@ -1,0 +1,117 @@
+log:
+  level: DEBUG
+
+accessLog: {}
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+    http:
+      encodeQuerySemicolons: true
+tls:
+  certificates:
+    - certFile: /etc/certs/cert.pem
+      keyFile: /etc/certs/privkey.key
+
+providers:
+  file:
+    filename: /etc/traefik/traefik.yaml
+
+http:
+  middlewares:
+    zitadel:
+      headers:
+        isDevelopment: false
+        allowedHosts:
+          - 'auth.local.the-zula.app'
+        customRequestHeaders:
+          authority: 'auth.local.the-zula.app'
+          X-Scheme: https
+        contentSecurityPolicy: frame-ancestors 'self' default-src 'self' https://auth.local.the-zula.app;'
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        port: 443
+        permanent: true
+
+  routers:
+    # Redirect HTTP to HTTPS
+#    router0:
+#      entryPoints:
+#        - web
+#      middlewares:
+#        - redirect-to-https
+#      rule: 'HostRegexp(`auth.local.the-zula.app`, `{subdomain:[a-z]+}.auth.local.the-zula.app`)'
+#      service: zitadel
+#    # The actual ZITADEL router
+#    router1:
+#      entryPoints:
+#        - websecure
+#      service: zitadel
+#      middlewares:
+#        - zitadel
+#      rule: 'HostRegexp(`auth.local.the-zula.app`, `{subdomain:[a-z]+}.auth.local.the-zula.app`)'
+#      tls:
+#        domains:
+#          - main: "auth.local.the-zula.app"
+#            sans:
+#              - "*.auth.local.the-zula.app"
+#              - "auth.local.the-zula.app"
+#                 
+    authRouter:
+      entryPoints:
+        - websecure
+      rule: 'Host(`auth.local.the-zula.app`) && PathPrefix(`/`)'
+      service: zitadel
+      tls:
+        domains:
+          - main: 'auth.local.the-zula.app'
+            sans:
+              - 'auth.local.the-zula.app'
+              - 'local.the-zula.app'
+
+    # Router for the API
+    apiRouter:
+      entryPoints:
+        - websecure
+      rule: 'Host(`local.the-zula.app`) && PathPrefix(`/api`)'
+      service: apiService
+      tls:
+        domains:
+          - main: 'local.the-zula.app'
+            sans:
+              - 'local.the-zula.app'
+
+    frontendRouter:
+      entryPoints:
+        - websecure
+      rule: 'Host(`local.the-zula.app`) && PathPrefix(`/`)'
+      service: frontendService
+      tls:
+        domains:
+          - main: 'local.the-zula.app'
+            sans:
+              - 'local.the-zula.app'
+
+  # Add the service
+  services:
+    zitadel:
+      loadBalancer:
+        servers:
+          - url: h2c://zitadel:8080
+        passHostHeader: true
+    apiService:
+      loadBalancer:
+        servers:
+          - url: http://service:8081
+    frontendService:
+      loadBalancer:
+        servers:
+          - url: http://frontend:3000
