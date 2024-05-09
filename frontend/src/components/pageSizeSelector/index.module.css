@@ -1,0 +1,32 @@
+.pageSizeSelection {
+  display: flex;
+  flex-direction: row;
+}
+
+.pageSizeSelector {
+  display: inline-flex;
+  font-weight: initial;
+  cursor: pointer;
+}
+
+.pageSizeSelector:hover {
+  text-decoration: underline;
+}
+
+.pageSizeSelectorActive {
+  font-weight: bolder;
+  cursor: initial;
+}
+
+.pageSizeSelectorActive:hover {
+  text-decoration: none;
+}
+
+.pageSizeSelector::after {
+  content: ' | ';
+  margin: 0 6px;
+}
+
+.pageSizeSelector:last-child::after {
+  content: '';
+}

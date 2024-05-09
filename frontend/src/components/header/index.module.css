@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background: var(--theme-color);
+  padding: 0.5rem;
+}
+
+.menuAndLogo {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.menuAndLogo button {
+  padding: 0;
+}
+
+@media (min-width: 700px) {
+  .menuAndLogo {
+    margin-left: 0.5rem;
+  }
+}
+
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.logoContainer img {
+  height: 1.2rem;
+  margin-left: 0.8rem;
+}

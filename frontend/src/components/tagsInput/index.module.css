@@ -1,0 +1,75 @@
+.container {
+  position: relative;
+  display: block;
+}
+
+.tagsInput {
+  position: relative;
+  margin-bottom: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: none;
+}
+
+.textInputContainer {
+  position: relative;
+  height: 2rem;
+  display: block;
+}
+
+.textInput {
+  display: inline-block;
+}
+
+.addButton {
+  display: inline-block;
+  font-weight: bold;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  right: 0.2rem;
+  height: 2rem;
+  top: 0;
+}
+
+.addButton svg {
+  height: 2rem;
+}
+
+.addButton:hover,
+.addButton:hover {
+  background: transparent;
+  color: var(--link-color-hover);
+  border: none;
+}
+
+.dropdownList {
+  z-index: 9;
+  position: absolute;
+  background: var(--background);
+  color: var(--color);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--border-color-focus);
+  margin-top: -0.6rem;
+  box-shadow: 0 2px 4px #7c7e80;
+}
+
+.dropdownListItem {
+  padding: 0.75rem;
+  cursor: pointer;
+  height: 2rem;
+  line-height: 0.5rem;
+  font-size: var(--font-size-small);
+}
+
+.highlightdDropdownListItem {
+  background-color: var(--theme-color);
+  color: #ebebeb;
+}
+
+.dropdownListItem:hover {
+  background-color: #4d6074;
+  color: #ebebeb;
+}

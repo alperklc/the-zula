@@ -1,0 +1,38 @@
+.entry {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    cursor: pointer;
+}
+
+.entry:hover {
+    background-color: var(--hover-color);
+}
+
+.content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.rightSide {
+    font-size: var(--font-size-small);
+}
+
+.description {
+    margin: 0.2rem 0 0 0 !important;
+    font-size: var(--font-size-small);
+}
+
+.title {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.tagsDisplay {
+    margin: 0.2rem 0 0 0 !important;
+    font-size: var(--font-size-small);
+}

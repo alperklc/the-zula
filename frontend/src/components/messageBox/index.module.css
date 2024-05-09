@@ -1,0 +1,23 @@
+.message-box {
+  display: flex;
+  background-color: #edf7fb;
+  padding: 16px;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.message-box-error {
+  border-color: #a05658;
+  background-color: #a05658;
+}
+
+.message-box-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.message-box-content {
+  line-height: 21px;
+  margin-left: 12px;
+}

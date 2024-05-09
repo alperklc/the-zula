@@ -1,0 +1,44 @@
+.container {
+  position: relative;
+  z-index: 500;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    right: -2rem;
+  }
+  100% {
+    opacity: 1;
+    right: 0;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    right: 0;
+  }
+  100% {
+    opacity: 0;
+    right: -2rem;
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    right: -15rem;
+  }
+  100% {
+    right: 0;
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    right: 0;
+  }
+  100% {
+    right: -15rem;
+  }
+}

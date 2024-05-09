@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background: var(--theme-color);
+  padding: 0.5rem;
+}
+
+.leftSide {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.leftSide button {
+  padding: 0;
+}
+
+@media (min-width: 700px) {
+  .leftSide {
+    margin-left: 0.5rem;
+  }
+}
+
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.rightSide {
+  display: flex;
+  text-align: right;
+}

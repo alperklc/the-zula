@@ -1,77 +1,48 @@
-import { useEffect, useState } from "react";
-import { UserManager, User } from "oidc-client-ts";
+import { useEffect } from "react";
+import { User, UserManager } from "oidc-client-ts";
+import { useAuth } from "../../contexts/authContext";
+import { useNavigate } from 'react-router-dom'
 
-type Props = {
-  authenticated: boolean | null;
-  setAuth: (authenticated: boolean | null) => void;
-  userManager: UserManager;
-  handleLogout: any;
-};
+async function redirectAfterLogin(user: User | null, userManager?: UserManager) {
+  if (!userManager) {
+    return
+  }
 
-const Callback = ({
-  authenticated,
-  setAuth,
-  userManager,
+  let userData: User | null = null
+  try {
+    if (user === null) {
+      userData = await userManager.signinRedirectCallback()
+    } else {
+      userData = await userManager.getUser()
+    }
+  } catch (error: unknown) {
+    console.error(error)
+    userData = null;
 
-  handleLogout,
-}: Props) => {
-  const [userInfo, setUserInfo] = useState<User | null>(null);
+  }
+  return userData
+}
+
+const Callback = () => {
+  const navigate = useNavigate()
+  const { user, setUser, userManager } = useAuth()
 
   useEffect(() => {
-    if (authenticated === null) {
-      userManager
-        .signinRedirectCallback()
-        .then((user: User) => {
-          if (user) {
-            setAuth(true);
-            setUserInfo(user);
-          } else {
-            setAuth(false);
-          }
-        })
-        .catch((error: any) => {
-          setAuth(false);
-        });
-    }
-    if (authenticated === true && userInfo === null) {
-      userManager
-        .getUser()
-        .then((user) => {
-          if (user) {
-            setAuth(true);
-            setUserInfo(user);
-          } else {
-            setAuth(false);
-          }
-        })
-        .catch((error: any) => {
-          setAuth(false);
-        });
-    }
-  }, [authenticated, userManager, setAuth]);
-  if (authenticated === true && userInfo) {
-    return (
-      <div className="user">
-        <h2>Welcome, {userInfo.profile.name}!</h2>
-        <p className="description">Your ZITADEL Profile Information</p>
-        <p>Name: {userInfo.profile.name}</p>
-        <p>Email: {userInfo.profile.email}</p>
-        <p>Email Verified: {userInfo.profile.email_verified ? "Yes" : "No"}</p>
-        <p>
-          Roles:{" "}
-          {JSON.stringify(
-            userInfo.profile[
-              "urn:zitadel:iam:org:project:roles"
-            ]
-          )}
-        </p>
+    redirectAfterLogin(user, userManager)
+      .then(user => setUser(user ?? null))
+      .catch(err => {
+        console.error(err)
+        setUser(null)
+      })
+  }, []);
 
-        <button onClick={handleLogout}>Log out</button>
-      </div>
-    );
-  } else {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (user?.url_state) {
+      navigate(user?.url_state, { replace: true })
+    }
+  }, [user?.url_state, navigate])
+
+  return <div>Loading...</div>
 };
 
 export default Callback;

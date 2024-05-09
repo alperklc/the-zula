@@ -1,0 +1,16 @@
+.choice {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  color: var(--theme-color);
+  background-color: var(--theme-complementary);
+  padding: 0 12px;
+  margin: 0 3px 3px 0;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.selectedChoice {
+  background-color: var(--theme-color);
+  color: var(--theme-complementary);
+}

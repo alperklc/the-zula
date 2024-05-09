@@ -1,0 +1,26 @@
+.top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.count {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.container {
+  margin-top: 1rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0.6rem 0;
+  font-size: var(--font-size-small);
+}
+
+.footer {
+  padding: 0.5rem 0;
+}

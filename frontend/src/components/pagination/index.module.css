@@ -1,0 +1,44 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0.8rem 0;
+}
+
+.button {
+  background: var(--theme-color);
+  color: var(--theme-complementary) !important;
+  border: 1px solid var(--theme-color);
+  cursor: pointer;
+  padding: 0.4rem;
+  margin: 0 0.1rem;
+}
+
+.button:last-child {
+  margin-right: 0;
+}
+
+.active {
+  background: #aaa;
+  border: 1px solid #aaa;
+  color: #818181;
+}
+
+.button:hover,
+.button:focus {
+  border: 1px solid #355d85;
+  background: #355d85;
+  color: #ccc;
+}
+
+.active {
+  pointer-events: none;
+}
+
+.dotsWrapper {
+  position: relative;
+  width: 30px;
+  height: 2rem;
+  text-align: center;
+  font-weight: bold;
+}

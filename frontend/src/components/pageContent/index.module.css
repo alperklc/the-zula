@@ -1,0 +1,70 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
+  height: 100%;
+}
+
+.tabs {
+}
+
+.preventScroll {
+  position: fixed;
+}
+
+.mainContent {
+  display: inline-flex;
+  flex-direction: column;
+  padding-right: 1rem;
+  margin-right: 13rem;
+  width: calc(100% - 13rem);
+}
+
+.rightPanelToggle {
+  display: flex;
+  position: absolute;
+  right: 0;
+  margin-top: 0.3rem;
+  z-index: 1;
+}
+
+.mainContentMobile {
+  width: calc(100vw - 1rem);
+}
+
+.mainContentSingle {
+  width: 100%;
+  border: none;
+  padding-right: 0;
+  margin-right: 0;
+}
+
+.rightPanel {
+  padding-left: 1rem;
+  width: 13rem;
+  position: fixed;
+
+  border-left: 1px solid var(--border-color);
+  min-height: 100%;
+}
+
+.rightPanelMobile {
+  position: absolute;
+  top: -3.2rem;
+  bottom: 0;
+  right: -0.5rem;
+  width: 15rem;
+  padding: 0.8rem;
+  background-color: var(--background);
+  z-index: 9;
+}
+
+.rightPanelBackdrop {
+  background-color: rgba(0, 0, 0, 0.3);
+  top: -3.2rem;
+  bottom: 0;
+  right: -1rem;
+  left: -1rem;
+  position: absolute;
+  z-index: 402;
+}

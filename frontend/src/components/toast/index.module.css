@@ -1,0 +1,48 @@
+.container {
+  position: fixed;
+  display: flex;
+  background: none;
+  margin-top: 0.2rem;
+  padding: 0.8rem;
+  z-index: 9999;
+  box-shadow: 0 2px 4px #7c7e80;
+  border-radius: 2px;
+  font-size: var(--font-size-small);
+  color: #000;
+}
+
+@media (min-width: 700px) {
+  .container {
+    width: 16rem;
+  }
+}
+
+.success {
+  background: #dbfbec;
+}
+
+.error {
+  background: #fcecee;
+}
+
+.info {
+  background: #eaf5fb;
+}
+
+.checkmark {
+  display: inline-block;
+}
+
+.text {
+  margin-left: 0.8rem;
+}
+
+.innerContainer {
+  display: flex;
+}
+
+.icon {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+}

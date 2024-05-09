@@ -1,0 +1,26 @@
+.container {
+  list-style: none;
+  padding: 0;
+}
+
+.count {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.listHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0.6rem 0;
+  font-size: var(--font-size-small);
+}
+
+.body {
+  border-top: 1px solid var(--border-color);
+}
+
+.footer {
+  padding: 0.5rem 0;
+}

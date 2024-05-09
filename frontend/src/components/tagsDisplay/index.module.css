@@ -1,0 +1,22 @@
+.tagsContainer {
+  margin-bottom: 0.5rem;
+}
+
+.tag {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: var(--theme-color);
+  color: var(--theme-complementary);
+  padding: 0.1rem 0.5rem;
+  margin-right: 0.2rem;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  font-size: var(--font-size-small);
+}
+
+.tagRemoveIcon {
+  margin-left: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
