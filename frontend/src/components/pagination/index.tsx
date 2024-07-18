@@ -1,4 +1,5 @@
 
+import Button from '../form/button'
 import styles from './index.module.css'
 
 interface PaginationProps {
@@ -45,14 +46,14 @@ export const Pagination = ({ numberOfPages, onPageClicked, currentPage }: Pagina
             . . .
           </span>
         ) : (
-          <button
+          <Button
             key={index}
             className={`${styles.button} ${currentPage === page ? styles.active : ''}`}
             onClick={() => onPageClicked(page)}
             data-testid='child-element'
           >
             {page}
-          </button>
+          </Button>
         ),
       )}
     </div>

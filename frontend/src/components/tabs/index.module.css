@@ -1,0 +1,31 @@
+.container {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+.tabs {
+  margin-bottom: 0;
+  display: flex;
+  padding-inline-start: 0;
+  list-style: none;
+}
+
+.tab {
+  background-color: var(--hover-color);
+  padding: 0.3rem;
+  border: 1px solid var(--hover-color);
+  height: 2rem;
+  cursor: pointer;
+}
+
+.selectedTab {
+  background-color: var(--background);
+  border: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--background);
+  pointer-events: none;
+}
+
+.selectedTab a {
+  color: var(--link-color-hover);
+  text-decoration: none;
+}

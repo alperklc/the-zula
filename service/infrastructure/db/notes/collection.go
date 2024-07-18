@@ -6,7 +6,6 @@ import (
 
 	gonanoid "github.com/matoous/go-nanoid"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -100,9 +99,7 @@ func (d *db) List(userId, searchKeyword string, page, pageSize int, sortBy, sort
 		matchFilter["tags"] = bson.M{"$in": tags}
 	}
 
-	matchStage := bson.D{{
-		"$match", matchFilter,
-	}}
+	matchStage := bson.D{{"$match", matchFilter}}
 
 	facetStage := bson.D{{"$facet",
 		bson.D{
@@ -161,11 +158,9 @@ func (d *db) GetNotes(ids, fields []string) ([]NoteDocument, error) {
 	return noteDocuments, nil
 }
 
-func (d *db) GetOne(Id string) (NoteDocument, error) {
-	oid, _ := primitive.ObjectIDFromHex(Id)
-
+func (d *db) GetOne(id string) (NoteDocument, error) {
 	var noteDocument NoteDocument
-	filter := bson.M{"shortId": oid}
+	filter := bson.M{"shortId": id}
 	err := d.collection.FindOne(context.TODO(), filter).Decode(&noteDocument)
 
 	return noteDocument, err
@@ -173,7 +168,7 @@ func (d *db) GetOne(Id string) (NoteDocument, error) {
 
 func (d *db) InsertOne(userId, title, content string, tags []string) (NoteDocument, error) {
 	createdAt := time.Now()
-	shortId, _ := gonanoid.Generate("abcde", 8)
+	shortId, _ := gonanoid.Nanoid(8)
 
 	noteObject := NoteDocument{
 		ShortId:   shortId,
@@ -212,6 +207,5 @@ func (d *db) UpdateOne(userId, Id string, updates interface{}) error {
 
 func (d *db) DeleteOne(Id string) error {
 	_, err := d.collection.DeleteOne(context.TODO(), bson.M{"shortId": Id})
-
 	return err
 }

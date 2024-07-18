@@ -7,7 +7,9 @@ import Login from './pages/login';
 import Callback from './pages/authCallback';
 import { ListPage } from './pages/notes/list';
 import CreateNote from './pages/notes/create';
+import Note from './pages/notes/detail';
 import './App.css'
+import Profile from './pages/settings/profile';
 
 function PrivateRoute({ path, element }: { path: string; element: React.ReactElement }) {
   const auth = useAuth();
@@ -32,6 +34,8 @@ function App() {
           <Route path="/callback" element={<Callback />} />
           <Route path="/notes" element={<PrivateRoute path={"/notes"} element={<ListPage />}/>}/>
           <Route path="/notes/create" element={<PrivateRoute path={"/notes/create"} element={<CreateNote />}/>}/>
+          <Route path="/notes/:noteId" element={<PrivateRoute path={"/notes/:noteId"} element={<Note />}/>}/>
+          <Route path="/settings/profile" element={<PrivateRoute path={"/settings/profile"} element={<Profile />}/>}/>
         </Routes>
       </Router>
       </UIProvider>

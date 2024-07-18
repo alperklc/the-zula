@@ -5,6 +5,7 @@ import TagsDisplay from '../tagsDisplay'
 import { searchTags } from './search-tags'
 
 import styles from './index.module.css'
+import { Tag } from '../../types/Api'
 
 const TagsDropdownList = ({ listItems, handleFoundTagClick, onTagHighlighted }: any) => {
   const [indexOfhighlightedItem, _setIndexOfhighlightedItem] = React.useState<number>(-1)
@@ -74,7 +75,7 @@ export interface TagsInputProps {
   onChange: (_: string[]) => void
   label: string
   placeholder: string
-  onSearch: (_: string) => { fetching: boolean; foundTags: string[] }
+  onSearch: (_: string) => { fetching: boolean; foundTags: Tag[] }
 }
 
 export function TagsInput(props: TagsInputProps) {

@@ -10,7 +10,7 @@ import (
 	"github.com/alperklc/the-zula/service/infrastructure/db/notesReferences"
 )
 
-type NotesReferencesController interface {
+type NotesReferencesService interface {
 	ListReferencesToNote(userId, noteId string, depth int) (NoteReferencesResponse, error)
 	UpsertReferencesOfNote(noteId, noteContent string) error
 	DeleteReferencesOfNote(noteId string) error
@@ -21,7 +21,7 @@ type datasources struct {
 	notesReferences notesReferences.Collection
 }
 
-func NewNotesReferencesController(n notes.Collection, nr notesReferences.Collection) NotesReferencesController {
+func NewService(n notes.Collection, nr notesReferences.Collection) NotesReferencesService {
 	return &datasources{
 		notes: n, notesReferences: nr,
 	}

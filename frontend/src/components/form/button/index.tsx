@@ -7,7 +7,7 @@ type StandardButtonProps = React.DetailedHTMLProps<
 >
 
 interface AdditionalButtonProps {
-  muted?: boolean
+  outline?: boolean
   primary?: boolean
   danger?: boolean
 }
@@ -16,14 +16,14 @@ type ButtonProps = AdditionalButtonProps & StandardButtonProps
 
 // eslint-disable-next-line
 const Button = React.forwardRef(
-  ({ primary, danger, muted, ...props }: ButtonProps, ref?: React.LegacyRef<HTMLButtonElement>) => {
+  ({ primary, danger, outline, ...props }: ButtonProps, ref?: React.LegacyRef<HTMLButtonElement>) => {
     return (
       <button
         className={`${styles.container}
           button
-          ${muted ? 'muted-button' : ''}
-          ${primary ? 'primary-button': ''}
-          ${danger ? 'danger-button': ''}
+          ${outline ? styles.outline : ''}
+          ${primary ? styles.primary: ''}
+          ${danger ? styles.danger: ''}
           ${props.className}
         `}
         ref={ref}

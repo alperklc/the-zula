@@ -24,9 +24,7 @@ export const useAuth = () => React.useContext(AuthContext)
 
 const config: ZitadelConfig = {
   authority: "https://auth.local.the-zula.app:8080",
-  client_id: "265970737444093958@zula",
-  // client_id: "265972414259724294@zula",
-  //"261045606791839750@the-zula",
+  client_id: "275817766735380486@zula",
   redirect_uri: "https://local.the-zula.app/callback",
   post_logout_redirect_uri: "https://local.the-zula.app",
 };

@@ -5,6 +5,7 @@ import Button from '../form/button'
 import TagsInput, { searchTags } from '../tagsInput'
 import modalStyles from '../modal/index.module.css'
 import styles from './index.module.css'
+import { Filter, Sort } from '../../contexts/queryContext'
 
 export interface FilterSelectorModalProps {
   typeOfParent: string
@@ -12,7 +13,7 @@ export interface FilterSelectorModalProps {
   sortableFields?: string[]
   sortBy?: string
   sortDirection?: string
-  onApply: (_: any) => void
+  onApply: (_: Partial<Filter & Sort>) => void
   onModalClosed?: () => void
 }
 
@@ -109,11 +110,11 @@ const FilterSelector = (props: FilterSelectorModalProps) => {
           <FormattedMessage id='common.buttons.apply' />
         </Button>
         {tags?.length > 0 ? (
-          <Button onClick={onClearAllFiltersClick}>
+          <Button outline onClick={onClearAllFiltersClick}>
             <FormattedMessage id='filter_selector_modal.buttons.clear' />
           </Button>
         ) : (
-          <Button muted onClick={props.onModalClosed}>
+          <Button outline onClick={props.onModalClosed}>
             <FormattedMessage id='common.buttons.cancel' />
           </Button>
         )}

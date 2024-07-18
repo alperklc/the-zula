@@ -1,3 +1,4 @@
+import React from "react";
 import { useAuth } from "../../contexts/authContext";
 
 function parseUrlParams() {
@@ -15,7 +16,11 @@ const LoginCheck = () => {
   const auth = useAuth();
   const urlParams = parseUrlParams()
 
-  return <button onClick={() => auth.login(urlParams["redirectAfterLogin"])}>Login</button>;
+  React.useEffect(() => {
+    auth.login(urlParams["redirectAfterLogin"])
+  }, [auth, urlParams])
+
+  return <>Redirecting...</>;
 };
 
 export default LoginCheck;

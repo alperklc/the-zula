@@ -1,5 +1,5 @@
 log:
-  level: DEBUG
+  level: INFO
 
 accessLog: {}
 
@@ -43,28 +43,28 @@ http:
 
   routers:
     # Redirect HTTP to HTTPS
-#    router0:
-#      entryPoints:
-#        - web
-#      middlewares:
-#        - redirect-to-https
-#      rule: 'HostRegexp(`auth.local.the-zula.app`, `{subdomain:[a-z]+}.auth.local.the-zula.app`)'
-#      service: zitadel
-#    # The actual ZITADEL router
-#    router1:
-#      entryPoints:
-#        - websecure
-#      service: zitadel
-#      middlewares:
-#        - zitadel
-#      rule: 'HostRegexp(`auth.local.the-zula.app`, `{subdomain:[a-z]+}.auth.local.the-zula.app`)'
-#      tls:
-#        domains:
-#          - main: "auth.local.the-zula.app"
-#            sans:
-#              - "*.auth.local.the-zula.app"
-#              - "auth.local.the-zula.app"
-#                 
+    router0:
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+      rule: 'HostRegexp(`auth.local.the-zula.app`, `{subdomain:[a-z]+}.auth.local.the-zula.app`)'
+      service: zitadel
+    # The actual ZITADEL router
+    router1:
+      entryPoints:
+        - websecure
+      service: zitadel
+      middlewares:
+        - zitadel
+      rule: 'HostRegexp(`auth.local.the-zula.app`, `{subdomain:[a-z]+}.auth.local.the-zula.app`)'
+      tls:
+        domains:
+          - main: "auth.local.the-zula.app"
+            sans:
+              - "*.auth.local.the-zula.app"
+              - "auth.local.the-zula.app"
+                
     authRouter:
       entryPoints:
         - websecure

@@ -11,10 +11,10 @@ import Breadcrumbs from '../../../components/breadcrumbs'
 import icons from '../../../components/icons'
 import { useUI } from '../../../contexts/uiContext'
 import { useNavigate } from 'react-router-dom'
-import { MDXEditor, headingsPlugin, BoldItalicUnderlineToggles, toolbarPlugin, BlockTypeSelect, InsertTable, ListsToggle, listsPlugin, tablePlugin, CodeToggle, InsertThematicBreak, thematicBreakPlugin } from '@mdxeditor/editor'
-import { Api, NoteInput } from '../../../types/Api'
+import { Api } from '../../../types/Api.ts'
 import { useAuth } from '../../../contexts/authContext'
-import '@mdxeditor/editor/style.css'
+import useDebounce from '../../../utils/useDebounce'
+import MdEditor from '../../../components/mdEditor'
 
 interface Note {
   tags: string[]
@@ -41,32 +41,68 @@ const CreateNote = () => {
   
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [initialized, setInitialized] = React.useState(false);
+
+
+  const [topPosition, setTopPosition] = React.useState(100)
+  const debouncedTopOfTextArea = useDebounce<number>(topPosition, 100)
+
+  const mdxEditorRef = React.useRef<HTMLDivElement>(null)
+
+  const calculateTopOfTextArea = () => {
+    mdxEditorRef.current = document.querySelector(".mdxeditor-root")
+    const startPoint = mdxEditorRef.current?.getBoundingClientRect()?.top || 200
+
+    setTopPosition(Math.round(startPoint))
+  }
+
+  const setEditorHeight = () => {
+    if (mdxEditorRef?.current?.style) {
+      mdxEditorRef.current.style.height = `calc(100vh - ${topPosition}px - 1.2rem)`
+      mdxEditorRef.current.style.paddingBottom = `calc(calc(100vh - ${topPosition}px) - 3.2rem)`
+    }
+  }
+
+  React.useEffect(setEditorHeight, [debouncedTopOfTextArea, topPosition])
 
   React.useEffect(() => {
-    const draft = NoteCache.read<Note>('new-note')
-    if (draft) {
-      setNote(draft)
+    calculateTopOfTextArea()
+    window.addEventListener('resize', calculateTopOfTextArea)
+
+    return () => {
+      window.removeEventListener('resize', calculateTopOfTextArea)
     }
   }, [])
 
   React.useEffect(() => {
-    NoteCache.save<NoteInput>('new-note', {
-      title: note.title,
-      content: note.content,
-      tags: note.tags,
-    })
-  }, [note])
+    calculateTopOfTextArea()
+  }, [initialized])
+
+  React.useEffect(() => {
+    const title = NoteCache.read<string>('new-note-title') ?? ""
+    const content = NoteCache.read<string>('new-note-content') ?? ""
+    const tags = NoteCache.read<string[]>('new-note-tags') ?? []
+
+    if (title?.length || content?.length || tags?.length) {
+      setNote({ title, content, tags})
+    }
+
+    setInitialized(true)
+  }, [])
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
+    NoteCache.save<string>('new-note-title', value)
     setNote({ ...note, title: value })
   }
 
   const handleTagsChange = (tags: string[]) => {
+    NoteCache.save<string[]>('new-note-tags', tags)
     setNote({ ...note, tags })
   }
 
   const handleContentChange = (content: string) => {
+    NoteCache.save<string>('new-note-content', content)
     setNote({ ...note, content })
   }
 
@@ -75,22 +111,23 @@ const CreateNote = () => {
     setError(null);
     
     try {
-      await api.api.v1NotesCreate({
+      await api.api.createNote({
         title: note?.title,
         tags: note?.tags,
         content: note?.content,
       })
-      debugger
+      
       setSaving(false);
-      NoteCache.remove('new-note')
+      NoteCache.remove('new-note-title')
+      NoteCache.remove('new-note-content')
+      NoteCache.remove('new-note-tags')
       navigate('/notes')
         
-    } catch (e: any) {
+    } catch (e) {
       console.error(e);
       showToast(intl.formatMessage({ id: 'messages.notes.create_failure' }), 'error')
     }
     setSaving(false);
-    debugger
   }
 
   return (
@@ -101,7 +138,7 @@ const CreateNote = () => {
           {!isMobile && <Breadcrumbs />}
           <div className={layoutStyles.subheader}>
             <div className={layoutStyles.subheaderTitleContainer}>
-              <Button onClick={history.back} className={layoutStyles.backButton}>
+              <Button onClick={() => navigate(-1)} className={layoutStyles.backButton}>
                 <icons.ArrowLeft />
               </Button>
 
@@ -136,29 +173,11 @@ const CreateNote = () => {
               />
             </div>
           )}
-          <MDXEditor
-            markdown={note.content ?? ''}
+          {initialized && <MdEditor
+            className="mdxeditor-root" 
+            content={note.content}
             onChange={handleContentChange}
-            plugins={[
-              headingsPlugin(),
-              listsPlugin(),
-              tablePlugin(),
-              thematicBreakPlugin(),
-              toolbarPlugin({
-                toolbarContents: () => (
-                  <>
-                    <BoldItalicUnderlineToggles />
-                    <CodeToggle />
-                    <ListsToggle />
-                    <BlockTypeSelect />
-                    <InsertTable />
-                    <InsertThematicBreak />
-                  </>
-                )
-              })
-      
-            ]}
-          />
+          />}
         </>
         <>
           <TagsInput

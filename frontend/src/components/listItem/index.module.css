@@ -7,6 +7,10 @@
     cursor: pointer;
 }
 
+.entry:first {
+    padding: 0;
+}
+
 .entry:hover {
     background-color: var(--hover-color);
 }

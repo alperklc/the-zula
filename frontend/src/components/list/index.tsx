@@ -50,7 +50,7 @@ function List<T>({ loading, error, meta, resourceType, items, changePageSize, pa
 
   return (
     <div className={styles.container}>
-      <header className={styles.listHeader}>
+      {!loading && <header className={styles.listHeader}>
         <span>
           <PageSizeSelector pageSize={meta?.pageSize ?? 0} onPageSizeSelected={changePageSize} />
         </span>
@@ -59,8 +59,7 @@ function List<T>({ loading, error, meta, resourceType, items, changePageSize, pa
         ) : (
           <span />
         )}
-
-      </header>
+      </header>}
 
       <div className={styles.body}>
         <ListBody<T>

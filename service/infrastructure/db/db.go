@@ -16,7 +16,7 @@ func Connect(mongoUri string) *mongo.Database {
 	defer cancel()
 
 	l := logger.Get()
-	clientOptions := options.Client().ApplyURI(mongoUri).SetDirect(true)
+	clientOptions := options.Client().ApplyURI(mongoUri)
 	mongoClient, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		l.Fatal().Msgf("could not connect to MongoDB, %s", err)

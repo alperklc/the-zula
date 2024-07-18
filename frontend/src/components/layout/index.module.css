@@ -150,3 +150,25 @@
   text-align: center;
   width: 1.1rem;
 }
+
+.scrollableArea {
+  word-break: break-word;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--link-color) var(--background);
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrollableArea::-webkit-scrollbar-track {
+  background-color: var(--background);
+}
+
+.scrollableArea::-webkit-scrollbar {
+  width: 6px;
+  background-color: var(--background);
+}
+
+.scrollableArea::-webkit-scrollbar-thumb {
+  background-color: var(--link-color);
+}

@@ -9,6 +9,7 @@ import ArrowUp from './arrow-up'
 import Error from './error'
 import Filter from './filter'
 import Search from './search'
+import History from './history'
 import Menu from './menu'
 
 export default {
@@ -22,6 +23,7 @@ export default {
   Error,
   Filter,
   Info,
+  History,
   X,
   Plus,
 }

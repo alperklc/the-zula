@@ -9,14 +9,16 @@ import (
 )
 
 type Config struct {
-	LogLevel        string `env:"logLevel,required"`
-	MongoURI        string `env:"mongoUri,required"`
-	Environment     string `env:"environment,required"`
-	Version         string `env:"version,required"`
-	Port            int    `env:"port,required"`
-	AuthClientId    string `env:"authClientId,required"`
-	AuthKeyFilePath string `env:"authKeyFilePath,required"`
-	AuthDomain      string `env:"authDomain,required"`
+	LogLevel                 string `env:"logLevel,required"`
+	MongoURI                 string `env:"mongoUri,required"`
+	Environment              string `env:"environment,required"`
+	Version                  string `env:"version,required"`
+	Port                     int    `env:"port,required"`
+	AuthClientId             string `env:"authClientId,required"`
+	AuthKeyFilePath          string `env:"authKeyFilePath,required"`
+	AuthDomain               string `env:"authDomain,required"`
+	AuthServiceAccountUser   string `env:"authServiceAccountUser,required"`
+	AuthServiceAccountSecret string `env:"authServiceAccountSecret,required"`
 }
 
 func Read() *Config {

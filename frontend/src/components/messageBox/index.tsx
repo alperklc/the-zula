@@ -4,13 +4,13 @@ import styles from './index.module.css'
 
 export type messageType = 'info' | 'error'
 
-interface IMessageBoxProps {
+interface MessageBoxProps {
   type?: messageType
   className?: string
   children: JSX.Element | string
 }
 
-const MessageBox = ({ className, type = 'info', children }: IMessageBoxProps) => (
+const MessageBox = ({ className, type = 'info', children }: MessageBoxProps) => (
   <div
     className={`${styles['message-box']} ${className} 
       ${type === 'error' ? styles['message-box-error']: ''}

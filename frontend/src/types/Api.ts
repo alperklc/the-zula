@@ -48,6 +48,15 @@ export interface NoteInput {
   content?: string;
 }
 
+export interface UserInput {
+  fullname?: string;
+  username?: string;
+  email?: string;
+  createdAt?: string;
+  language?: string;
+  theme?: string;
+}
+
 export interface NoteLite {
   shortId?: string;
   title?: string;
@@ -79,8 +88,9 @@ export interface Note {
 
 export interface User {
   shortId?: string;
-  fullname?: string;
-  username?: string;
+  firstName?: string;
+  lastName?: string;
+  displayName?: string;
   email?: string;
   createdAt?: string;
   language?: string;
@@ -203,16 +213,16 @@ export class HttpClient<SecurityDataType = unknown> {
     [ContentType.Json]: (input: any) =>
       input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
     [ContentType.Text]: (input: any) => (input !== null && typeof input !== "string" ? JSON.stringify(input) : input),
-    [ContentType.FormData]: (input: any) =>
-      Object.keys(input || {}).reduce((formData, key) => {
-        const property = input[key];
+    [ContentType.FormData]: (input: FormData) =>
+      (Array.from(input.keys()) || []).reduce((formData, key) => {
+        const property = input.get(key);
         formData.append(
           key,
           property instanceof Blob
             ? property
             : typeof property === "object" && property !== null
-            ? JSON.stringify(property)
-            : `${property}`,
+              ? JSON.stringify(property)
+              : `${property}`,
         );
         return formData;
       }, new FormData()),
@@ -285,7 +295,7 @@ export class HttpClient<SecurityDataType = unknown> {
       signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
       body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
     }).then(async (response) => {
-      const r = response as HttpResponse<T, E>;
+      const r = response.clone() as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
@@ -328,26 +338,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1MeList
-     * @summary Get the authenticated user
-     * @request GET:/api/v1/me
-     */
-    v1MeList: (params: RequestParams = {}) =>
-      this.request<User, any>({
-        path: `/api/v1/me`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @name V1UsersDetail
+     * @name GetUser
      * @summary Get a user by ID
      * @request GET:/api/v1/users/{shortId}
      */
-    v1UsersDetail: (shortId: string, params: RequestParams = {}) =>
+    getUser: (shortId: string, params: RequestParams = {}) =>
       this.request<User, any>({
         path: `/api/v1/users/${shortId}`,
         method: "GET",
@@ -358,11 +353,28 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1UsersActivityDetail
+     * @name UpdateUser
+     * @summary Update a user by ID
+     * @request PUT:/api/v1/users/{shortId}
+     */
+    updateUser: (shortId: string, data: UserInput, params: RequestParams = {}) =>
+      this.request<User, any>({
+        path: `/api/v1/users/${shortId}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetUserActivity
      * @summary Get user activity
      * @request GET:/api/v1/users/{shortId}/activity
      */
-    v1UsersActivityDetail: (
+    getUserActivity: (
       shortId: string,
       query?: {
         page?: number;
@@ -383,11 +395,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1UsersInsightsDetail
+     * @name GetInsights
      * @summary Get dashboard insights
      * @request GET:/api/v1/users/{shortId}/insights
      */
-    v1UsersInsightsDetail: (shortId: string, params: RequestParams = {}) =>
+    getInsights: (shortId: string, params: RequestParams = {}) =>
       this.request<Dashboard, any>({
         path: `/api/v1/users/${shortId}/insights`,
         method: "GET",
@@ -398,11 +410,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1TagsList
+     * @name GetTags
      * @summary Get tags
      * @request GET:/api/v1/tags
      */
-    v1TagsList: (
+    getTags: (
       query?: {
         type?: string;
         q?: string;
@@ -420,11 +432,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1NotesList
+     * @name GetNotes
      * @summary List notes
      * @request GET:/api/v1/notes
      */
-    v1NotesList: (
+    getNotes: (
       query?: {
         q?: string;
         page?: number;
@@ -446,11 +458,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1NotesCreate
+     * @name CreateNote
      * @summary Create a new note
      * @request POST:/api/v1/notes
      */
-    v1NotesCreate: (data: NoteInput, params: RequestParams = {}) =>
+    createNote: (data: NoteInput, params: RequestParams = {}) =>
       this.request<Note, any>({
         path: `/api/v1/notes`,
         method: "POST",
@@ -463,11 +475,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1NotesDetail
+     * @name GetNote
      * @summary Get a note by shortId
      * @request GET:/api/v1/notes/{shortId}
      */
-    v1NotesDetail: (
+    getNote: (
       shortId: string,
       query?: {
         loadDraft?: boolean;
@@ -486,11 +498,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1NotesUpdate
+     * @name UpdateNote
      * @summary Update a note by shortId
      * @request PUT:/api/v1/notes/{shortId}
      */
-    v1NotesUpdate: (shortId: string, data: NoteInput, params: RequestParams = {}) =>
+    updateNote: (shortId: string, data: NoteInput, params: RequestParams = {}) =>
       this.request<boolean, any>({
         path: `/api/v1/notes/${shortId}`,
         method: "PUT",
@@ -503,11 +515,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1NotesDelete
+     * @name DeleteNote
      * @summary Delete a note by shortId
      * @request DELETE:/api/v1/notes/{shortId}
      */
-    v1NotesDelete: (shortId: string, params: RequestParams = {}) =>
+    deleteNote: (shortId: string, params: RequestParams = {}) =>
       this.request<boolean, any>({
         path: `/api/v1/notes/${shortId}`,
         method: "DELETE",
@@ -518,13 +530,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1NoteDraftUpdate
+     * @name SaveNoteDraft
      * @summary Save draft of a note by notes shortId
-     * @request PUT:/api/v1/note/{shortId}/draft
+     * @request PUT:/api/v1/notes/{shortId}/draft
      */
-    v1NoteDraftUpdate: (shortId: string, data: NoteInput, params: RequestParams = {}) =>
+    saveNoteDraft: (shortId: string, data: NoteInput, params: RequestParams = {}) =>
       this.request<boolean, any>({
-        path: `/api/v1/note/${shortId}/draft`,
+        path: `/api/v1/notes/${shortId}/draft`,
         method: "PUT",
         body: data,
         type: ContentType.Json,
@@ -535,13 +547,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
-     * @name V1NoteDraftDelete
+     * @name DeleteNoteDraft
      * @summary Delete a notes draft by note shortId
-     * @request DELETE:/api/v1/note/{shortId}/draft
+     * @request DELETE:/api/v1/notes/{shortId}/draft
      */
-    v1NoteDraftDelete: (shortId: string, params: RequestParams = {}) =>
+    deleteNoteDraft: (shortId: string, params: RequestParams = {}) =>
       this.request<boolean, any>({
-        path: `/api/v1/note/${shortId}/draft`,
+        path: `/api/v1/notes/${shortId}/draft`,
         method: "DELETE",
         format: "json",
         ...params,

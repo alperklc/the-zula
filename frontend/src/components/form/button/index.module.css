@@ -14,3 +14,209 @@
 a.container {
   margin-bottom: 0;
 }
+
+
+/**
+ * Buttons
+ */
+ .button,
+ a.button,
+ button,
+ [type='submit'],
+ [type='reset'],
+ [type='button'] {
+   -webkit-appearance: none;
+   display: inline-block;
+   border: 1px solid #2c3e50;
+   background: #2c3e50;
+   color: var(--theme-complementary);
+   font-weight: 600;
+   text-transform: none;
+   padding: 0 0.8rem;
+   margin: 0 0 0.5rem 0;
+   vertical-align: middle;
+   text-align: center;
+   cursor: pointer;
+   text-decoration: none;
+   height: 2rem;
+   line-height: 1;
+ }
+ 
+ .button:hover,
+ a.button:hover,
+ button:hover,
+ [type='submit']:hover,
+ [type='reset']:hover,
+ [type='button']:hover {
+   border: 1px solid #355d85;
+   background: #355d85;
+   color: var(--theme-complementary);
+   text-decoration: none;
+ }
+ 
+ .button:focus,
+ .button:active,
+ a.button:focus,
+ a.button:active,
+ button:focus,
+ button:active,
+ [type='submit']:focus,
+ [type='submit']:active,
+ [type='reset']:focus,
+ [type='reset']:active,
+ [type='button']:focus,
+ [type='button']:active {
+   border: 1px solid #9fadbd;
+   background: #9fadbd;
+   color: var(--theme-complementary);
+   text-decoration: none;
+ }
+ 
+ .button::-moz-focus-inner,
+ a.button::-moz-focus-inner,
+ button::-moz-focus-inner,
+ [type='submit']::-moz-focus-inner,
+ [type='reset']::-moz-focus-inner,
+ [type='button']::-moz-focus-inner {
+   border: 0;
+   padding: 0;
+ }
+ 
+ .danger,
+ a.danger {
+   color: var(--theme-complementary);
+   border: 1px solid #a05658;
+   background: #a05658;
+ }
+ 
+ .danger:hover,
+ .danger:focus,
+ .danger:active,
+ a.danger:hover,
+ a.danger:focus,
+ a.danger:active {
+   color: var(--theme-complementary);
+   border: 1px solid #ca5e61;
+   background: #ca5e61 !important;
+ }
+ 
+ .primary,
+ a.primary {
+   color: var(--theme-complementary);
+   border: 1px solid #008f92;
+   background: #008f92;
+ }
+ 
+ .primary:hover,
+ .primary:focus,
+ .primary:active,
+ a.primary:hover,
+ a.primary:focus,
+ a.primary:active {
+   color: var(--theme-complementary);
+   border: 1px solid #38b892;
+   background: #38b892;
+ }
+ 
+ .outline,
+ a.outline {
+   background: transparent;
+   border: 1px solid var(--border-color);
+   color: var(--color);
+ }
+ 
+ .outline:hover,
+ .outline:focus,
+ .outline:active,
+ a.outline:hover,
+ a.outline:focus,
+ a.outline:active {
+   color: var(--black);
+   border: 1px solid #ccc;
+   background: transparent;
+ }
+ 
+ /**
+  * Forms
+  */
+ [type='color'],
+ [type='date'],
+ [type='datetime'],
+ [type='datetime-local'],
+ [type='email'],
+ [type='month'],
+ [type='number'],
+ [type='password'],
+ [type='search'],
+ [type='tel'],
+ [type='text'],
+ [type='url'],
+ [type='week'],
+ [type='time'],
+ select,
+ textarea {
+   display: block;
+   border: 1px solid #dedede;
+   padding: 0.75rem;
+   outline: none;
+   background: transparent;
+   margin-bottom: 0.5rem;
+   width: 100%;
+   max-width: 100%;
+   line-height: 1;
+ }
+ 
+ [type='color']:hover,
+ [type='date']:hover,
+ [type='datetime']:hover,
+ [type='datetime-local']:hover,
+ [type='email']:hover,
+ [type='month']:hover,
+ [type='number']:hover,
+ [type='password']:hover,
+ [type='search']:hover,
+ [type='tel']:hover,
+ [type='text']:hover,
+ [type='url']:hover,
+ [type='week']:hover,
+ [type='time']:hover,
+ select:hover,
+ textarea:hover {
+   border: 1px solid var(--border-color-focus);
+ }
+ 
+ [type='color']:focus,
+ [type='color']:active,
+ [type='date']:focus,
+ [type='date']:active,
+ [type='datetime']:focus,
+ [type='datetime']:active,
+ [type='datetime-local']:focus,
+ [type='datetime-local']:active,
+ [type='email']:focus,
+ [type='email']:active,
+ [type='month']:focus,
+ [type='month']:active,
+ [type='number']:focus,
+ [type='number']:active,
+ [type='password']:focus,
+ [type='password']:active,
+ [type='search']:focus,
+ [type='search']:active,
+ [type='tel']:focus,
+ [type='tel']:active,
+ [type='text']:focus,
+ [type='text']:active,
+ [type='url']:focus,
+ [type='url']:active,
+ [type='week']:focus,
+ [type='week']:active,
+ [type='time']:focus,
+ [type='time']:active,
+ select:focus,
+ select:active,
+ textarea:focus,
+ textarea:active {
+   border: 1px solid #2c3e50;
+ }
+ 

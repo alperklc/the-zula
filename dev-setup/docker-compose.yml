@@ -9,6 +9,8 @@ services:
     hostname: mongodb
     networks:
       - net
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
     ports:
       - 27017:27017
     command: mongod --noauth
@@ -24,6 +26,7 @@ services:
     depends_on:
       auth-db:
         condition: 'service_healthy'
+        restart: true
 #    healthcheck:
 #      test: ["CMD", "curl", "-f", "http://localhost"]
 #      interval: 60s
@@ -44,6 +47,7 @@ services:
   auth-db:
     restart: 'always'
     image: postgres:16-alpine
+  #  command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -86,15 +90,13 @@ services:
     networks:
       - net
     depends_on:
-      zitadel:
-        condition: 'service_started'
-      mongodb:
-        condition: 'service_started'
+      - zitadel
+      - mongodb
     ports:
       - 8081:8081
     volumes:
       - ../service/:/app
-      - ./certs/service-key.json:/app/certs/service-key.json
+     # - ./certs/zitadel-key.json:/app/certs/zitadel-key.json
     environment:
       - MONGO_URI=mongodb://localhost:27017/zula
 

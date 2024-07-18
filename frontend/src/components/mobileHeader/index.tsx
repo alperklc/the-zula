@@ -30,9 +30,9 @@ const MobileHeader = (props: {
   return (
     <div className={classNames(styles.container, props.className)}>
       <span className={styles.leftSide}>
-        <button onClick={props.onMenuIconClicked}>
+        <Button onClick={props.onMenuIconClicked}>
           <icons.Menu />
-        </button>
+        </Button>
 
         <div className={styles.logoContainer}>
           {!(query.q || headerSearchBarVisible) ? (
@@ -49,11 +49,11 @@ const MobileHeader = (props: {
         </div>
       </span>
       <span className={styles.rightSide}>
-        <Button muted onClick={showSearchBar} className={layoutStyles.filterButton}>
+        <Button outline onClick={showSearchBar} className={layoutStyles.filterButton}>
           <icons.Search />
         </Button>
 
-        <Button muted onClick={props.onFilterSelectionOpen} className={layoutStyles.filterButton}>
+        <Button outline onClick={props.onFilterSelectionOpen} className={layoutStyles.filterButton}>
           <icons.Filter />
           {tagsAsArray.length > 0 && (
             <span className={layoutStyles.badgeOnButton}>{tagsAsArray.length}</span>

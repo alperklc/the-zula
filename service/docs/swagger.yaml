@@ -11,19 +11,9 @@ info:
   version: 1.0.0
   
 paths:
-  /api/v1/me:
-    get:
-      summary: Get the authenticated user
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/user'
-
   /api/v1/users/{shortId}:
     get:
+      operationId: getUser
       summary: Get a user by ID
       parameters:
         - in: path
@@ -38,9 +28,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/user'
+    put:
+      operationId: updateUser
+      summary: Update a user by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInput'
+      parameters:
+        - in: path
+          name: shortId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+    
 
   /api/v1/users/{shortId}/activity:
     get:
+      operationId: getUserActivity
       summary: Get user activity
       parameters:
         - in: path
@@ -74,6 +88,7 @@ paths:
 
   /api/v1/users/{shortId}/insights:
     get:
+      operationId: getInsights
       summary: Get dashboard insights
       parameters:
         - in: path
@@ -91,6 +106,7 @@ paths:
 
   /api/v1/tags:
     get:
+      operationId: getTags
       summary: Get tags
       parameters:
         - in: query
@@ -113,6 +129,7 @@ paths:
 
   /api/v1/notes:
     get:
+      operationId: getNotes
       summary: List notes
       parameters:
         - in: query
@@ -149,6 +166,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/noteSearchResult'
     post:
+      operationId: createNote
       summary: Create a new note
       requestBody:
         required: true
@@ -166,6 +184,7 @@ paths:
 
   /api/v1/notes/{shortId}:
     get:
+      operationId: getNote
       summary: Get a note by shortId
       parameters:
         - in: path
@@ -189,6 +208,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/note'
     put:
+      operationId: updateNote
       summary: Update a note by shortId
       parameters:
         - in: path
@@ -210,6 +230,7 @@ paths:
               schema:
                 type: boolean
     delete:
+      operationId: deleteNote
       summary: Delete a note by shortId
       parameters:
         - in: path
@@ -225,8 +246,9 @@ paths:
               schema:
                 type: boolean
 
-  /api/v1/note/{shortId}/draft:
+  /api/v1/notes/{shortId}/draft:
     put:
+      operationId: saveNoteDraft
       summary: Save draft of a note by notes shortId
       parameters:
         - in: path
@@ -248,6 +270,7 @@ paths:
               schema:
                 type: boolean
     delete:
+      operationId: deleteNoteDraft
       summary: Delete a notes draft by note shortId
       parameters:
         - in: path
@@ -262,6 +285,7 @@ paths:
             application/json:
               schema:
                 type: boolean                
+
 components:
   schemas:
     contentOnDashboard:
@@ -338,6 +362,22 @@ components:
         content:
           type: string
 
+    userInput:
+      type: object
+      properties:
+        fullname:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+        language:
+          type: string
+        theme:
+          type: string
+
     noteLite:
       type: object
       properties:
@@ -399,9 +439,11 @@ components:
       properties:
         shortId:
           type: string
-        fullname:
+        firstName:
           type: string
-        username:
+        lastName:
+          type: string
+        displayName:
           type: string
         email:
           type: string

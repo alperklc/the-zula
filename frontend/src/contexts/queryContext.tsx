@@ -11,11 +11,11 @@ export type Query = {
   sortDirection: string
 }
 
-type Filter = {
+export type Filter = {
   tags: string[]
 }
 
-type Sort = {
+export type Sort = {
   sortBy: string
   sortDirection: string
 }
@@ -28,7 +28,7 @@ export interface QueryState {
   changePageSize: (_: number) => void
   changeSort: (_: string, __: string) => void
   changeFilter: (_: Filter) => void
-  applyFilterAndSort: (_: Filter & Sort) => void
+  applyFilterAndSort: (_: Partial<Filter & Sort>) => void
 }
 
 const initialQuery: Query = {
@@ -48,7 +48,7 @@ export const QueryContext = React.createContext<QueryState>({
   changePageSize: (_: number) => ({}),
   changeSort: (_: string, __: string) => ({}),
   changeFilter: (_: Filter) => ({}),
-  applyFilterAndSort: (_: Filter & Sort) => ({}),
+  applyFilterAndSort: (_: Partial<Filter & Sort>) => ({}),
 })
 
 export const useQuery = () => React.useContext(QueryContext)
@@ -90,14 +90,10 @@ export const QueryContextProvider = ({ query, children }: { query: Query, childr
     tags,
     sortBy,
     sortDirection,
-  }: {
-    tags: string[]
-    sortBy: string
-    sortDirection: string
-  }) => {
+  }: Partial<Filter & Sort>) => {
     updateQueryString({
       ...query,
-      tags: tags.join(','),
+      tags: (tags ?? []).join(','),
       sortBy: sortBy || query.sortBy,
       sortDirection: sortDirection || query.sortDirection,
     })

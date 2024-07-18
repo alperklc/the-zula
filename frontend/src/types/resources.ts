@@ -1,4 +1,4 @@
-import { Note } from "./Api"
+import { Note } from "./Api.ts"
 
 export const resourceTypes = ["note"] as const
 

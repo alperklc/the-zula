@@ -6,10 +6,11 @@ import (
 
 	"github.com/alperklc/the-zula/service/infrastructure/db/notes"
 	"github.com/alperklc/the-zula/service/infrastructure/db/notesDrafts"
+	"github.com/alperklc/the-zula/service/services/users"
 	"github.com/alperklc/the-zula/service/utils"
 )
 
-type NoteController interface {
+type NoteService interface {
 	SearchTags(userId, searchKeyword string, limit int) ([]notes.TagsResult, error)
 	GetStatistics(userId string) (Statistics, error)
 	ListNotes(userId string, searchKeyword *string, page, pageSize *int, sortBy, sortDirection *string, tags *[]string) (NotesPage, error)
@@ -24,13 +25,14 @@ type NoteController interface {
 }
 
 type datasources struct {
+	users       users.UsersService
 	notes       notes.Collection
 	notesDrafts notesDrafts.Collection
 }
 
-func NewNotesController(n notes.Collection, nd notesDrafts.Collection) NoteController {
+func NewService(u users.UsersService, n notes.Collection, nd notesDrafts.Collection) NoteService {
 	return &datasources{
-		notes: n, notesDrafts: nd,
+		users: u, notes: n, notesDrafts: nd,
 	}
 }
 
@@ -98,7 +100,7 @@ func (d *datasources) ListNotes(userId string, q *string, p, ps *int, sb, sd *st
 
 	var items []Note = make([]Note, 0, len(notes))
 	for _, b := range notes {
-		note := Note{b.Id, b.UpdatedAt, b.UpdatedBy, b.CreatedBy, b.CreatedAt, b.Title, "", b.Tags, draftsOnPage[b.Id]}
+		note := Note{b.ShortId, b.UpdatedAt, b.UpdatedBy, b.CreatedBy, b.CreatedAt, b.Title, "", b.Tags, draftsOnPage[b.Id]}
 		items = append(items, note)
 	}
 
@@ -167,13 +169,18 @@ func (d *datasources) GetNote(noteId, userId, clientId string) (Note, error) {
 		return Note{}, fmt.Errorf("NOT_ALLOWED_TO_GET")
 	}
 
+	user, errGetUser := d.users.GetUser(note.CreatedBy)
+	if errGetUser != nil {
+		return Note{}, errGetUser
+	}
+
 	draftExist, _ := d.notesDrafts.CheckExistence([]string{noteId})
 
 	return Note{
 		ShortId:   note.ShortId,
 		UpdatedAt: note.UpdatedAt,
-		UpdatedBy: note.UpdatedBy,
-		CreatedBy: note.CreatedBy,
+		UpdatedBy: user.DisplayName,
+		CreatedBy: user.DisplayName,
 		CreatedAt: note.CreatedAt,
 		Title:     note.Title,
 		Content:   note.Content,

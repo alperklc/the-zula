@@ -5,7 +5,7 @@ import Layout, { styles as layoutStyles } from "../../../components/layout";
 import List from "../../../components/list";
 import SearchInput from "../../../components/search";
 import { useAuth } from "../../../contexts/authContext";
-import { Api, Note, PaginationMeta } from "../../../types/Api";
+import { Api, Note, PaginationMeta } from "../../../types/Api.ts";
 import { useUI } from "../../../contexts/uiContext";
 import Breadcrumbs from "../../../components/breadcrumbs";
 import Button from "../../../components/form/button";
@@ -35,7 +35,7 @@ function NotesList() {
       setError(null);
 
       const filteredQuery = filterEmptyValues(query)
-      const { data, status } = await api.api.v1NotesList(filteredQuery)
+      const { data, status } = await api.api.getNotes(filteredQuery)
 
       if (status === 200) {
         setData(data);
@@ -76,7 +76,7 @@ function NotesList() {
               <div className={layoutStyles.subheaderTitleContainer}>
                 <div className={layoutStyles.searchWithFilter}>
                   <SearchInput autoFocus query={query.q} onQueryUpdate={updateQuery} />
-                  <Button muted onClick={openFilterSelection} className={layoutStyles.filterButton}>
+                  <Button onClick={openFilterSelection} className={layoutStyles.filterButton}>
                     <Icons.Filter width={18} height={18} />
                     {tagsAsArray.length > 0 && (
                       <span className={layoutStyles.badgeOnButton}>{tagsAsArray.length}</span>

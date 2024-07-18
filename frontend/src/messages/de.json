@@ -136,5 +136,8 @@
   "messages.bookmarks.create_failure": "Could not create",
   "messages.bookmarks.update_failure": "Could not update",
   "messages.bookmarks.delete_failure": "Could not delete",
-  "share_target.error.db_open": "DB konnte nicht geöffnet werden"
+  "profile.form.firstname": "First name",
+  "profile.form.lastname": "Last name",
+  "profile.form.displayName": "Display name",
+  "profile.form.email": "Email"
 }
