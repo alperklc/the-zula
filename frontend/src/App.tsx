@@ -10,6 +10,9 @@ import CreateNote from './pages/notes/create';
 import Note from './pages/notes/detail';
 import './App.css'
 import Profile from './pages/settings/profile';
+import CreateBookmark from './pages/bookmarks/create';
+import BookmarkDetails from './pages/bookmarks/detail';
+import { BookmarksListPage } from './pages/bookmarks/list';
 
 function PrivateRoute({ path, element }: { path: string; element: React.ReactElement }) {
   const auth = useAuth();
@@ -35,6 +38,9 @@ function App() {
           <Route path="/notes" element={<PrivateRoute path={"/notes"} element={<ListPage />}/>}/>
           <Route path="/notes/create" element={<PrivateRoute path={"/notes/create"} element={<CreateNote />}/>}/>
           <Route path="/notes/:noteId" element={<PrivateRoute path={"/notes/:noteId"} element={<Note />}/>}/>
+          <Route path="/bookmarks" element={<PrivateRoute path={"/bookmarks"} element={<BookmarksListPage />}/>}/>
+          <Route path="/bookmarks/create" element={<PrivateRoute path={"/bookmarks/create"} element={<CreateBookmark />}/>}/>
+          <Route path="/bookmarks/:shortId" element={<PrivateRoute path={"/bookmarks/:shortId"} element={<BookmarkDetails />}/>}/>
           <Route path="/settings/profile" element={<PrivateRoute path={"/settings/profile"} element={<Profile />}/>}/>
         </Routes>
       </Router>

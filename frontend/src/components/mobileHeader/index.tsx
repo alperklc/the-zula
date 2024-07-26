@@ -10,6 +10,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { QueryContext } from '../../contexts/queryContext'
 
 const MobileHeader = (props: {
+  linkTo?: string
   className?: string
   onMenuIconClicked?: () => void
   onFilterSelectionOpen?: () => void
@@ -60,7 +61,7 @@ const MobileHeader = (props: {
           )}
         </Button>
 
-        <Link to='/notes/create'>
+        <Link to={props.linkTo ?? ''}>
           <Button className={layoutStyles.filterButton}>
             <icons.Plus />
           </Button>

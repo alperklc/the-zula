@@ -1,0 +1,23 @@
+import { BaseListItem } from "./BaseListItem";
+import styles from "./index.module.css";
+import { Note } from "../../types/Api";
+import TagsDisplay from "../tagsDisplay";
+import TimeDisplay from "../timeDisplay";
+
+export const NoteListItem = ({ item }: { item: Note }) => {
+    return <BaseListItem
+        href={item.shortId!}
+        title={item.title ?? ""}
+        description={(item?.tags || []).length > 0 && (
+            <TagsDisplay
+                className={styles.tagsDisplay}
+                tags={item?.tags ?? []}
+                maxNumberOfTagsToDisplay={3}
+            />
+        )}
+        sideInfo={
+            <a className={styles.updatedAt} href={`/notes/${item.shortId}`}>
+                <TimeDisplay isoDate={item.updatedAt ?? ""} />
+            </a>
+        } />
+}

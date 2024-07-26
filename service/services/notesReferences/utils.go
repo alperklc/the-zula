@@ -1,4 +1,4 @@
-package notesReferencesCtrl
+package notesReferencesService
 
 import (
 	"github.com/alperklc/the-zula/service/infrastructure/db/notesReferences"

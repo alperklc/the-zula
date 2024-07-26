@@ -64,7 +64,7 @@ function NotesList() {
     <Layout
       customHeader={
         isMobile
-          ? (props: unknown) => <MobileHeader onFilterSelectionOpen={openFilterSelection} {...props}/>
+          ? (props: object) => <MobileHeader onFilterSelectionOpen={openFilterSelection} linkTo='/notes/create' {...props}/>
           : undefined
       }
       fixedSubHeader={!isMobile}
@@ -87,7 +87,7 @@ function NotesList() {
 
               <Link to='/notes/create'>
                 <Button>
-                  <FormattedMessage id='common.buttons.new_note' />
+                  <FormattedMessage id='common.buttons.new' />
                 </Button>
               </Link>
             </div>

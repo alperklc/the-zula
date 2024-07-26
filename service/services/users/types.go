@@ -1,4 +1,4 @@
-package users
+package usersService
 
 import "time"
 

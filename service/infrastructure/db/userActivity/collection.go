@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -13,22 +11,20 @@ import (
 const collectionName = "users-activity"
 
 type Collection interface {
-	List(userUID string, page, pageSize int, sortBy, sortDirection string) (UserActivityPage, error)
-	InsertOne(userUID, resourceType, action, objectUID string) (UserActivityDocument, error)
-	GetMostVisitedContent(userUID string, daysSince int, uidsOfExcludedEntries []string) ([]UsageStatisticsEntry, error)
-	GetLastVisitedContent(userUID string, daysSince int, uidsOfExcludedEntries []string) ([]UsageStatisticsEntry, error)
-	GetUidsOfDeletedEntries(userUID string, daysAgo int) ([]string, error)
-	GroupActivitiesByDate(userUID string) ([]ActivityGraphEntry, error)
+	List(userID string, page, pageSize int, sortBy, sortDirection string) (UserActivityPage, error)
+	InsertOne(userID, resourceType, action, objectID string) (UserActivityDocument, error)
+	GetMostVisitedContent(userID string, daysSince int, idsOfExcludedEntries []string) ([]UsageStatisticsEntry, error)
+	GetLastVisitedContent(userID string, daysSince int, idsOfExcludedEntries []string) ([]UsageStatisticsEntry, error)
+	GetIdsOfDeletedEntries(userID string, daysAgo int) ([]string, error)
+	GroupActivitiesByDate(userID string) ([]ActivityGraphEntry, error)
 }
 
 type useractivity struct {
-	logger     *log.Entry
 	collection *mongo.Collection
 }
 
-func NewUserActivityRepository(db *mongo.Database) Collection {
+func NewDb(db *mongo.Database) Collection {
 	return &useractivity{
-		logger:     log.WithFields(log.Fields{"package": "database_user_activity"}),
 		collection: db.Collection(collectionName),
 	}
 }
@@ -41,12 +37,10 @@ func mapSortDirection(sd string) int {
 	return 1
 }
 
-func (db *useractivity) List(userUID string, page, pageSize int, sortBy, sortDirection string) (UserActivityPage, error) {
-	db.logger.WithFields(log.Fields{"user": userUID}).Debug("Listing activity records of user")
-
+func (db *useractivity) List(userID string, page, pageSize int, sortBy, sortDirection string) (UserActivityPage, error) {
 	skip := (page - 1) * pageSize
 
-	matchStage := bson.D{{"$match", bson.M{"userUID": userUID}}}
+	matchStage := bson.D{{"$match", bson.M{"userID": userID}}}
 	facetStage := bson.D{{"$facet",
 		bson.D{
 			{"meta", bson.A{bson.M{"$count": "count"}}},
@@ -65,13 +59,11 @@ func (db *useractivity) List(userUID string, page, pageSize int, sortBy, sortDir
 
 	cursor, err := db.collection.Aggregate(context.TODO(), mongo.Pipeline{matchStage, facetStage, projectStage})
 	if err != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Aggregate failed ", err.Error())
 		return UserActivityPage{}, err
 	}
 
 	var aggregationResult []UserActivityPage
 	if decodeError := cursor.All(context.TODO(), &aggregationResult); decodeError != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Decode failed ", decodeError.Error())
 		return UserActivityPage{}, decodeError
 	}
 
@@ -91,54 +83,48 @@ func (db *useractivity) List(userUID string, page, pageSize int, sortBy, sortDir
 	}, err
 }
 
-func (db *useractivity) InsertOne(userUID, resourceType, action, objectUID string) (UserActivityDocument, error) {
-	db.logger.WithFields(log.Fields{"user": userUID}).Debug("Inserting an activity record")
-
+func (db *useractivity) InsertOne(userID, resourceType, action, objectID string) (UserActivityDocument, error) {
 	timestamp := time.Now()
 	_, err := db.collection.InsertOne(context.TODO(), bson.M{
 		"timestamp":    timestamp,
-		"userUID":      userUID,
+		"userID":       userID,
 		"resourceType": resourceType,
 		"action":       action,
-		"objectUID":    objectUID,
+		"objectID":     objectID,
 	})
 
 	return UserActivityDocument{
-		UserUID:      userUID,
+		UserID:       userID,
 		ResourceType: resourceType,
 		Action:       action,
-		ObjectUID:    objectUID,
+		ObjectID:     objectID,
 		Timestamp:    timestamp,
 	}, err
 }
 
-func (db *useractivity) GetMostVisitedContent(userUID string, daysSince int, uidsOfExcludedEntries []string) ([]UsageStatisticsEntry, error) {
-	db.logger.WithFields(log.Fields{"user": userUID}).Debug("Getting most visited content")
-
+func (db *useractivity) GetMostVisitedContent(userID string, daysSince int, idsOfExcludedEntries []string) ([]UsageStatisticsEntry, error) {
 	matchFilter := bson.M{
-		"userUID":      userUID,
+		"userID":       userID,
 		"action":       "READ",
 		"resourceType": bson.M{"$in": []string{"NOTE", "FILE", "BOOKMARK"}},
 		"timestamp":    bson.M{"$gt": time.Now().AddDate(0, 0, daysSince)},
 	}
-	if uidsOfExcludedEntries != nil {
-		matchFilter["objectUID"] = bson.M{"$nin": uidsOfExcludedEntries}
+	if idsOfExcludedEntries != nil {
+		matchFilter["objectID"] = bson.M{"$nin": idsOfExcludedEntries}
 	}
 
 	matchStage := bson.M{"$match": matchFilter}
-	groupStage := bson.M{"$group": bson.M{"_id": "$objectUID", "count": bson.M{"$sum": 1}, "resourceType": bson.M{"$first": "$resourceType"}, "timestamp": bson.M{"$last": "$timestamp"}, "objectUID": bson.M{"$first": "$objectUID"}}}
+	groupStage := bson.M{"$group": bson.M{"_id": "$objectID", "count": bson.M{"$sum": 1}, "resourceType": bson.M{"$first": "$resourceType"}, "timestamp": bson.M{"$last": "$timestamp"}, "objectID": bson.M{"$first": "$objectID"}}}
 	sortStage := bson.M{"$sort": bson.M{"count": -1, "timestamp": -1}}
 	limitStage := bson.M{"$limit": 5}
 
 	cursor, aggregateErr := db.collection.Aggregate(context.TODO(), []bson.M{matchStage, groupStage, sortStage, limitStage})
 	if aggregateErr != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Aggregate failed ", aggregateErr.Error())
 		return nil, aggregateErr
 	}
 
 	var result []UsageStatisticsEntry
 	if decodeError := cursor.All(context.TODO(), &result); decodeError != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Decode failed ", decodeError.Error())
 		return nil, decodeError
 	}
 
@@ -147,33 +133,29 @@ func (db *useractivity) GetMostVisitedContent(userUID string, daysSince int, uid
 	return result, nil
 }
 
-func (db *useractivity) GetLastVisitedContent(userUID string, daysSince int, uidsOfExcludedEntries []string) ([]UsageStatisticsEntry, error) {
-	db.logger.WithFields(log.Fields{"user": userUID}).Debug("Getting last visited content")
-
+func (db *useractivity) GetLastVisitedContent(userID string, daysSince int, idsOfExcludedEntries []string) ([]UsageStatisticsEntry, error) {
 	matchFilter := bson.M{
-		"userUID":      userUID,
+		"userID":       userID,
 		"action":       "READ",
 		"resourceType": bson.M{"$in": []string{"NOTE", "FILE", "BOOKMARK"}},
 		"timestamp":    bson.M{"$gt": time.Now().AddDate(0, 0, daysSince)},
 	}
-	if uidsOfExcludedEntries != nil {
-		matchFilter["objectUID"] = bson.M{"$nin": uidsOfExcludedEntries}
+	if idsOfExcludedEntries != nil {
+		matchFilter["objectID"] = bson.M{"$nin": idsOfExcludedEntries}
 	}
 
 	matchStage := bson.M{"$match": matchFilter}
-	groupStage := bson.M{"$group": bson.M{"_id": "$objectUID", "resourceType": bson.M{"$first": "$resourceType"}, "timestamp": bson.M{"$last": "$timestamp"}, "objectUID": bson.M{"$first": "$objectUID"}}}
+	groupStage := bson.M{"$group": bson.M{"_id": "$objectID", "resourceType": bson.M{"$first": "$resourceType"}, "timestamp": bson.M{"$last": "$timestamp"}, "objectID": bson.M{"$first": "$objectID"}}}
 	sortStage := bson.M{"$sort": bson.M{"timestamp": -1}}
 	limitStage := bson.M{"$limit": 5}
 
 	cursor, aggregateErr := db.collection.Aggregate(context.TODO(), []bson.M{matchStage, groupStage, sortStage, limitStage})
 	if aggregateErr != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Aggregate failed ", aggregateErr.Error())
 		return nil, aggregateErr
 	}
 
 	var result []UsageStatisticsEntry
 	if decodeError := cursor.All(context.TODO(), &result); decodeError != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Decode failed ", decodeError.Error())
 		return nil, decodeError
 	}
 	cursor.Close(context.TODO())
@@ -181,11 +163,9 @@ func (db *useractivity) GetLastVisitedContent(userUID string, daysSince int, uid
 	return result, nil
 }
 
-func (db *useractivity) GetUidsOfDeletedEntries(userUID string, daysAgo int) ([]string, error) {
-	db.logger.WithFields(log.Fields{"user": userUID}).Debug("Getting UIDs of deleted entries")
-
+func (db *useractivity) GetIdsOfDeletedEntries(userID string, daysAgo int) ([]string, error) {
 	matchFilter := bson.M{
-		"userUID":   userUID,
+		"userID":    userID,
 		"action":    "DELETE",
 		"timestamp": bson.M{"$gt": time.Now().AddDate(0, 0, daysAgo)},
 	}
@@ -194,31 +174,27 @@ func (db *useractivity) GetUidsOfDeletedEntries(userUID string, daysAgo int) ([]
 
 	cursor, aggregateErr := db.collection.Aggregate(context.TODO(), []bson.M{matchStage})
 	if aggregateErr != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Aggregate failed ", aggregateErr.Error())
 		return nil, aggregateErr
 	}
 
 	var result []map[string]interface{}
 	if decodeError := cursor.All(context.TODO(), &result); decodeError != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Decode failed ", decodeError.Error())
 		return nil, decodeError
 	}
 	cursor.Close(context.TODO())
 
-	var uids []string = make([]string, len(result))
+	var ids []string = make([]string, len(result))
 	for i, item := range result {
-		uids[i] = item["objectUID"].(string)
+		ids[i] = item["objectID"].(string)
 	}
 
-	return uids, nil
+	return ids, nil
 }
 
-func (db *useractivity) GroupActivitiesByDate(userUID string) ([]ActivityGraphEntry, error) {
-	db.logger.WithFields(log.Fields{"user": userUID}).Debug("Grouping entries by date")
-
+func (db *useractivity) GroupActivitiesByDate(userID string) ([]ActivityGraphEntry, error) {
 	matchStage := bson.D{{
 		"$match", bson.M{
-			"userUID":   userUID,
+			"userID":    userID,
 			"action":    bson.M{"$in": []string{"UPDATE", "CREATE"}},
 			"timestamp": bson.M{"$gt": time.Now().AddDate(0, 0, -365)},
 		},
@@ -232,13 +208,11 @@ func (db *useractivity) GroupActivitiesByDate(userUID string) ([]ActivityGraphEn
 
 	cursor, err := db.collection.Aggregate(context.TODO(), mongo.Pipeline{matchStage, addFieldsStage, groupStage, sortStage})
 	if err != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Aggregate failed ", err.Error())
 		return nil, err
 	}
 
 	var result []ActivityGraphEntry
 	if decodeError := cursor.All(context.TODO(), &result); decodeError != nil {
-		db.logger.WithFields(log.Fields{"user": userUID}).Error("Decode failed ", decodeError.Error())
 		return nil, decodeError
 	}
 	cursor.Close(context.TODO())

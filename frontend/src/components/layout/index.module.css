@@ -172,3 +172,26 @@
 .scrollableArea::-webkit-scrollbar-thumb {
   background-color: var(--link-color);
 }
+
+.rightPanelSectionTitle {
+  display: flex;
+  height: 1rem;
+  line-height: 1rem;
+}
+
+.secondaryText {
+  color: var(--link-color) !important;
+  font-size: var(--font-size-small);
+}
+
+.labelLink {
+  color: var(--link-color);
+  text-transform: none;
+  font-size: 0.7rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.labelLink:hover {
+  color: var(--link-hover-color);
+}

@@ -12,8 +12,7 @@ import TagsDisplay from '../../../components/tagsDisplay'
 import TimeDisplay from '../../../components/timeDisplay'
 import { MDXEditor } from '@mdxeditor/editor'
 import { useUI } from '../../../contexts/uiContext'
-import MobileHeader from '../../../components/mobileHeader'
-
+  
 export const EditNote = () => {
   const navigate = useNavigate()
   const { noteId }  = useParams()

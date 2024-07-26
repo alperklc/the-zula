@@ -9,23 +9,6 @@
  * ---------------------------------------------------------------
  */
 
-export interface ContentOnDashboard {
-  type?: string;
-  count?: number;
-}
-
-export interface ActivityOnDate {
-  date?: string;
-  count?: number;
-}
-
-export interface Dashboard {
-  numberOfNotes?: number;
-  mostVisited?: ContentOnDashboard[];
-  lastVisited?: ContentOnDashboard[];
-  activityGraph?: ActivityOnDate[];
-}
-
 export interface Tag {
   typeOfParent?: string;
   value?: string;
@@ -46,6 +29,12 @@ export interface NoteInput {
   tags?: string[];
   title?: string;
   content?: string;
+}
+
+export interface BookmarkInput {
+  url: string;
+  title?: string;
+  tags?: string[];
 }
 
 export interface UserInput {
@@ -79,11 +68,37 @@ export interface Note {
   title?: string;
   content?: string;
   createdAt?: string;
-  createdBy?: User;
+  createdBy?: string;
   updatedAt?: string;
-  updatedBy?: User;
+  updatedBy?: string;
   hasDraft?: boolean;
   references?: NoteReferences;
+}
+
+export interface PageContent {
+  url?: string;
+  title?: string;
+  author?: string;
+  length?: number;
+  siteName?: string;
+  image?: string;
+  favicon?: string;
+  mdContent?: string;
+}
+
+export interface Bookmark {
+  shortId: string;
+  /** @format date-time */
+  createdAt: string;
+  createdBy?: string;
+  /** @format date-time */
+  updatedAt: string;
+  updatedBy?: string;
+  url: string;
+  title?: string;
+  pageContent?: PageContent;
+  faviconUrl?: string;
+  tags?: string[];
 }
 
 export interface User {
@@ -110,9 +125,39 @@ export interface NoteSearchResult {
   items?: Note[];
 }
 
+export interface BookmarkSearchResult {
+  meta?: PaginationMeta;
+  items?: Bookmark[];
+}
+
 export interface UserActivityResult {
   meta?: PaginationMeta;
   items?: UserActivity[];
+}
+
+export interface VisitingStatistics {
+  typename?: string;
+  id?: string;
+  title?: string;
+  name?: string;
+}
+
+export type MostVisited = VisitingStatistics & {
+  count?: number;
+};
+
+export interface ActivityOnDate {
+  /** @format date */
+  date?: string;
+  count?: number;
+}
+
+export interface Insights {
+  numberOfNotes?: number;
+  numberOfBookmarks?: number;
+  lastVisited?: VisitingStatistics[];
+  mostVisited?: MostVisited[];
+  activityGraph?: ActivityOnDate[];
 }
 
 export type QueryParamsType = Record<string | number, any>;
@@ -400,7 +445,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/api/v1/users/{shortId}/insights
      */
     getInsights: (shortId: string, params: RequestParams = {}) =>
-      this.request<Dashboard, any>({
+      this.request<Insights, any>({
         path: `/api/v1/users/${shortId}/insights`,
         method: "GET",
         format: "json",
@@ -483,7 +528,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       shortId: string,
       query?: {
         loadDraft?: boolean;
-        optOutTracking?: boolean;
       },
       params: RequestParams = {},
     ) =>
@@ -554,6 +598,96 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     deleteNoteDraft: (shortId: string, params: RequestParams = {}) =>
       this.request<boolean, any>({
         path: `/api/v1/notes/${shortId}/draft`,
+        method: "DELETE",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetBookmarks
+     * @summary List bookmarks
+     * @request GET:/api/v1/bookmarks
+     */
+    getBookmarks: (
+      query?: {
+        q?: string;
+        page?: number;
+        pageSize?: number;
+        sortBy?: string;
+        sortDirection?: string;
+        tags?: string[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<BookmarkSearchResult, any>({
+        path: `/api/v1/bookmarks`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name CreateBookmark
+     * @summary Create a new bookmark
+     * @request POST:/api/v1/bookmarks
+     */
+    createBookmark: (data: BookmarkInput, params: RequestParams = {}) =>
+      this.request<Bookmark, any>({
+        path: `/api/v1/bookmarks`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetBookmark
+     * @summary Get a bookmark by shortId
+     * @request GET:/api/v1/bookmarks/{shortId}
+     */
+    getBookmark: (shortId: string, params: RequestParams = {}) =>
+      this.request<Bookmark, any>({
+        path: `/api/v1/bookmarks/${shortId}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name UpdateBookmark
+     * @summary Update a bookmark by shortId
+     * @request PUT:/api/v1/bookmarks/{shortId}
+     */
+    updateBookmark: (shortId: string, data: BookmarkInput, params: RequestParams = {}) =>
+      this.request<boolean, any>({
+        path: `/api/v1/bookmarks/${shortId}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name DeleteBookmark
+     * @summary Delete a bookmark by shortId
+     * @request DELETE:/api/v1/bookmarks/{shortId}
+     */
+    deleteBookmark: (shortId: string, params: RequestParams = {}) =>
+      this.request<boolean, any>({
+        path: `/api/v1/bookmarks/${shortId}`,
         method: "DELETE",
         format: "json",
         ...params,

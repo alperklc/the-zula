@@ -1,4 +1,4 @@
-function Filter(props: any) {
+function Filter(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'

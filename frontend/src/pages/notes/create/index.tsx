@@ -43,7 +43,6 @@ const CreateNote = () => {
   const [error, setError] = React.useState<string | null>(null);
   const [initialized, setInitialized] = React.useState(false);
 
-
   const [topPosition, setTopPosition] = React.useState(100)
   const debouncedTopOfTextArea = useDebounce<number>(topPosition, 100)
 

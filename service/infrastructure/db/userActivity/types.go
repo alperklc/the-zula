@@ -3,10 +3,10 @@ package useractivity
 import "time"
 
 type UserActivityDocument struct {
-	UserUID      string    `json:"userUID" bson:"userUID"`
+	UserID       string    `json:"userID" bson:"userID"`
 	ResourceType string    `json:"resourceType" bson:"resourceType"`
 	Action       string    `json:"action" bson:"action"`
-	ObjectUID    string    `json:"objectUID" bson:"objectUID"`
+	ObjectID     string    `json:"objectID" bson:"objectID"`
 	Timestamp    time.Time `json:"timestamp" bson:"timestamp"`
 }
 
@@ -26,7 +26,7 @@ type UserActivityPage struct {
 
 type UsageStatisticsEntry struct {
 	ResourceType string    `json:"resourceType" bson:"resourceType"`
-	ObjectUID    string    `json:"objectUID" bson:"objectUID"`
+	ObjectID     string    `json:"objectID" bson:"objectID"`
 	Timestamp    time.Time `json:"timestamp" bson:"timestamp"`
 	Count        int       `json:"count" bson:"count"`
 }

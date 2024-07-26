@@ -1,9 +1,10 @@
-package users
+package usersService
 
 import (
 	"time"
 
 	"github.com/alperklc/the-zula/service/infrastructure/auth"
+	"github.com/alperklc/the-zula/service/infrastructure/cache"
 )
 
 type UsersService interface {
@@ -12,18 +13,26 @@ type UsersService interface {
 }
 
 type datasources struct {
-	Auth auth.AuthClient
+	Auth  auth.AuthClient
+	Cache cache.Cache[User]
 }
 
-func NewService(a *auth.AuthClient) UsersService {
+func NewService(a *auth.AuthClient, c *cache.Cache[User]) UsersService {
 	return &datasources{
-		Auth: *a,
+		Auth:  *a,
+		Cache: *c,
 	}
 }
 
 func (d *datasources) GetUser(id string) (User, error) {
-	user, err := d.Auth.GetUser(id)
-
+	obj := d.Cache.Read(id)
+	if obj != nil {
+		return *obj, nil
+	}
+	user, errGetUser := d.Auth.GetUser(id)
+	if errGetUser != nil {
+		return User{}, errGetUser
+	}
 	theme, errGetTheme := d.Auth.GetUserMetadata(id, "theme")
 	if errGetTheme != nil {
 		return User{}, errGetTheme
@@ -42,7 +51,7 @@ func (d *datasources) GetUser(id string) (User, error) {
 		return User{}, changeDateParseErr
 	}
 
-	return User{
+	response := User{
 		ID:          user.ID,
 		CreatedAt:   creationDate,
 		UpdatedAt:   changeDate,
@@ -52,7 +61,11 @@ func (d *datasources) GetUser(id string) (User, error) {
 		Email:       user.Human.Email.Email,
 		Language:    language,
 		Theme:       theme,
-	}, err
+	}
+
+	d.Cache.Write(id, response)
+
+	return response, nil
 }
 
 func (d *datasources) UpdateUser(id, firstName, lastname, displayName string, language, theme *string) error {

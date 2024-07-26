@@ -1,6 +1,4 @@
-import React from 'react'
-
-function X(props: any) {
+function X(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -21,4 +19,4 @@ function X(props: any) {
   )
 }
 
-export default X
+export default X;

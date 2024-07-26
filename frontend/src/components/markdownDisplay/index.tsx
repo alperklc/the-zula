@@ -2,6 +2,7 @@ import * as React from 'react'
 import classNames from 'classnames'
 import { Converter } from 'showdown'
 import styles from './index.module.css'
+import { useNavigate } from 'react-router-dom'
 
 interface MarkdownDisplayProps {
   className?: string
@@ -18,7 +19,7 @@ const converter = new Converter({
 const getMarkdownPreview = (markdown: string) => Promise.resolve(converter.makeHtml(markdown))
 
 const MarkdownDisplay = (props: MarkdownDisplayProps) => {
-  const router = useRouter()
+  const navigate = useNavigate()
   const divRef = React.useRef<HTMLDivElement>()
 
   const [__html, setHtml] = React.useState<string>('')
@@ -34,7 +35,7 @@ const MarkdownDisplay = (props: MarkdownDisplayProps) => {
     const clickedElement = event.target as HTMLAnchorElement
     if (clickedElement?.href?.includes(`jottie.de/notes/`)) {
       event.preventDefault()
-      router.push(clickedElement.pathname)
+      navigate(clickedElement.pathname)
     }
   }
 

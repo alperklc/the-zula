@@ -1,4 +1,4 @@
-package notesReferencesCtrl
+package notesReferencesService
 
 import (
 	"fmt"

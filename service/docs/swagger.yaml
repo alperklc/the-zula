@@ -49,8 +49,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
-    
+                $ref: '#/components/schemas/user' 
 
   /api/v1/users/{shortId}/activity:
     get:
@@ -102,7 +101,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/dashboard'
+                $ref: '#/components/schemas/insights'
 
   /api/v1/tags:
     get:
@@ -196,10 +195,6 @@ paths:
           name: loadDraft
           schema:
             type: boolean
-        - in: query
-          name: optOutTracking
-          schema:
-            type: boolean
       responses:
         '200':
           description: Successful response
@@ -286,42 +281,119 @@ paths:
               schema:
                 type: boolean                
 
+  /api/v1/bookmarks:
+    get:
+      operationId: getBookmarks
+      summary: List bookmarks
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+        - in: query
+          name: sortDirection
+          schema:
+            type: string
+        - in: query
+          name: tags
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bookmarkSearchResult'
+    post:
+      operationId: createBookmark
+      summary: Create a new bookmark
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bookmarkInput'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bookmark'
+
+  /api/v1/bookmarks/{shortId}:
+    get:
+      operationId: getBookmark
+      summary: Get a bookmark by shortId
+      parameters:
+        - in: path
+          name: shortId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bookmark'
+    put:
+      operationId: updateBookmark
+      summary: Update a bookmark by shortId
+      parameters:
+        - in: path
+          name: shortId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/bookmarkInput'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: boolean
+    delete:
+      operationId: deleteBookmark
+      summary: Delete a bookmark by shortId
+      parameters:
+        - in: path
+          name: shortId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: boolean
+
 components:
   schemas:
-    contentOnDashboard:
-      type: object
-      properties:
-        type:
-          type: string
-        count:
-          type: integer
-
-    activityOnDate:
-      type: object
-      properties:
-        date:
-          type: string
-        count:
-          type: integer
-
-    dashboard:
-      type: object
-      properties:
-        numberOfNotes:
-          type: integer
-        mostVisited:
-          type: array
-          items:
-            $ref: '#/components/schemas/contentOnDashboard'
-        lastVisited:
-          type: array
-          items:
-            $ref: '#/components/schemas/contentOnDashboard'
-        activityGraph:
-          type: array
-          items:
-            $ref: '#/components/schemas/activityOnDate'
-
     tag:
       type: object
       properties:
@@ -361,6 +433,20 @@ components:
           type: string
         content:
           type: string
+
+    bookmarkInput:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+        title:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
 
     userInput:
       type: object
@@ -424,15 +510,68 @@ components:
         createdAt:
           type: string
         createdBy:
-          $ref: '#/components/schemas/user'
+          type: string
         updatedAt:
           type: string
         updatedBy:
-          $ref: '#/components/schemas/user'
+          type: string
         hasDraft:
           type: boolean
         references:
           $ref: '#/components/schemas/noteReferences'
+
+    pageContent:
+      type: object
+      properties:
+        url:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        length:
+          type: integer
+        siteName:
+          type: string
+        image:
+          type: string
+        favicon:
+          type: string
+        mdContent:
+          type: string
+
+    bookmark:
+      type: object
+      required:
+        - shortId
+        - createdAt
+        - updatedAt
+        - url
+      properties:
+        shortId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+        url:
+          type: string
+        title:
+          type: string
+        pageContent:
+          $ref: '#/components/schemas/pageContent'
+        faviconUrl:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
 
     user:
       type: object
@@ -478,6 +617,16 @@ components:
           items:
             $ref: '#/components/schemas/note'
 
+    bookmarkSearchResult:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/paginationMeta'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/bookmark'
+
     userActivityResult:
       type: object
       properties:
@@ -487,3 +636,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/userActivity'
+
+    visitingStatistics:
+      type: object
+      properties:
+        typename:
+          type: string
+        id:
+          type: string
+        title:
+          type: string
+        name:
+          type: string
+
+    mostVisited:
+      allOf:
+        - $ref: '#/components/schemas/visitingStatistics'
+        - type: object
+          properties:
+            count:
+              type: number
+
+    activityOnDate:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        count:
+          type: number
+
+    insights:
+      type: object
+      properties:
+        numberOfNotes:
+          type: number
+        numberOfBookmarks:
+          type: number
+        lastVisited:
+          type: array
+          items:
+            $ref: '#/components/schemas/visitingStatistics'
+        mostVisited:
+          type: array
+          items:
+            $ref: '#/components/schemas/mostVisited'
+        activityGraph:
+          type: array
+          items:
+            $ref: '#/components/schemas/activityOnDate'

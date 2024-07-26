@@ -1,10 +1,12 @@
 {
+  "login_page.headline": "Login to The Zula",
+  "login_page.buttons.submit": "Login",
   "common.buttons.delete": "Delete",
   "common.buttons.cancel": "Cancel",
   "common.buttons.edit": "Edit",
   "common.buttons.move": "Move",
   "delete_confirmation_modal.title": "Are you sure you want to delete this note?",
-  "common.buttons.new_note": "New",
+  "common.buttons.new": "New",
   "commons.search_placeholder": "Search",
   "common.buttons.back": "Back",
   "common.buttons.save": "Save",

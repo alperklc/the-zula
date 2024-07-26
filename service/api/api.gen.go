@@ -12,44 +12,77 @@ import (
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // ActivityOnDate defines model for activityOnDate.
 type ActivityOnDate struct {
-	Count *int    `json:"count,omitempty"`
-	Date  *string `json:"date,omitempty"`
+	Count *float32            `json:"count,omitempty"`
+	Date  *openapi_types.Date `json:"date,omitempty"`
 }
 
-// ContentOnDashboard defines model for contentOnDashboard.
-type ContentOnDashboard struct {
-	Count *int    `json:"count,omitempty"`
-	Type  *string `json:"type,omitempty"`
+// Bookmark defines model for bookmark.
+type Bookmark struct {
+	CreatedAt   time.Time    `json:"createdAt"`
+	CreatedBy   *string      `json:"createdBy,omitempty"`
+	FaviconUrl  *string      `json:"faviconUrl,omitempty"`
+	PageContent *PageContent `json:"pageContent,omitempty"`
+	ShortId     string       `json:"shortId"`
+	Tags        *[]string    `json:"tags,omitempty"`
+	Title       *string      `json:"title,omitempty"`
+	UpdatedAt   time.Time    `json:"updatedAt"`
+	UpdatedBy   *string      `json:"updatedBy,omitempty"`
+	Url         string       `json:"url"`
 }
 
-// Dashboard defines model for dashboard.
-type Dashboard struct {
-	ActivityGraph *[]ActivityOnDate     `json:"activityGraph,omitempty"`
-	LastVisited   *[]ContentOnDashboard `json:"lastVisited,omitempty"`
-	MostVisited   *[]ContentOnDashboard `json:"mostVisited,omitempty"`
-	NumberOfNotes *int                  `json:"numberOfNotes,omitempty"`
+// BookmarkInput defines model for bookmarkInput.
+type BookmarkInput struct {
+	Tags  *[]string `json:"tags,omitempty"`
+	Title *string   `json:"title,omitempty"`
+	Url   string    `json:"url"`
+}
+
+// BookmarkSearchResult defines model for bookmarkSearchResult.
+type BookmarkSearchResult struct {
+	Items *[]Bookmark     `json:"items,omitempty"`
+	Meta  *PaginationMeta `json:"meta,omitempty"`
+}
+
+// Insights defines model for insights.
+type Insights struct {
+	ActivityGraph     *[]ActivityOnDate     `json:"activityGraph,omitempty"`
+	LastVisited       *[]VisitingStatistics `json:"lastVisited,omitempty"`
+	MostVisited       *[]MostVisited        `json:"mostVisited,omitempty"`
+	NumberOfBookmarks *float32              `json:"numberOfBookmarks,omitempty"`
+	NumberOfNotes     *float32              `json:"numberOfNotes,omitempty"`
+}
+
+// MostVisited defines model for mostVisited.
+type MostVisited struct {
+	Count    *float32 `json:"count,omitempty"`
+	Id       *string  `json:"id,omitempty"`
+	Name     *string  `json:"name,omitempty"`
+	Title    *string  `json:"title,omitempty"`
+	Typename *string  `json:"typename,omitempty"`
 }
 
 // Note defines model for note.
 type Note struct {
 	Content    *string         `json:"content,omitempty"`
 	CreatedAt  *string         `json:"createdAt,omitempty"`
-	CreatedBy  *User           `json:"createdBy,omitempty"`
+	CreatedBy  *string         `json:"createdBy,omitempty"`
 	HasDraft   *bool           `json:"hasDraft,omitempty"`
 	References *NoteReferences `json:"references,omitempty"`
 	ShortId    *string         `json:"shortId,omitempty"`
 	Tags       *[]string       `json:"tags,omitempty"`
 	Title      *string         `json:"title,omitempty"`
 	UpdatedAt  *string         `json:"updatedAt,omitempty"`
-	UpdatedBy  *User           `json:"updatedBy,omitempty"`
+	UpdatedBy  *string         `json:"updatedBy,omitempty"`
 }
 
 // NoteInput defines model for noteInput.
@@ -82,6 +115,18 @@ type NoteReferences struct {
 type NoteSearchResult struct {
 	Items *[]Note         `json:"items,omitempty"`
 	Meta  *PaginationMeta `json:"meta,omitempty"`
+}
+
+// PageContent defines model for pageContent.
+type PageContent struct {
+	Author    *string `json:"author,omitempty"`
+	Favicon   *string `json:"favicon,omitempty"`
+	Image     *string `json:"image,omitempty"`
+	Length    *int    `json:"length,omitempty"`
+	MdContent *string `json:"mdContent,omitempty"`
+	SiteName  *string `json:"siteName,omitempty"`
+	Title     *string `json:"title,omitempty"`
+	Url       *string `json:"url,omitempty"`
 }
 
 // PaginationMeta defines model for paginationMeta.
@@ -139,6 +184,24 @@ type UserInput struct {
 	Username  *string `json:"username,omitempty"`
 }
 
+// VisitingStatistics defines model for visitingStatistics.
+type VisitingStatistics struct {
+	Id       *string `json:"id,omitempty"`
+	Name     *string `json:"name,omitempty"`
+	Title    *string `json:"title,omitempty"`
+	Typename *string `json:"typename,omitempty"`
+}
+
+// GetBookmarksParams defines parameters for GetBookmarks.
+type GetBookmarksParams struct {
+	Q             *string   `form:"q,omitempty" json:"q,omitempty"`
+	Page          *int      `form:"page,omitempty" json:"page,omitempty"`
+	PageSize      *int      `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	SortBy        *string   `form:"sortBy,omitempty" json:"sortBy,omitempty"`
+	SortDirection *string   `form:"sortDirection,omitempty" json:"sortDirection,omitempty"`
+	Tags          *[]string `form:"tags,omitempty" json:"tags,omitempty"`
+}
+
 // GetNotesParams defines parameters for GetNotes.
 type GetNotesParams struct {
 	Q             *string   `form:"q,omitempty" json:"q,omitempty"`
@@ -151,8 +214,7 @@ type GetNotesParams struct {
 
 // GetNoteParams defines parameters for GetNote.
 type GetNoteParams struct {
-	LoadDraft      *bool `form:"loadDraft,omitempty" json:"loadDraft,omitempty"`
-	OptOutTracking *bool `form:"optOutTracking,omitempty" json:"optOutTracking,omitempty"`
+	LoadDraft *bool `form:"loadDraft,omitempty" json:"loadDraft,omitempty"`
 }
 
 // GetTagsParams defines parameters for GetTags.
@@ -169,6 +231,12 @@ type GetUserActivityParams struct {
 	SortDirection *string `form:"sortDirection,omitempty" json:"sortDirection,omitempty"`
 }
 
+// CreateBookmarkJSONRequestBody defines body for CreateBookmark for application/json ContentType.
+type CreateBookmarkJSONRequestBody = BookmarkInput
+
+// UpdateBookmarkJSONRequestBody defines body for UpdateBookmark for application/json ContentType.
+type UpdateBookmarkJSONRequestBody = BookmarkInput
+
 // CreateNoteJSONRequestBody defines body for CreateNote for application/json ContentType.
 type CreateNoteJSONRequestBody = NoteInput
 
@@ -183,6 +251,21 @@ type UpdateUserJSONRequestBody = UserInput
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// List bookmarks
+	// (GET /api/v1/bookmarks)
+	GetBookmarks(w http.ResponseWriter, r *http.Request, params GetBookmarksParams)
+	// Create a new bookmark
+	// (POST /api/v1/bookmarks)
+	CreateBookmark(w http.ResponseWriter, r *http.Request)
+	// Delete a bookmark by shortId
+	// (DELETE /api/v1/bookmarks/{shortId})
+	DeleteBookmark(w http.ResponseWriter, r *http.Request, shortId string)
+	// Get a bookmark by shortId
+	// (GET /api/v1/bookmarks/{shortId})
+	GetBookmark(w http.ResponseWriter, r *http.Request, shortId string)
+	// Update a bookmark by shortId
+	// (PUT /api/v1/bookmarks/{shortId})
+	UpdateBookmark(w http.ResponseWriter, r *http.Request, shortId string)
 	// List notes
 	// (GET /api/v1/notes)
 	GetNotes(w http.ResponseWriter, r *http.Request, params GetNotesParams)
@@ -224,6 +307,36 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
+
+// List bookmarks
+// (GET /api/v1/bookmarks)
+func (_ Unimplemented) GetBookmarks(w http.ResponseWriter, r *http.Request, params GetBookmarksParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Create a new bookmark
+// (POST /api/v1/bookmarks)
+func (_ Unimplemented) CreateBookmark(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Delete a bookmark by shortId
+// (DELETE /api/v1/bookmarks/{shortId})
+func (_ Unimplemented) DeleteBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get a bookmark by shortId
+// (GET /api/v1/bookmarks/{shortId})
+func (_ Unimplemented) GetBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Update a bookmark by shortId
+// (PUT /api/v1/bookmarks/{shortId})
+func (_ Unimplemented) UpdateBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
 
 // List notes
 // (GET /api/v1/notes)
@@ -305,6 +418,167 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// GetBookmarks operation middleware
+func (siw *ServerInterfaceWrapper) GetBookmarks(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetBookmarksParams
+
+	// ------------- Optional query parameter "q" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "q", r.URL.Query(), &params.Q)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "q", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", r.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "pageSize" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "pageSize", r.URL.Query(), &params.PageSize)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pageSize", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "sortBy" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sortBy", r.URL.Query(), &params.SortBy)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sortBy", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "sortDirection" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sortDirection", r.URL.Query(), &params.SortDirection)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "sortDirection", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "tags" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "tags", r.URL.Query(), &params.Tags)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "tags", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBookmarks(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// CreateBookmark operation middleware
+func (siw *ServerInterfaceWrapper) CreateBookmark(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateBookmark(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// DeleteBookmark operation middleware
+func (siw *ServerInterfaceWrapper) DeleteBookmark(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "shortId" -------------
+	var shortId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.DeleteBookmark(w, r, shortId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetBookmark operation middleware
+func (siw *ServerInterfaceWrapper) GetBookmark(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "shortId" -------------
+	var shortId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetBookmark(w, r, shortId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// UpdateBookmark operation middleware
+func (siw *ServerInterfaceWrapper) UpdateBookmark(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "shortId" -------------
+	var shortId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateBookmark(w, r, shortId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
 
 // GetNotes operation middleware
 func (siw *ServerInterfaceWrapper) GetNotes(w http.ResponseWriter, r *http.Request) {
@@ -438,14 +712,6 @@ func (siw *ServerInterfaceWrapper) GetNote(w http.ResponseWriter, r *http.Reques
 	err = runtime.BindQueryParameter("form", true, false, "loadDraft", r.URL.Query(), &params.LoadDraft)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "loadDraft", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "optOutTracking" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "optOutTracking", r.URL.Query(), &params.OptOutTracking)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "optOutTracking", Err: err})
 		return
 	}
 
@@ -827,6 +1093,21 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	}
 
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/bookmarks", wrapper.GetBookmarks)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/v1/bookmarks", wrapper.CreateBookmark)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.DeleteBookmark)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.GetBookmark)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.UpdateBookmark)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/v1/notes", wrapper.GetNotes)
 	})
 	r.Group(func(r chi.Router) {
@@ -869,28 +1150,32 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"H4sIAAAAAAAC/+xaQW/bOBP9KwK/7+iN0u3Np00boAjQNkWT7mGLHMbSSGIjkSpJOasW/u8LkpIs26Qs",
+	"K3a2affmkCI18+bNmyGV7yTiRckZMiXJ/DuRUYYFmJ8QKbqkqr5ml6BQj5SClygURTMf8Yop/UPVJZI5",
+	"YVWxQEFWMxI3zydcFKDI3A7M2gelEpSlZLXqRvjiC0ZKL11wfl+AuHe8TiAojC/Uzs6/KVo4tp+1S17V",
+	"PSvXswksacTZJ5E7p0tI8TVnCq2T/xeYkDn5X7jGK2zACvuPrmZEZlyoq9i5q4LUeEMVFtL9hB0AIaA2",
+	"f1OVo/PJqowPRaRZ4kGkckKxmhGBXysqMCbzz513s15E+rbYbe4GYnvFykrtBvio0IzxZJ+dNwgiyj6i",
+	"rHKHuZ2Z3Y8hinS8drhRoIIRFKMMFOXsnX7amTuUSZpmNo83bW1T+Y2AMhtt85YAOCzPQao/qaQK49G7",
+	"LvXzlKU3ChSVikbSiQk/fOf+GseWVp+uk1dNKKRTu9qn3nOFridcwG8ZC3l+nZD55wk4jNXYXSvutO3c",
+	"rdOdiPkU8mJw1qMWGchLAUl/6YLzHIERk2gJCmQR7g2btvrj+ul/S0AP0koXC7QfHmkbCsHxHPIZ9Za6",
+	"aDEI8oFv6ML3ljJH6Za8EhF6vBcpqimvcshcTtn9eEneNfxI2qwNjfEwQ0yMdt7vA+GYlcmIxgmr0lYf",
+	"tVWYKpVxMdSeOedoAambTzmyVGW9KcoUplbai/j1QB5q+X4PBR6UEAOdhguIPlh7++me5RnI9/i3+rDp",
+	"dU9ty82Z3lI9c0O/eWYFMA+QkgvlEX49dUkFRtqXkc4rSHc9TnQ3hiyq3cbpkevkAwhfyJaQV2NlqpIo",
+	"9hwqdvaPqSxzqL2swAKo+/CQUCGVd10OLK28DIaBlYOinWFxCBoXTXvnbhc9mRflFJnPAru/Z1KgLQO3",
+	"ZsKZYwVKBUU5wYfjSOEGKieURP0eX6cwSMgBwlV5zibxzUcba6ZnT5dXjoZ2Nx5ubrDDdVcPjDZuZU5H",
+	"CW97MYgMvg2cBPISxT3NI/pHqofOIl6Y/EcZCVraZCDXIgVGv2FQ80oEKuOVPmwFizp4EMbxQJdSOQuq",
+	"MucQ64GE5npAwlL/1Z4BZQAsDqSp4XocQdK8DjgLgNVBjEsaYfBAVRZAsBD8QaI4C8iM5DRCJo3H1nPy",
+	"7uq2OW/PSaZUKedhyEtkNtPOuEjDZlFYUBX2ECW3GQZ/VTkEF2VJZmSJQlo3X5ydn52bbNYAl5TMycuz",
+	"87OXRNcSlZkwhlDScPmiO9WawaaP0+E2/Nc6QN6gWp+39A4CClQopDkfUf3CrxWKmrQkIF/JrLmFcobW",
+	"vcjUP8e6rpoMLTTlccripkZOsHezhE7YwJwa+uvGHh9Wd0aKS86kTcnfz8+3jihQljmNTAzDL9IWgvWL",
+	"xtxybPSnJvs2U+mmiiKUMqnyoLXFpK2sigJETebkLZVqnTCmkeHSwa/XRi9bihF7wYNSveJxfXS3rGav",
+	"Nu+RlKhw9QSYTsPR4hNAwPAh6G01283h8HvTXay0STHmaI+Nm4BfmvEe4K6U1kLRI3t3Y7iJ2hDtH8vS",
+	"7RZ5CnbWVS3Cjbda61tnVrO9gvfDgnM6ur1B5ceraXg28fpkblmeBrJnqAzH4LGF2BeXnhSw9s7Tx2x7",
+	"KfpfGf/Jy/jOFdP0Em4ptad8a1qdqHSvL2WfuGzba7VHl+xmm60cPaRUN+D+AmVaQzOyRJ8UFE+u60Oh",
+	"/WAyG0Lg7ockpS3sDoQHivrpmffM9OKoxXwnFn6RCOP2O91+qWgZ+ovohQwMNhpIA+g+Zt/A8qlg+gXJ",
+	"rdFtAsKTHsdtpFxMb7+e+oT+1jZYIxpWY/8EWR9udB9L+FH31gpcHeJElTeI9iGuJIqtjsOH9ieJ4lme",
+	"es3XoUcURr1eE/Xqck9NPD1Cx5eN9eeKJ+6hp0elq5L9wPg53f2r0z5yd1+Hnrh3/HkPxqfO6q0vhJNz",
+	"3BCpo8kQl/r/hufj0lX7zHMUy87ByWDGILMFBxEH/b1W/wQAAP//CVI7qY0sAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

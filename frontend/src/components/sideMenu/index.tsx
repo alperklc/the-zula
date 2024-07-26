@@ -1,6 +1,7 @@
 import { MessageDescriptor } from 'react-intl'
 import Button from '../form/button'
 import styles from './index.module.css'
+import { Link } from 'react-router-dom'
 
 interface SideMenuProps {
   visible: boolean
@@ -21,12 +22,12 @@ const SideMenu = ({ t, ...props }: SideMenuProps) => {
       )}
       <div className={`${styles.sideNav} ${props.visible ? styles.visible : ''}`}>
         <div className={styles.linksToPages}>
-            <label>
-              <a href='/'>{t({ id: 'dashboard.title' })}</a>
-            </label>
-           <label>
-              <a href='/settings/profile'>{t({ id: 'settings.title' })}</a>
-            </label>
+          <label>
+              <Link to='/'>{t({ id: 'dashboard.title' })}</Link>
+          </label>
+          <label>
+              <Link to='/settings/profile'>{t({ id: 'settings.title' })}</Link>
+          </label>
         </div>
 
         <div className={styles.bottom}>

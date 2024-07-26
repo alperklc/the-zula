@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { User, UserManager } from "oidc-client-ts";
 import { useAuth } from "../../contexts/authContext";
 import { useNavigate } from 'react-router-dom'
+import LoadingIndicator from "../../components/loadingIndicator";
 
 async function redirectAfterLogin(user: User | null, userManager?: UserManager) {
   if (!userManager) {
@@ -42,7 +43,7 @@ const Callback = () => {
     }
   }, [user?.url_state, navigate])
 
-  return <div>Loading...</div>
+  return <div><LoadingIndicator /></div>
 };
 
 export default Callback;

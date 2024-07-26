@@ -6,7 +6,6 @@ import (
 
 	gonanoid "github.com/matoous/go-nanoid"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -17,7 +16,7 @@ type Collection interface {
 	Count(userId string) (int64, error)
 	List(userId, searchKeyword string, page, pageSize int, sortBy, sortDirection string, tags []string) ([]BookmarkDocument, int, error)
 	GetOne(id string) (BookmarkDocument, error)
-	InsertOne(userId, URL, title, faviconURL string, tags []string) (BookmarkDocument, error)
+	InsertOne(userId, URL, title string, tags []string) (BookmarkDocument, error)
 	UpdateOne(userId, id string, update interface{}) error
 	DeleteOne(id string) error
 }
@@ -126,29 +125,26 @@ func (d *db) List(userId, searchKeyword string, page, pageSize int, sortBy, sort
 }
 
 func (d *db) GetOne(id string) (BookmarkDocument, error) {
-	oid, _ := primitive.ObjectIDFromHex(id)
-
 	var bookmarkDocument BookmarkDocument
-	filter := bson.M{"shortId": oid}
+	filter := bson.M{"shortId": id}
 	err := d.collection.FindOne(context.TODO(), filter).Decode(&bookmarkDocument)
 
 	return bookmarkDocument, err
 }
 
-func (d *db) InsertOne(userId, URL, title, faviconURL string, tags []string) (BookmarkDocument, error) {
+func (d *db) InsertOne(userId, URL, title string, tags []string) (BookmarkDocument, error) {
 	createdAt := time.Now()
 	shortId, _ := gonanoid.Nanoid(8)
 
 	bookmarkObject := BookmarkDocument{
-		ShortId:    shortId,
-		URL:        URL,
-		UpdatedAt:  createdAt,
-		UpdatedBy:  userId,
-		CreatedBy:  userId,
-		CreatedAt:  createdAt,
-		Title:      title,
-		FaviconURL: faviconURL,
-		Tags:       tags,
+		ShortId:   shortId,
+		URL:       URL,
+		UpdatedAt: createdAt,
+		UpdatedBy: userId,
+		CreatedBy: userId,
+		CreatedAt: createdAt,
+		Title:     title,
+		Tags:      tags,
 	}
 
 	_, err := d.collection.InsertOne(context.TODO(), bookmarkObject)

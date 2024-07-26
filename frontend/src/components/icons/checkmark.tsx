@@ -1,6 +1,5 @@
-import React from 'react'
 
-function Checkmark(props: any) {
+function Checkmark(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'

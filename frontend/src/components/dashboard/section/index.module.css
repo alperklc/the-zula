@@ -1,0 +1,33 @@
+.dashboardSection {
+  margin-bottom: 1.5rem;
+}
+
+.truncatedText {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.dashboardLabel {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.2rem;
+}
+
+.dashboardListItemIcon {
+  vertical-align: middle;
+  display: inline-flex;
+}
+
+.dashboardListItemTitle {
+  color: var(--link-color) !important;
+  font-size: var(--font-size-small);
+  height: 1.4rem;
+  cursor: pointer;
+  line-height: 1.4rem;
+  margin-left: 0.4rem;
+}
+
+.dashboardListItemTitle:hover {
+  color: var(--color) !important;
+  text-decoration: 1px underline var(--color);
+}

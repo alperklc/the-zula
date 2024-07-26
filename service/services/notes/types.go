@@ -1,4 +1,4 @@
-package notectrl
+package notesService
 
 import "time"
 

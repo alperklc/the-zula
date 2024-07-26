@@ -7,20 +7,24 @@ import (
 	"strconv"
 	"time"
 
-	notectrl "github.com/alperklc/the-zula/service/services/notes"
-	notesReferencesCtrl "github.com/alperklc/the-zula/service/services/notesReferences"
-	"github.com/alperklc/the-zula/service/services/users"
+	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
+	notesService "github.com/alperklc/the-zula/service/services/notes"
+	notesReferencesService "github.com/alperklc/the-zula/service/services/notesReferences"
+	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
+	usersService "github.com/alperklc/the-zula/service/services/users"
 	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
 )
 
 type a struct {
-	users           users.UsersService
-	notes           notectrl.NoteService
-	notesReferences notesReferencesCtrl.NotesReferencesService
+	users           usersService.UsersService
+	userActivities  userActivityService.UserActivityService
+	bookmarks       bookmarksService.BookmarkService
+	notes           notesService.NoteService
+	notesReferences notesReferencesService.NotesReferencesService
 }
 
-func NewApi(u users.UsersService, n notectrl.NoteService, nr notesReferencesCtrl.NotesReferencesService) ServerInterface {
-	return &a{users: u, notes: n, notesReferences: nr}
+func NewApi(u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService, nr notesReferencesService.NotesReferencesService) ServerInterface {
+	return &a{users: u, userActivities: ua, bookmarks: bs, notes: n, notesReferences: nr}
 }
 
 func sendResponse(w http.ResponseWriter, code int, data any) {
@@ -156,19 +160,107 @@ func (s *a) UpdateNote(w http.ResponseWriter, r *http.Request, id string) {
 	var updateInput = make(map[string]interface{})
 	err := json.NewDecoder(r.Body).Decode(&updateInput)
 	if err != nil {
-		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not create note, %s", err.Error()))
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not update note, %s", err.Error()))
 		return
 	}
 
 	errUpdateNote := s.notes.UpdateNote(id, user, "1", updateInput)
 	if errUpdateNote != nil {
-		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not create note, %s", errUpdateNote.Error()))
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not update note, %s", errUpdateNote.Error()))
 		return
 	}
 
 	content, contentChanged := updateInput["content"]
 	if contentChanged {
 		go s.notesReferences.UpsertReferencesOfNote(id, content.(string))
+	}
+
+	sendResponse(w, http.StatusOK, "ok")
+}
+
+func (s *a) GetBookmarks(w http.ResponseWriter, r *http.Request, params GetBookmarksParams) {
+	user := authorization.UserID(r.Context())
+
+	response, errGetBookmarks := s.bookmarks.ListBookmarks(user, params.Q, params.Page, params.PageSize, params.SortBy, params.SortDirection, params.Tags)
+	if errGetBookmarks != nil {
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not get bookmarks, %s", errGetBookmarks.Error()))
+		return
+	}
+
+	converted := make([]Bookmark, 0, len(response.Items))
+	for _, item := range response.Items {
+		converted = append(converted, Bookmark{ShortId: item.ShortId, UpdatedAt: item.UpdatedAt, Title: &item.Title, Tags: &item.Tags, Url: item.URL, FaviconUrl: &item.FaviconURL})
+	}
+
+	sendResponse(w, http.StatusOK, BookmarkSearchResult{
+		Meta: &PaginationMeta{
+			Count:         &response.Meta.Count,
+			Page:          &response.Meta.Page,
+			PageSize:      &response.Meta.PageSize,
+			SortBy:        &response.Meta.SortBy,
+			SortDirection: &response.Meta.SortDirection,
+		},
+		Items: &converted,
+	})
+}
+
+func (s *a) CreateBookmark(w http.ResponseWriter, r *http.Request) {
+	user := authorization.UserID(r.Context())
+
+	var input BookmarkInput
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not create bookmark, %s", err.Error()))
+		return
+	}
+
+	noteCreated, errCreateNote := s.bookmarks.CreateBookmark(user, "1", input.Url, *input.Title, input.Tags)
+	if errCreateNote != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not create bookmark, %s", errCreateNote.Error()))
+		return
+	}
+
+	sendResponse(w, http.StatusOK, noteCreated)
+}
+
+func (s *a) DeleteBookmark(w http.ResponseWriter, r *http.Request, id string) {
+	user := authorization.UserID(r.Context())
+
+	err := s.bookmarks.DeleteBookmark(id, user, "1")
+	if err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not delete bookmark, %s", err.Error()))
+		return
+	}
+
+	sendResponse(w, http.StatusOK, "ok")
+}
+
+func (s *a) GetBookmark(w http.ResponseWriter, r *http.Request, id string) {
+	user := authorization.UserID(r.Context())
+
+	response, errGetNotes := s.bookmarks.GetBookmark(id, user, "1")
+	if errGetNotes != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get note, %s", errGetNotes.Error()))
+		return
+	}
+
+	sendResponse(w, http.StatusOK, response)
+}
+
+func (s *a) UpdateBookmark(w http.ResponseWriter, r *http.Request, id string) {
+	user := authorization.UserID(r.Context())
+
+	var updateInput = make(map[string]interface{})
+	err := json.NewDecoder(r.Body).Decode(&updateInput)
+	if err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not update bookmark, %s", err.Error()))
+		return
+	}
+
+	errUpdateNote := s.bookmarks.UpdateBookmark(id, user, "1", updateInput)
+	if errUpdateNote != nil {
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not update bookmark, %s", errUpdateNote.Error()))
+		return
 	}
 
 	sendResponse(w, http.StatusOK, "ok")
@@ -188,13 +280,23 @@ func (s *a) GetTags(w http.ResponseWriter, r *http.Request, params GetTagsParams
 		searchKeyword = q
 	}
 
-	response, errGetTags := s.notes.SearchTags(user, searchKeyword, limit)
-	if errGetTags != nil {
-		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not get tags, %s", errGetTags.Error()))
-		return
-	}
+	if *params.Type == "note" {
+		response, errGetTags := s.notes.SearchTags(user, searchKeyword, limit)
+		if errGetTags != nil {
+			sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not get tags, %s", errGetTags.Error()))
+			return
+		}
 
-	sendResponse(w, http.StatusOK, response)
+		sendResponse(w, http.StatusOK, response)
+	} else {
+		response, errGetTags := s.bookmarks.SearchTags(user, searchKeyword, limit)
+		if errGetTags != nil {
+			sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not get tags, %s", errGetTags.Error()))
+			return
+		}
+
+		sendResponse(w, http.StatusOK, response)
+	}
 }
 
 func (s *a) GetUser(w http.ResponseWriter, r *http.Request, id string) {
@@ -222,5 +324,15 @@ func (s *a) GetUserActivity(w http.ResponseWriter, r *http.Request, id string, p
 }
 
 func (s *a) GetInsights(w http.ResponseWriter, r *http.Request, id string) {
+	user := authorization.UserID(r.Context())
 
+	activityGraph, mostVisited, lastVisited, nrOfNotes, nrOfBookmarks, errActivities := s.userActivities.GetInsightsForDashboard(user)
+	if errActivities != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get grouped activities, %s", errActivities.Error()))
+		return
+	}
+
+	response := Insights{}
+	response.ConvertInsights(activityGraph, mostVisited, lastVisited, nrOfNotes, nrOfBookmarks)
+	sendResponse(w, http.StatusOK, response)
 }

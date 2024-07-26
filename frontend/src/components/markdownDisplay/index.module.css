@@ -1,0 +1,124 @@
+.container {
+    line-height: 1.85;
+    overflow-wrap: break-word;
+  }
+  
+  .container a,
+  .container a:visited {
+    text-decoration: underline;
+  }
+  
+  .container pre,
+  .container blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+  
+  .container thead {
+    display: table-header-group;
+  }
+  
+  .container tr,
+  .container img {
+    page-break-inside: avoid;
+  }
+  
+  .container img {
+    max-width: 100% !important;
+  }
+  
+  .container p,
+  .container h2,
+  .container h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  
+  .container h2,
+  .container h3 {
+    page-break-after: avoid;
+  }
+  
+  .container p {
+    font-size: 1rem;
+    margin-bottom: 1.3rem;
+  }
+  
+  .container h1,
+  .container h2,
+  .container h3,
+  .container h4 {
+    margin: 1.414rem 0 0.5rem;
+    font-weight: inherit;
+    line-height: 1.42;
+  }
+  /*
+  .container h1 {
+    margin-top: 0;
+    font-size: 3.998rem;
+  }
+  
+  .container h2 {
+    font-size: 2.827rem;
+  }
+  
+  .container h3 {
+    font-size: 1.999rem;
+  }
+  
+  .container h4 {
+    font-size: 1.414rem;
+  }
+  
+  .container h5 {
+    font-size: 1.121rem;
+  }
+  
+  .container h6 {
+    font-size: 0.88rem;
+  }
+  
+  .container small {
+    font-size: 0.707em;
+  }*/
+  
+  .container img,
+  .container canvas,
+  .container iframe,
+  .container video,
+  .container svg,
+  .container select,
+  .container textarea {
+    max-width: 100%;
+  }
+  
+  .container a,
+  .container a:visited {
+    color: var(--link-color);
+  }
+  
+  .container a:hover,
+  .container a:focus,
+  .container a:active {
+    color: var(--link-color-hover);
+  }
+  
+  .container pre {
+    padding: 1rem;
+    text-align: left;
+  }
+  
+  .container blockquote {
+    margin: 0;
+    border-left: 5px solid #7a7a7a;
+    font-style: italic;
+    padding: 1.33em;
+    text-align: left;
+  }
+  
+  .container ul,
+  .container ol,
+  .container li {
+    text-align: left;
+  }
+  

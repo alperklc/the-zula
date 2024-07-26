@@ -7,6 +7,12 @@
     cursor: pointer;
 }
 
+.bookmarkEntry {
+    display: grid;
+    grid-gap: 0.5rem;
+    grid-template-columns: auto 1fr;
+}
+
 .entry:first {
     padding: 0;
 }
@@ -22,7 +28,22 @@
 }
 
 .rightSide {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: right;
+    position: relative;
     font-size: var(--font-size-small);
+}
+
+.rightSide .permalink {
+    word-break: keep-all;
+}
+
+.rightSide .button {
+    margin-top: 0.4rem;
+    position: relative;
 }
 
 .description {
@@ -39,4 +60,48 @@
 .tagsDisplay {
     margin: 0.2rem 0 0 0 !important;
     font-size: var(--font-size-small);
+}
+
+.iconWrapper {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 2rem;
+    margin-right: 0.8rem;
+}
+
+.overflowMenu {
+    position: absolute;
+    z-index: 999;
+    background-color: var(--background);
+    color: var(--color);
+    border: 1px solid var(--border-color);
+    margin-top: 0rem;
+    right: 0.4rem;
+    padding: 0 0.5rem;
+    width: max-content;
+    box-shadow: 0 2px 4px #7c7e80;
+}
+
+
+.icon {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.bookmarkContent {
+    overflow-x: hidden;
+    display: flex;
+}
+
+.textContent {
+    overflow-wrap: anywhere;
+}
+
+.secondaryText {
+    font-size: var(--font-size-small);
+}
+
+.secondaryText .url {
+    text-decoration: none;
 }

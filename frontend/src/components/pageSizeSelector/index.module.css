@@ -16,6 +16,7 @@
 .pageSizeSelectorActive {
   font-weight: bolder;
   cursor: initial;
+  color: var(--link-color);
 }
 
 .pageSizeSelectorActive:hover {
@@ -25,6 +26,9 @@
 .pageSizeSelector::after {
   content: ' | ';
   margin: 0 6px;
+  color: var(--color);
+  font-weight: normal;
+  text-decoration: none;
 }
 
 .pageSizeSelector:last-child::after {

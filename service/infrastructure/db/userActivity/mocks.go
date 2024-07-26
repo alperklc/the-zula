@@ -8,32 +8,32 @@ type MockedUserActivity struct {
 	mock.Mock
 }
 
-func (m *MockedUserActivity) List(userUID string, page, pageSize int, sortBy, sortDirection string) (UserActivityPage, error) {
-	args := m.Called(userUID, page, pageSize, sortBy, sortDirection)
+func (m *MockedUserActivity) List(userID string, page, pageSize int, sortBy, sortDirection string) (UserActivityPage, error) {
+	args := m.Called(userID, page, pageSize, sortBy, sortDirection)
 	return args.Get(0).(UserActivityPage), args.Error(1)
 }
 
-func (m *MockedUserActivity) InsertOne(userUID, resourceType, action, objectUID string) (UserActivityDocument, error) {
-	args := m.Called(userUID, resourceType, action, objectUID)
+func (m *MockedUserActivity) InsertOne(userID, resourceType, action, objectID string) (UserActivityDocument, error) {
+	args := m.Called(userID, resourceType, action, objectID)
 	return args.Get(0).(UserActivityDocument), args.Error(1)
 }
 
-func (m *MockedUserActivity) GetMostVisitedContent(userUID string, daysSince int, uidsOfExcludedEntries []string) ([]UsageStatisticsEntry, error) {
-	args := m.Called(userUID, daysSince, uidsOfExcludedEntries)
+func (m *MockedUserActivity) GetMostVisitedContent(userID string, daysSince int, IDsOfExcludedEntries []string) ([]UsageStatisticsEntry, error) {
+	args := m.Called(userID, daysSince, IDsOfExcludedEntries)
 	return args.Get(0).([]UsageStatisticsEntry), args.Error(1)
 }
 
-func (m *MockedUserActivity) GetLastVisitedContent(userUID string, daysSince int, uidsOfExcludedEntries []string) ([]UsageStatisticsEntry, error) {
-	args := m.Called(userUID, daysSince, uidsOfExcludedEntries)
+func (m *MockedUserActivity) GetLastVisitedContent(userID string, daysSince int, IDsOfExcludedEntries []string) ([]UsageStatisticsEntry, error) {
+	args := m.Called(userID, daysSince, IDsOfExcludedEntries)
 	return args.Get(0).([]UsageStatisticsEntry), args.Error(1)
 }
 
-func (m *MockedUserActivity) GetUidsOfDeletedEntries(userUID string, daysAgo int) ([]string, error) {
-	args := m.Called(userUID, daysAgo)
+func (m *MockedUserActivity) GetIdsOfDeletedEntries(userID string, daysAgo int) ([]string, error) {
+	args := m.Called(userID, daysAgo)
 	return args.Get(0).([]string), args.Error(1)
 }
 
-func (m *MockedUserActivity) GroupActivitiesByDate(userUID string) ([]ActivityGraphEntry, error) {
-	args := m.Called(userUID)
+func (m *MockedUserActivity) GroupActivitiesByDate(userID string) ([]ActivityGraphEntry, error) {
+	args := m.Called(userID)
 	return args.Get(0).([]ActivityGraphEntry), args.Error(1)
 }

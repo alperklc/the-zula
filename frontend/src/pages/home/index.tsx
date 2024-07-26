@@ -1,13 +1,113 @@
+import { useIntl } from 'react-intl'
+import Layout from '../../components/layout'
+import MessageBox from '../../components/messageBox'
+import PageContent from '../../components/pageContent'
+import AllContentSection, { DashboardSection } from '../../components/dashboard/section'
+import React from 'react'
+import { useUI } from '../../contexts/uiContext'
+import { useAuth } from '../../contexts/authContext'
+import { Api, Insights } from '../../types/Api'
+import { ActivityGraph } from '../../components/dashboard/activity-graph'
 
-import React from 'react';
+const emptyInsights: Insights = {
+  numberOfNotes: 0,
+  numberOfBookmarks: 0, 
+  lastVisited: [],
+  mostVisited: [],
+  activityGraph: [],
+}
 
-const Home = () => {
-  return (
-    <div>
-      <h1>Home</h1>
-      <p>Welcome to the home page!</p>
-    </div>
-  );
-};
+const Dashboard = () => {
+  const { formatMessage } = useIntl()
+  const { isMobile } = useUI()
 
-export default Home;
+  const [loading, setLoading] = React.useState(true);
+  const [data, setData] = React.useState<Insights>(emptyInsights);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const { user } = useAuth()
+  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}` } } })
+
+  const fetch = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data, status } = await api.api.getInsights(user?.profile.sub ?? "")
+
+      if (status === 200) {
+        setData(data);
+      } else {
+        console.error(data);
+        setError(data);
+      }
+
+    } catch (e: unknown) {
+      console.error(e);
+      setError(e as string);
+    }
+    setLoading(false);
+  };
+
+  React.useEffect(() => {
+    fetch()
+  }, [])
+
+
+  const lastVisited = (data?.lastVisited || []).map((d: any) => d.content)
+  const mostVisited = (data?.mostVisited || []).map((d: any) => d.content)
+
+  const MostVisitedAndLastVisited = () => (
+    <>
+      {lastVisited?.length > 0 && (
+        <DashboardSection
+          title={formatMessage({ id: 'dashboard.titles.last_visited' })}
+          rows={data?.lastVisited ?? []}
+        />
+      )}
+      {mostVisited?.length > 0 && (
+        <DashboardSection
+          title={formatMessage({ id: 'dashboard.titles.most_visited' })}
+          rows={data?.mostVisited ?? []}
+        />
+      )}
+    </>
+  )
+console.log(data.numberOfBookmarks)
+console.log(data.numberOfNotes)
+
+return (
+    <Layout narrow>
+      {!loading && !data && error ? (
+        <MessageBox type='error'>Error</MessageBox>
+      ) : (
+        <>
+          <label>{formatMessage({ id: 'dashboard.titles.activity_graph' })}</label>
+
+          <ActivityGraph data={data?.activityGraph ?? []} />
+
+          {isMobile && (
+            // on mobile always one column
+            <PageContent loading={loading}>
+              <>
+                <MostVisitedAndLastVisited />
+                <AllContentSection data={data} />
+              </>
+            </PageContent>
+          )}
+
+          {!isMobile && (
+            // on desktop two columns BUT only one column is shown, if the most visited and last visited are empty
+            <PageContent loading={loading}>
+              {mostVisited?.length > 0 && lastVisited?.length > 0 && <MostVisitedAndLastVisited />}
+
+              <AllContentSection data={data} />
+            </PageContent>
+          )}
+        </>
+      )}
+    </Layout>
+  )
+}
+
+export default Dashboard

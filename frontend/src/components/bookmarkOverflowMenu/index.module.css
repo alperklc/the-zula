@@ -1,0 +1,17 @@
+.container {
+  padding: 0 0.5rem;
+}
+
+.menuChoice {
+  display: block;
+  height: 2rem;
+  line-height: 2rem;
+  font-weight: normal;
+  padding: 0 0.5rem;
+  margin: 0 -0.5rem;
+  background-color: var(--background);
+}
+
+.menuChoice:hover {
+  background-color: var(--border-color);
+}

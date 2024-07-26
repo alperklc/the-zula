@@ -10,9 +10,11 @@ interface UIContext {
   theme: string
   isMobile: boolean
   backdropActive: boolean
+  overflowMenuId: string
   switchLanguage: (_: string) => void
   switchTheme: (_: string) => void
   toggleBackdrop: () => void
+  setOverflowMenu: (_: string) => void
 }
 
 export const UIContext = React.createContext<UIContext>({
@@ -20,9 +22,11 @@ export const UIContext = React.createContext<UIContext>({
   theme: 'darkTheme',
   isMobile: false,
   backdropActive: false,
+  overflowMenuId: '',
   switchLanguage: (_: string) => ({}),
   switchTheme: (_: string) => ({}),
   toggleBackdrop: () => ({}),
+  setOverflowMenu: (_: string) => ({}),
 })
 
 const messages = {
@@ -66,6 +70,7 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = React.useState<string>(getTheme(user!))
   const [backdropActive, setBackdropActive] = React.useState<boolean>(false)
   const [isMobile, setIsMobile] = React.useState<boolean>(isMobileDevice)
+  const [overflowMenuId, setOverflowMenuId] = React.useState<string>("")
 
   const switchLanguage = (nextLanguage: string) => {
     document.documentElement.setAttribute('lang', nextLanguage)
@@ -82,11 +87,17 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const toggleBackdrop = () => {
+    setOverflowMenu("")
     setBackdropActive(!backdropActive)
   }
   
   const handleResize = () => {
     setIsMobile(window.innerWidth < 700)
+  }
+
+  const setOverflowMenu = (id: string) => {
+    setBackdropActive(true)
+    setOverflowMenuId(id)
   }
 
   React.useEffect(() => {
@@ -106,9 +117,11 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
         theme,
         backdropActive,
         isMobile,
+        overflowMenuId,
         switchLanguage,
         switchTheme,
         toggleBackdrop,
+        setOverflowMenu,
       }}
     >
       <RawIntlProvider value={intl}>

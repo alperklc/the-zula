@@ -1,4 +1,4 @@
-package notectrl
+package notesService
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/alperklc/the-zula/service/infrastructure/db/notes"
 	"github.com/alperklc/the-zula/service/infrastructure/db/notesDrafts"
-	"github.com/alperklc/the-zula/service/services/users"
+	usersService "github.com/alperklc/the-zula/service/services/users"
 	"github.com/alperklc/the-zula/service/utils"
 )
 
@@ -25,12 +25,12 @@ type NoteService interface {
 }
 
 type datasources struct {
-	users       users.UsersService
+	users       usersService.UsersService
 	notes       notes.Collection
 	notesDrafts notesDrafts.Collection
 }
 
-func NewService(u users.UsersService, n notes.Collection, nd notesDrafts.Collection) NoteService {
+func NewService(u usersService.UsersService, n notes.Collection, nd notesDrafts.Collection) NoteService {
 	return &datasources{
 		users: u, notes: n, notesDrafts: nd,
 	}
@@ -169,9 +169,13 @@ func (d *datasources) GetNote(noteId, userId, clientId string) (Note, error) {
 		return Note{}, fmt.Errorf("NOT_ALLOWED_TO_GET")
 	}
 
-	user, errGetUser := d.users.GetUser(note.CreatedBy)
-	if errGetUser != nil {
-		return Note{}, errGetUser
+	creator, errGetCreatorUser := d.users.GetUser(note.CreatedBy)
+	if errGetCreatorUser != nil {
+		return Note{}, errGetCreatorUser
+	}
+	updater, errGetUpdaterUser := d.users.GetUser(note.UpdatedBy)
+	if errGetUpdaterUser != nil {
+		return Note{}, errGetUpdaterUser
 	}
 
 	draftExist, _ := d.notesDrafts.CheckExistence([]string{noteId})
@@ -179,8 +183,8 @@ func (d *datasources) GetNote(noteId, userId, clientId string) (Note, error) {
 	return Note{
 		ShortId:   note.ShortId,
 		UpdatedAt: note.UpdatedAt,
-		UpdatedBy: user.DisplayName,
-		CreatedBy: user.DisplayName,
+		UpdatedBy: updater.DisplayName,
+		CreatedBy: creator.DisplayName,
 		CreatedAt: note.CreatedAt,
 		Title:     note.Title,
 		Content:   note.Content,

@@ -11,6 +11,12 @@ import Filter from './filter'
 import Search from './search'
 import History from './history'
 import Menu from './menu'
+import Book from './book'
+import File from './file'
+import Folder from './folder'
+import Link from './link'
+import Share from './share'
+import ThreeDotsMenu from './three-dots-menu'
 
 export default {
   ArrowLeft,
@@ -26,4 +32,10 @@ export default {
   History,
   X,
   Plus,
+  Book,
+  File,
+  Folder,
+  Link,
+  Share,
+  ThreeDotsMenu,
 }

@@ -1,4 +1,4 @@
-function History(props: any) {
+function History(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'

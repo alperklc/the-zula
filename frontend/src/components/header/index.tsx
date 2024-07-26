@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Button from "../form/button";
 import Icons from "../icons";
 import Logo from "../logo";
@@ -10,9 +11,9 @@ const Header = (props: { className?: string; onMenuIconClicked: () => void; }) =
         <Icons.Menu />
       </Button>
 
-      <a href={'/'} className={styles.logoContainer}>
+      <Link to={'/'} className={styles.logoContainer}>
         <Logo />
-      </a>
+      </Link>
     </span>
   </header>
 );
