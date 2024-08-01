@@ -6,6 +6,7 @@ import (
 
 	"github.com/alperklc/the-zula/service/infrastructure/db/notes"
 	"github.com/alperklc/the-zula/service/infrastructure/db/notesDrafts"
+	referencesService "github.com/alperklc/the-zula/service/services/references"
 	usersService "github.com/alperklc/the-zula/service/services/users"
 	"github.com/alperklc/the-zula/service/utils"
 )
@@ -16,7 +17,7 @@ type NoteService interface {
 	ListNotes(userId string, searchKeyword *string, page, pageSize *int, sortBy, sortDirection *string, tags *[]string) (NotesPage, error)
 	CreateNote(userId, clientId string, title, content *string, tags *[]string) (Note, error)
 	UpdateNote(noteId, userId, clientId string, update map[string]interface{}) error
-	GetNote(noteId, userId, clientId string) (Note, error)
+	GetNote(noteId, userId, clientId string, loadDraft bool) (Note, error)
 	GetNotes(userId string, noteIds, fields []string) ([]Note, error)
 	DeleteNote(noteId, userId, clientId string) error
 	GetDraftOfNote(userId, noteId string) (Note, error)
@@ -28,11 +29,12 @@ type datasources struct {
 	users       usersService.UsersService
 	notes       notes.Collection
 	notesDrafts notesDrafts.Collection
+	references  referencesService.ReferencesService
 }
 
-func NewService(u usersService.UsersService, n notes.Collection, nd notesDrafts.Collection) NoteService {
+func NewService(u usersService.UsersService, n notes.Collection, nd notesDrafts.Collection, nrs referencesService.ReferencesService) NoteService {
 	return &datasources{
-		users: u, notes: n, notesDrafts: nd,
+		users: u, notes: n, notesDrafts: nd, references: nrs,
 	}
 }
 
@@ -126,6 +128,8 @@ func (d *datasources) CreateNote(userId, clientId string, title, content *string
 
 	createdNote, err := d.notes.InsertOne(userId, *title, *content, tags)
 
+	go d.references.UpsertReferencesOfNote(createdNote.ShortId, *content)
+
 	return Note{
 		ShortId:   createdNote.ShortId,
 		UpdatedAt: createdNote.UpdatedAt,
@@ -156,10 +160,15 @@ func (d *datasources) UpdateNote(noteId, userId, clientId string, update map[str
 		d.notesDrafts.DeleteOne(noteId)
 	}
 
+	content, contentChanged := update["content"]
+	if contentChanged {
+		go d.references.UpsertReferencesOfNote(noteId, content.(string))
+	}
+
 	return err
 }
 
-func (d *datasources) GetNote(noteId, userId, clientId string) (Note, error) {
+func (d *datasources) GetNote(noteId, userId, clientId string, loadDraft bool) (Note, error) {
 	note, getNoteErr := d.notes.GetOne(noteId)
 	if getNoteErr != nil || note.Id == "" {
 		return Note{}, getNoteErr
@@ -179,8 +188,7 @@ func (d *datasources) GetNote(noteId, userId, clientId string) (Note, error) {
 	}
 
 	draftExist, _ := d.notesDrafts.CheckExistence([]string{noteId})
-
-	return Note{
+	response := Note{
 		ShortId:   note.ShortId,
 		UpdatedAt: note.UpdatedAt,
 		UpdatedBy: updater.DisplayName,
@@ -190,7 +198,20 @@ func (d *datasources) GetNote(noteId, userId, clientId string) (Note, error) {
 		Content:   note.Content,
 		Tags:      note.Tags,
 		HasDraft:  draftExist[note.ShortId],
-	}, getNoteErr
+	}
+
+	if loadDraft {
+		draftOfNote, errGetDraft := d.notesDrafts.GetOne(noteId)
+		if errGetDraft != nil {
+			return response, nil
+		}
+
+		response.Content = draftOfNote.Content
+		response.Title = draftOfNote.Title
+		response.Tags = draftOfNote.Tags
+	}
+
+	return response, getNoteErr
 }
 
 func (d *datasources) GetNotes(userId string, noteIds, fields []string) ([]Note, error) {

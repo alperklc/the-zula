@@ -9,22 +9,20 @@ import (
 
 	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
 	notesService "github.com/alperklc/the-zula/service/services/notes"
-	notesReferencesService "github.com/alperklc/the-zula/service/services/notesReferences"
 	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
 	usersService "github.com/alperklc/the-zula/service/services/users"
 	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
 )
 
 type a struct {
-	users           usersService.UsersService
-	userActivities  userActivityService.UserActivityService
-	bookmarks       bookmarksService.BookmarkService
-	notes           notesService.NoteService
-	notesReferences notesReferencesService.NotesReferencesService
+	users          usersService.UsersService
+	userActivities userActivityService.UserActivityService
+	bookmarks      bookmarksService.BookmarkService
+	notes          notesService.NoteService
 }
 
-func NewApi(u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService, nr notesReferencesService.NotesReferencesService) ServerInterface {
-	return &a{users: u, userActivities: ua, bookmarks: bs, notes: n, notesReferences: nr}
+func NewApi(u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService) ServerInterface {
+	return &a{users: u, userActivities: ua, bookmarks: bs, notes: n}
 }
 
 func sendResponse(w http.ResponseWriter, code int, data any) {
@@ -113,8 +111,6 @@ func (s *a) CreateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go s.notesReferences.UpsertReferencesOfNote(noteCreated.ShortId, *input.Content)
-
 	sendResponse(w, http.StatusOK, noteCreated)
 }
 
@@ -133,22 +129,10 @@ func (s *a) DeleteNote(w http.ResponseWriter, r *http.Request, id string) {
 func (s *a) GetNote(w http.ResponseWriter, r *http.Request, id string, params GetNoteParams) {
 	user := authorization.UserID(r.Context())
 
-	response, errGetNotes := s.notes.GetNote(id, user, "1")
+	response, errGetNotes := s.notes.GetNote(id, user, "1", params.LoadDraft != nil && *params.LoadDraft)
 	if errGetNotes != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get note, %s", errGetNotes.Error()))
 		return
-	}
-
-	if params.LoadDraft != nil && *params.LoadDraft {
-		draftOfNote, errGetDraft := s.notes.GetDraftOfNote(user, id)
-		if errGetDraft != nil {
-			sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get draft of the note, %s", errGetDraft.Error()))
-			return
-		}
-
-		response.Content = draftOfNote.Content
-		response.Title = draftOfNote.Title
-		response.Tags = draftOfNote.Tags
 	}
 
 	sendResponse(w, http.StatusOK, response)
@@ -168,11 +152,6 @@ func (s *a) UpdateNote(w http.ResponseWriter, r *http.Request, id string) {
 	if errUpdateNote != nil {
 		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not update note, %s", errUpdateNote.Error()))
 		return
-	}
-
-	content, contentChanged := updateInput["content"]
-	if contentChanged {
-		go s.notesReferences.UpsertReferencesOfNote(id, content.(string))
 	}
 
 	sendResponse(w, http.StatusOK, "ok")

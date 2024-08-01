@@ -1,10 +1,10 @@
-package notesReferencesService
+package referencesService
 
 import (
-	"github.com/alperklc/the-zula/service/infrastructure/db/notesReferences"
+	"github.com/alperklc/the-zula/service/infrastructure/db/references"
 )
 
-func GetNoteIdsFromReferences(references []notesReferences.ReferencesDocument) []string {
+func GetNoteIdsFromReferences(references []references.ReferencesDocument) []string {
 
 	nodesMap := make(map[string]bool)
 	nodeIds := []string{}

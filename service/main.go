@@ -14,15 +14,16 @@ import (
 	"github.com/alperklc/the-zula/service/infrastructure/db/bookmarks"
 	"github.com/alperklc/the-zula/service/infrastructure/db/notes"
 	"github.com/alperklc/the-zula/service/infrastructure/db/notesDrafts"
-	"github.com/alperklc/the-zula/service/infrastructure/db/notesReferences"
 	"github.com/alperklc/the-zula/service/infrastructure/db/pageContent"
+	"github.com/alperklc/the-zula/service/infrastructure/db/references"
 	useractivity "github.com/alperklc/the-zula/service/infrastructure/db/userActivity"
 	"github.com/alperklc/the-zula/service/infrastructure/environment"
 	"github.com/alperklc/the-zula/service/infrastructure/logger"
+	messagequeue "github.com/alperklc/the-zula/service/infrastructure/messageQueue"
 	"github.com/alperklc/the-zula/service/infrastructure/webScraper"
 	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
 	notesService "github.com/alperklc/the-zula/service/services/notes"
-	notesReferencesService "github.com/alperklc/the-zula/service/services/notesReferences"
+	referencesService "github.com/alperklc/the-zula/service/services/references"
 	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
 	usersService "github.com/alperklc/the-zula/service/services/users"
 	middleware "github.com/oapi-codegen/nethttp-middleware"
@@ -36,6 +37,10 @@ func main() {
 
 	l := logger.Get()
 	d := db.Connect(config.MongoURI)
+	_, errMq := messagequeue.New(config.RabbitMqUri)
+	if errMq != nil {
+		l.Fatal().Msgf("Error connecting to the rabbitmq: %s", errMq)
+	}
 
 	swagger, err := api.GetSwagger()
 	if err != nil {
@@ -48,7 +53,7 @@ func main() {
 
 	nr := notes.NewDb(d)
 	ndr := notesDrafts.NewDb(d)
-	nrr := notesReferences.NewDb(d)
+	nrr := references.NewDb(d)
 	uad := useractivity.NewDb(d)
 	b := bookmarks.NewDb(d)
 	pc := pageContent.NewDb(d)
@@ -70,11 +75,12 @@ func main() {
 
 	us := usersService.NewService(ac, ums)
 	bs := bookmarksService.NewService(us, b, pc, ws)
-	ns := notesService.NewService(us, nr, ndr)
-	nrs := notesReferencesService.NewService(nr, nrr)
+
+	nrs := referencesService.NewService(nr, nrr)
+	ns := notesService.NewService(us, nr, ndr, nrs)
 	uas := userActivityService.NewService(*uams, *usms, us, uad, ns, bs)
 
-	a := api.NewApi(us, uas, bs, ns, nrs)
+	a := api.NewApi(us, uas, bs, ns)
 	r := chi.NewRouter()
 	r.Use(middleware.OapiRequestValidator(swagger))
 

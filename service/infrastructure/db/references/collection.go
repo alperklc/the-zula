@@ -1,4 +1,4 @@
-package notesReferences
+package references
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const collectionName = "notes_references"
+const collectionName = "references"
 
 type Collection interface {
 	ListReferencesOfNoteInDepth(noteId string, depth int) ([]ReferencesDocument, error)
@@ -55,7 +55,7 @@ func (d *db) InsertMany(referenceFrom string, idsOfTargetTotes []string) error {
 	var itemsToInsert []interface{} = make([]interface{}, 0, len(idsOfTargetTotes))
 	for i := range idsOfTargetTotes {
 
-		noteReference := NotesReferencesDocument{
+		noteReference := ReferencesDocument{
 			From: referenceFrom,
 			To:   idsOfTargetTotes[i],
 		}
