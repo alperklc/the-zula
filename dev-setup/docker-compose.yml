@@ -33,7 +33,7 @@ services:
 #      retries: 5
 #      start_period: 20s
 #      timeout: 10s      
-    image: 'ghcr.io/zitadel/zitadel:latest'
+    image: 'ghcr.io/zitadel/zitadel'
     command: 'start-from-init --config ./zitadel-config.yaml --config ./zitadel-secrets.yaml --steps ./zitadel-init-steps.yaml --masterkey "MasterkeyNeedsToHave32Characters" --tlsMode enabled'
     volumes:
       - ./certs/cert.pem:/etc/certs/cert.pem
@@ -92,6 +92,7 @@ services:
     depends_on:
       - zitadel
       - mongodb
+      - rabbitmq
     ports:
       - 8081:8081
     volumes:
@@ -99,6 +100,23 @@ services:
      # - ./certs/zitadel-key.json:/app/certs/zitadel-key.json
     environment:
       - MONGO_URI=mongodb://localhost:27017/zula
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    networks:
+      - net
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      #   - ./rabbitmq/config:/etc/rabbitmq
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+      - ./rabbitmq/logs:/var/log/rabbitmq/log
+    ports:
+      - 5672:5672
+      - 15672:15672
 
   traefik:
     image: "traefik:latest"
