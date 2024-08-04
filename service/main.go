@@ -20,6 +20,7 @@ import (
 	"github.com/alperklc/the-zula/service/infrastructure/environment"
 	"github.com/alperklc/the-zula/service/infrastructure/logger"
 	messagequeue "github.com/alperklc/the-zula/service/infrastructure/messageQueue"
+	mqpublisher "github.com/alperklc/the-zula/service/infrastructure/messageQueue/publisher"
 	"github.com/alperklc/the-zula/service/infrastructure/webScraper"
 	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
 	notesService "github.com/alperklc/the-zula/service/services/notes"
@@ -37,10 +38,11 @@ func main() {
 
 	l := logger.Get()
 	d := db.Connect(config.MongoURI)
-	_, errMq := messagequeue.New(config.RabbitMqUri)
+	mq, errMq := messagequeue.New(config.RabbitMqUri)
 	if errMq != nil {
 		l.Fatal().Msgf("Error connecting to the rabbitmq: %s", errMq)
 	}
+	mqp := mqpublisher.New(mq.Channel)
 
 	swagger, err := api.GetSwagger()
 	if err != nil {
@@ -73,11 +75,11 @@ func main() {
 		l.Fatal().Msgf("Error memory store: %s", errMemstore3)
 	}
 
-	us := usersService.NewService(ac, ums)
-	bs := bookmarksService.NewService(us, b, pc, ws)
+	us := usersService.NewService(ac, ums, mqp)
+	bs := bookmarksService.NewService(us, b, pc, ws, mqp)
 
 	nrs := referencesService.NewService(nr, nrr)
-	ns := notesService.NewService(us, nr, ndr, nrs)
+	ns := notesService.NewService(us, nr, ndr, nrs, mqp)
 	uas := userActivityService.NewService(*uams, *usms, us, uad, ns, bs)
 
 	a := api.NewApi(us, uas, bs, ns)

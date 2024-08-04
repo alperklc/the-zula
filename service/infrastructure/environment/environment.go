@@ -19,6 +19,9 @@ type Config struct {
 	AuthDomain               string `env:"authDomain,required"`
 	AuthServiceAccountUser   string `env:"authServiceAccountUser,required"`
 	AuthServiceAccountSecret string `env:"authServiceAccountSecret,required"`
+	RabbitMqUser             string `env:"rabbitMqUser,required"`
+	RabbitMqPassword         string `env:"rabbitMqPassword,required"`
+	RabbitMqUri              string `env:"rabbitMqUri,required"`
 }
 
 func Read() *Config {

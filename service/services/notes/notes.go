@@ -6,6 +6,7 @@ import (
 
 	"github.com/alperklc/the-zula/service/infrastructure/db/notes"
 	"github.com/alperklc/the-zula/service/infrastructure/db/notesDrafts"
+	mqpublisher "github.com/alperklc/the-zula/service/infrastructure/messageQueue/publisher"
 	referencesService "github.com/alperklc/the-zula/service/services/references"
 	usersService "github.com/alperklc/the-zula/service/services/users"
 	"github.com/alperklc/the-zula/service/utils"
@@ -30,11 +31,12 @@ type datasources struct {
 	notes       notes.Collection
 	notesDrafts notesDrafts.Collection
 	references  referencesService.ReferencesService
+	mqpublisher mqpublisher.MessagePublisher
 }
 
-func NewService(u usersService.UsersService, n notes.Collection, nd notesDrafts.Collection, nrs referencesService.ReferencesService) NoteService {
+func NewService(u usersService.UsersService, n notes.Collection, nd notesDrafts.Collection, nrs referencesService.ReferencesService, mqp mqpublisher.MessagePublisher) NoteService {
 	return &datasources{
-		users: u, notes: n, notesDrafts: nd, references: nrs,
+		users: u, notes: n, notesDrafts: nd, references: nrs, mqpublisher: mqp,
 	}
 }
 
@@ -129,6 +131,9 @@ func (d *datasources) CreateNote(userId, clientId string, title, content *string
 	createdNote, err := d.notes.InsertOne(userId, *title, *content, tags)
 
 	go d.references.UpsertReferencesOfNote(createdNote.ShortId, *content)
+	if err == nil {
+		go d.mqpublisher.Publish(mqpublisher.NoteCreated(userId, clientId, createdNote.ShortId, nil))
+	}
 
 	return Note{
 		ShortId:   createdNote.ShortId,
@@ -163,6 +168,10 @@ func (d *datasources) UpdateNote(noteId, userId, clientId string, update map[str
 	content, contentChanged := update["content"]
 	if contentChanged {
 		go d.references.UpsertReferencesOfNote(noteId, content.(string))
+	}
+
+	if err == nil {
+		go d.mqpublisher.Publish(mqpublisher.NoteUpdated(userId, clientId, noteId, update))
 	}
 
 	return err
@@ -211,6 +220,8 @@ func (d *datasources) GetNote(noteId, userId, clientId string, loadDraft bool) (
 		response.Tags = draftOfNote.Tags
 	}
 
+	go d.mqpublisher.Publish(mqpublisher.NoteRead(userId, clientId, noteId, nil))
+
 	return response, getNoteErr
 }
 
@@ -254,6 +265,10 @@ func (d *datasources) DeleteNote(noteId, userId, clientId string) error {
 	err := d.notes.DeleteOne(noteId)
 	if err == nil {
 		d.notesDrafts.DeleteOne(noteId)
+	}
+
+	if err == nil {
+		go d.mqpublisher.Publish(mqpublisher.NoteDeleted(userId, clientId, noteId, nil))
 	}
 	return err
 }

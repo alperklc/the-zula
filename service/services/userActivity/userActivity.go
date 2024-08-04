@@ -27,9 +27,9 @@ type datasources struct {
 	activityGraphCache cache.Cache[[]useractivity.ActivityGraphEntry]
 	mostVisitedCache   cache.Cache[[]useractivity.UsageStatisticsEntry]
 	user               usersService.UsersService
-	useractivity       useractivity.Collection
 	notes              notesService.NoteService
 	bookmarks          bookmarksService.BookmarkService
+	useractivity       useractivity.Collection
 }
 
 func NewService(agc cache.Cache[[]useractivity.ActivityGraphEntry], mvc cache.Cache[[]useractivity.UsageStatisticsEntry], u usersService.UsersService, ua useractivity.Collection, n notesService.NoteService, b bookmarksService.BookmarkService) UserActivityService {

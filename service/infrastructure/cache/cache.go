@@ -22,6 +22,10 @@ func NewCache[T any](ttl time.Duration) (*Cache[T], error) {
 	}, nil
 }
 
+func (c *Cache[T]) Reset(id string) {
+	c.store.Delete(id)
+}
+
 func (c *Cache[T]) Write(id string, obj T) {
 	c.store.Set(id, obj, ttlcache.DefaultTTL)
 }

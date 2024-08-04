@@ -6,6 +6,7 @@ import (
 
 	"github.com/alperklc/the-zula/service/infrastructure/db/bookmarks"
 	"github.com/alperklc/the-zula/service/infrastructure/db/pageContent"
+	mqpublisher "github.com/alperklc/the-zula/service/infrastructure/messageQueue/publisher"
 	"github.com/alperklc/the-zula/service/infrastructure/webScraper"
 	usersService "github.com/alperklc/the-zula/service/services/users"
 	"github.com/alperklc/the-zula/service/utils"
@@ -29,10 +30,11 @@ type datasources struct {
 	bookmarks   bookmarks.Collection
 	pageContent pageContent.Collection
 	webScraper  webScraper.WebScraper
+	mqpublisher mqpublisher.MessagePublisher
 }
 
-func NewService(u usersService.UsersService, b bookmarks.Collection, pc pageContent.Collection, w webScraper.WebScraper) BookmarkService {
-	return &datasources{users: u, bookmarks: b, pageContent: pc, webScraper: w}
+func NewService(u usersService.UsersService, b bookmarks.Collection, pc pageContent.Collection, w webScraper.WebScraper, mqp mqpublisher.MessagePublisher) BookmarkService {
+	return &datasources{users: u, bookmarks: b, pageContent: pc, webScraper: w, mqpublisher: mqp}
 }
 
 func getPaginationRange(count, page, pageSize int) string {
@@ -132,7 +134,7 @@ func (d *datasources) CreateBookmark(userID, clientId, URL, title string, tags *
 		fmt.Println(err1)
 	}()
 
-	return Bookmark{
+	response := Bookmark{
 		ShortId:   createdBookmark.ShortId,
 		URL:       createdBookmark.URL,
 		UpdatedAt: createdBookmark.UpdatedAt,
@@ -141,7 +143,13 @@ func (d *datasources) CreateBookmark(userID, clientId, URL, title string, tags *
 		CreatedAt: createdBookmark.CreatedAt,
 		Title:     createdBookmark.Title,
 		Tags:      createdBookmark.Tags,
-	}, err
+	}
+
+	if err == nil {
+		go d.mqpublisher.Publish(mqpublisher.BookmarkCreated(userID, clientId, createdBookmark.ShortId, nil))
+	}
+
+	return response, err
 }
 
 func (d *datasources) UpdateBookmark(bookmarkID, userID, clientId string, update map[string]interface{}) error {
@@ -162,6 +170,11 @@ func (d *datasources) UpdateBookmark(bookmarkID, userID, clientId string, update
 	}
 	updatedFields := utils.FilterFieldsOfObject(allowedFields, update)
 	err := d.bookmarks.UpdateOne(userID, bookmarkID, updatedFields)
+
+	if err == nil {
+		go d.mqpublisher.Publish(mqpublisher.BookmarkUpdated(userID, clientId, bookmarkID, nil))
+	}
+
 	return err
 }
 
@@ -186,7 +199,7 @@ func (d *datasources) GetBookmark(bookmarkID, userID, clientId string) (Bookmark
 		//
 	}
 
-	b := Bookmark{
+	response := Bookmark{
 		ShortId:    bookmark.ShortId,
 		URL:        bookmark.URL,
 		UpdatedAt:  bookmark.UpdatedAt,
@@ -198,7 +211,9 @@ func (d *datasources) GetBookmark(bookmarkID, userID, clientId string) (Bookmark
 		Tags:       bookmark.Tags,
 	}
 
-	return b.AddPageContent(content), getBookmarkErr
+	go d.mqpublisher.Publish(mqpublisher.BookmarkRead(userID, clientId, bookmarkID, nil))
+
+	return response.AddPageContent(content), getBookmarkErr
 }
 
 func (d *datasources) DeleteBookmark(bookmarkID, userID, clientId string) error {
@@ -212,6 +227,10 @@ func (d *datasources) DeleteBookmark(bookmarkID, userID, clientId string) error 
 	}
 
 	err := d.bookmarks.DeleteOne(bookmarkID)
+	if err == nil {
+		go d.mqpublisher.Publish(mqpublisher.BookmarkDeleted(userID, clientId, bookmarkID, nil))
+	}
+
 	return err
 }
 

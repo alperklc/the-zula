@@ -5,6 +5,7 @@ import (
 
 	"github.com/alperklc/the-zula/service/infrastructure/auth"
 	"github.com/alperklc/the-zula/service/infrastructure/cache"
+	mqpublisher "github.com/alperklc/the-zula/service/infrastructure/messageQueue/publisher"
 )
 
 type UsersService interface {
@@ -13,14 +14,16 @@ type UsersService interface {
 }
 
 type datasources struct {
-	Auth  auth.AuthClient
-	Cache cache.Cache[User]
+	Auth        auth.AuthClient
+	Cache       cache.Cache[User]
+	mqpublisher mqpublisher.MessagePublisher
 }
 
-func NewService(a *auth.AuthClient, c *cache.Cache[User]) UsersService {
+func NewService(a *auth.AuthClient, c *cache.Cache[User], mqp mqpublisher.MessagePublisher) UsersService {
 	return &datasources{
-		Auth:  *a,
-		Cache: *c,
+		Auth:        *a,
+		Cache:       *c,
+		mqpublisher: mqp,
 	}
 }
 
@@ -85,6 +88,9 @@ func (d *datasources) UpdateUser(id, firstName, lastname, displayName string, la
 	if errSetUser != nil {
 		return errSetUser
 	}
+
+	d.Cache.Reset(id)
+	go d.mqpublisher.Publish(mqpublisher.UserUpdated(id, "clientId", nil))
 
 	return nil
 }
