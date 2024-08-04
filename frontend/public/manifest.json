@@ -1,0 +1,41 @@
+{
+    "name": "the zula",
+    "short_name": "the-zula",
+    "theme_color": "#2c3e50",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "orientation": "portrait",
+    "scope": "/",
+    "icons": [
+      {
+        "src": "/icons/android/android-launchericon-192-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "maskable any"
+      },
+      {
+        "src": "/icons/android/android-launchericon-512-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable any"
+      }
+    ],
+    "share_target": {
+      "action": "/_share-target",
+      "method": "POST",
+      "enctype": "multipart/form-data",
+      "params": {
+        "files": [
+          {
+            "name": "file",
+            "accept": ["image/*", "audio/*", "text/*"]
+          }
+        ],
+        "title": "title",
+        "text": "text",
+        "url": "url"
+      }
+    },
+    "start_url": "/"
+  }
+  

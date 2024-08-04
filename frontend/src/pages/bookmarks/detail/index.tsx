@@ -73,7 +73,6 @@ const BookmarkDetails = () => {
   const [bookmark, setBookmark] = React.useState<Bookmark>(initialBookmark)
   const bookmarkRef = React.useRef(initialBookmark)
 
-
   const fetchBookmark = async () => {
     try {
       setFetching(true);

@@ -12,50 +12,44 @@ import TagsDisplay from '../../../components/tagsDisplay'
 import TimeDisplay from '../../../components/timeDisplay'
 import { MDXEditor } from '@mdxeditor/editor'
 import { useUI } from '../../../contexts/uiContext'
-  
+import MessageBox from '../../../components/messageBox/index.tsx'
+
 export const EditNote = () => {
   const navigate = useNavigate()
-  const { noteId }  = useParams()
+  const { shortId } = useParams()
   const { isMobile } = useUI()
 
   const [note, setNote] = React.useState<Note>()
 
   const [loading, setLoading] = React.useState(true);
-  const [data, setData] = React.useState<Note>();
   const [error, setError] = React.useState<string | null>(null);
 
   const { user } = useAuth()
   const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}` } } })
 
-  const fetch = async () => {
+  const fetchNote = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const { data, status } = await api.api.getNote(noteId ?? "")
+      const { data, status } = await api.api.getNote(shortId ?? "")
 
       if (status === 200) {
-        setData(data);
+        setNote(data);
       } else {
         console.error(data);
-        setError(data);
+        setError("could not fetch");
       }
 
-    } catch (e: unknown) {
-      console.error(e);
-      setError(e as string);
+    } catch (e: any) {
+      console.error(e.error);
+      setError(e.error.message as string);
     }
     setLoading(false);
   };
 
   React.useEffect(() => {
-    if (data) {
-      setNote(data)
-    }
-  }, [data])
-
-  React.useEffect(() => {
-    fetch()
+    fetchNote()
   }, [])
 
   return (
@@ -63,34 +57,37 @@ export const EditNote = () => {
       fixedSubHeader={!isMobile}
       subHeaderContent={
         <>
-        {!isMobile && <Breadcrumbs />}
-        <div className={layoutStyles.subheader}>
-          <div className={layoutStyles.subheaderTitleContainer}>
-            <Button onClick={() => navigate(-1)} className={layoutStyles.backButton}>
-              <icons.ArrowLeft />
-            </Button>
-            {!isMobile && (
-              <span
-                data-testid='title'
-                className={layoutStyles.titleInSubHeader}
-                title={note?.title}
-              >
-                {note?.title}
-              </span>
+          {!isMobile && <Breadcrumbs />}
+          <div className={layoutStyles.subheader}>
+            <div className={layoutStyles.subheaderTitleContainer}>
+              <Button onClick={() => navigate(-1)} className={layoutStyles.backButton}>
+                <icons.ArrowLeft />
+              </Button>
+              {!isMobile && (
+                <span
+                  data-testid='title'
+                  className={layoutStyles.titleInSubHeader}
+                  title={note?.title}
+                >
+                  {note?.title}
+                </span>
+              )}
+            </div>
+
+            {!error && (
+              <Button onClick={() => { } /*onEditClicked*/}>
+                <FormattedMessage id='common.buttons.edit' />
+              </Button>
             )}
           </div>
-
-          {!error && (
-            <Button onClick={() => {} /*onEditClicked*/}>
-              <FormattedMessage id='common.buttons.edit' />
-            </Button>
-          )}
-        </div>
-      </>
+        </>
       }
     >
-      <PageContent loading={loading} isMobile={isMobile}>
+      {error ?
+        <MessageBox type='error'>{error}</MessageBox> :
+        <PageContent loading={loading} isMobile={isMobile}>
           <>
+
             {isMobile && (
               <div className={layoutStyles.flex}>
                 <span data-testid='title' className={layoutStyles.title}>
@@ -121,7 +118,8 @@ export const EditNote = () => {
               </>
             )}
           </>
-      </PageContent>
+        </PageContent>
+      }
     </Layout>
   )
 }

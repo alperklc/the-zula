@@ -46,7 +46,7 @@ function ListBody<T>(
 }
 
 function List<T>({ loading, error, meta, resourceType, items, changePageSize, paginate }: { loading: boolean, error: Error | string | null, meta?: PaginationMeta, resourceType: ResourceType, items?: T[], changePageSize: (_: number) => void, paginate: (_: number) => void }) {
-  const maxPageNumber = Math.ceil((meta?.count || 0) / PAGE_SIZE)
+  const maxPageNumber = Math.ceil((meta?.count || 0) / Number(meta?.pageSize ?? 10))
 
   return (
     <div className={styles.container}>
