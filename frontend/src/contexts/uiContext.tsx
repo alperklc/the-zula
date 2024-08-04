@@ -1,6 +1,7 @@
 import React from 'react'
 import { User, UserProfile } from "oidc-client-ts";
 import { RawIntlProvider, createIntl, createIntlCache } from 'react-intl'
+import { ToastMessageProvider } from '../components/toast/toast-message-context';
 import { useAuth } from './authContext'
 import English from "../messages/en.json"
 import German from "../messages/de.json"
@@ -57,7 +58,7 @@ function getTheme(user: User | null) {
   return atob(theme)
 }
 
-export const UIProvider = ({ children }: { children: React.ReactNode }) => {
+export const UIProvider = ({ children }: { children: React.ReactElement }) => {
   const { user } = useAuth()
   const defaultLocale = user?.profile.locale || 'en'
   // TODO: read initial theme here
@@ -125,7 +126,9 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       <RawIntlProvider value={intl}>
-        {children}
+        <ToastMessageProvider>
+          {children}
+        </ToastMessageProvider>
       </RawIntlProvider>
     </UIContext.Provider>
   )
