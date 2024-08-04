@@ -299,7 +299,32 @@ func (s *a) UpdateUser(w http.ResponseWriter, r *http.Request, id string) {
 }
 
 func (s *a) GetUserActivity(w http.ResponseWriter, r *http.Request, id string, params GetUserActivityParams) {
+	user := authorization.UserID(r.Context())
 
+	response, errGetActivities := s.userActivities.List(user, *params.Page, *params.PageSize, *params.SortBy, *params.SortDirection)
+	if errGetActivities != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get users activities, %s", errGetActivities.Error()))
+		return
+	}
+
+	converted := make([]UserActivity, 0, len(response.Items))
+	for _, item := range response.Items {
+		timestamp := item.Timestamp.UTC().Format(time.RFC3339)
+		converted = append(converted, UserActivity{
+			Action: &item.Action, ClientId: nil, ObjectId: &item.ObjectID, ResourceType: &item.ResourceType, Timestamp: &timestamp,
+		})
+	}
+
+	sendResponse(w, http.StatusOK, UserActivityResult{
+		Meta: &PaginationMeta{
+			Count:         &response.Meta.Count,
+			Page:          &response.Meta.Page,
+			PageSize:      &response.Meta.PageSize,
+			SortBy:        &response.Meta.SortBy,
+			SortDirection: &response.Meta.SortDirection,
+		},
+		Items: &converted,
+	})
 }
 
 func (s *a) GetInsights(w http.ResponseWriter, r *http.Request, id string) {

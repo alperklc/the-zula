@@ -14,10 +14,9 @@ func (i *Insights) ConvertInsights(ag []useractivity.ActivityGraphEntry, mv []us
 		count := float32(ag[i].Count)
 		date := ag[i].Date
 
-		parsedDate, _ := time.Parse(time.RFC3339, date)
-		// todo: add error handling
+		parsedDate, _ := time.Parse(time.DateOnly, date)
 
-		activities = append(activities, ActivityOnDate{Count: &count, Date: &openapi_types.Date{parsedDate}})
+		activities[i] = ActivityOnDate{Count: &count, Date: &openapi_types.Date{parsedDate}}
 	}
 
 	i.ActivityGraph = &activities
@@ -26,13 +25,13 @@ func (i *Insights) ConvertInsights(ag []useractivity.ActivityGraphEntry, mv []us
 	for i := range mv {
 		count := float32(mv[i].Count)
 
-		mostVisited = append(mostVisited, MostVisited{
+		mostVisited[i] = MostVisited{
 			Count: &count,
 			Id:    &mv[i].ObjectID,
 			// Name: mv[i].
 			// Title: mv[i]
 			Typename: &mv[i].ResourceType,
-		})
+		}
 	}
 
 	i.MostVisited = &mostVisited

@@ -118,7 +118,6 @@ func (d *datasources) GroupActivitiesByDate(userID string) ([]useractivity.Activ
 	if obj != nil {
 		return *obj, nil
 	}
-
 	activityGraph, errActivities := d.useractivity.GroupActivitiesByDate(userID)
 	if errActivities != nil {
 		return nil, errActivities

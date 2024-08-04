@@ -7,15 +7,14 @@ import { PaginationMeta } from "../../types/Api";
 import { Resource, ResourceType } from "../../types/resources";
 import styles from "./index.module.css";
 
-const PAGE_SIZE = 10
 
-function getPaginationRange(count: number, page: number): string {
+function getPaginationRange(count: number, page: number, pageSize: number): string {
   if (count === 0) {
     return "";
   }
 
-  const from = (page - 1) * PAGE_SIZE + 1;
-  const to = Math.min(page * PAGE_SIZE, count);
+  const from = (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, count);
 
   return `${from} - ${to} / ${count}`;
 }
@@ -55,7 +54,7 @@ function List<T>({ loading, error, meta, resourceType, items, changePageSize, pa
           <PageSizeSelector pageSize={meta?.pageSize ?? 0} onPageSizeSelected={changePageSize} />
         </span>
         {meta?.count ? (
-          <span className={styles.count}>{getPaginationRange(meta?.count ?? 0, meta?.page ?? 1)}</span>
+          <span className={styles.count}>{getPaginationRange(meta?.count ?? 0, meta?.page ?? 1, meta.pageSize ?? 10)}</span>
         ) : (
           <span />
         )}

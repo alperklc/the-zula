@@ -13,6 +13,7 @@ import Profile from './pages/settings/profile';
 import CreateBookmark from './pages/bookmarks/create';
 import BookmarkDetails from './pages/bookmarks/detail';
 import { BookmarksListPage } from './pages/bookmarks/list';
+import { ActivitiesListPage } from './pages/activityLog';
 import './App.css'
 
 function PrivateRoute({ path, element }: { path: string; element: React.ReactElement }) {
@@ -55,6 +56,7 @@ function App() {
           <Route path="/" element={<PrivateRoute path={"/"} element={<Home />}/>} />
           <Route path="/login" element={<Login />} />
           <Route path="/callback" element={<Callback />} />
+          <Route path="/activity-log" element={<PrivateRoute path={"/activity-log"} element={<ActivitiesListPage />}/>}/>
           <Route path="/notes" element={<PrivateRoute path={"/notes"} element={<ListPage />}/>}/>
           <Route path="/notes/create" element={<PrivateRoute path={"/notes/create"} element={<CreateNote />}/>}/>
           <Route path="/notes/:shortId" element={<PrivateRoute path={"/notes/:shortId"} element={<Note />}/>}/>

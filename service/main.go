@@ -82,6 +82,9 @@ func main() {
 	ns := notesService.NewService(us, nr, ndr, nrs, mqp)
 	uas := userActivityService.NewService(*uams, *usms, us, uad, ns, bs)
 
+	uasmq := userActivityService.NewMqConsumer(l, uad, mq)
+	uasmq.Start()
+
 	a := api.NewApi(us, uas, bs, ns)
 	r := chi.NewRouter()
 	r.Use(middleware.OapiRequestValidator(swagger))
