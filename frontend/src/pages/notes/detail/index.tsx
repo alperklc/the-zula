@@ -52,6 +52,15 @@ export const EditNote = () => {
     fetchNote()
   }, [])
 
+
+  const onEditClicked = () => {
+    const shouldLoadDraft = note?.hasDraft
+      ? confirm('You have an unsaved draft, would you like to load it?')
+      : false
+
+    navigate(`/notes/${shortId}/edit${shouldLoadDraft ? '?loadDraft=true' : ''}`)
+  }
+
   return (
     <Layout
       fixedSubHeader={!isMobile}
@@ -75,7 +84,7 @@ export const EditNote = () => {
             </div>
 
             {!error && (
-              <Button onClick={() => { } /*onEditClicked*/}>
+              <Button onClick={onEditClicked}>
                 <FormattedMessage id='common.buttons.edit' />
               </Button>
             )}
