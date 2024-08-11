@@ -35,8 +35,8 @@ const CreateBookmark = () => {
 
   const [saving, setSaving] = React.useState(false);
 
-  const { user } = useAuth()
-  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}` } } })
+  const { user, sessionId } = useAuth()
+  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}`, sessionId } } })
 
   const [bookmark, setBookmark] = React.useState<Bookmark>(initialBookmark)
 

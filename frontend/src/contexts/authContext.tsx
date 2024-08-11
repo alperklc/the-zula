@@ -5,6 +5,8 @@ import { User, UserManager } from "oidc-client-ts";
 
 interface State {
   user: User | null
+  sessionId: string,
+  setSessionId: (_: string) => void,
   initialized: boolean,
   setUser: (_: User | null) => void,
   login: (_: string) => void,
@@ -14,6 +16,8 @@ interface State {
 
 export const AuthContext = React.createContext<State>({
   user: null,
+  sessionId: "",
+  setSessionId: () => ({}),
   initialized: false,
   setUser: (_: User | null) => ({}),
   login: () => ({}),
@@ -31,6 +35,7 @@ const config: ZitadelConfig = {
 
 export const AuthContextProvider = ({ children }: { children: JSX.Element }) => {
   const [initialized, setInitialized] = React.useState<boolean>(false)
+  const [sessionId, setSessionId] = React.useState<string>("")
   const [user, setUser] = React.useState<User | null>(null)
   const zitadel = createZitadelAuth(config);
   
@@ -54,6 +59,8 @@ export const AuthContextProvider = ({ children }: { children: JSX.Element }) => 
     <AuthContext.Provider
       value={{
         user,
+        sessionId,
+        setSessionId,
         initialized,
         setUser,
         login,

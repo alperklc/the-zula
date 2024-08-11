@@ -67,8 +67,8 @@ const BookmarkDetails = () => {
   const [fetching, setFetching] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const { user } = useAuth()
-  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}` } } })
+  const { user, sessionId } = useAuth()
+  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}`, sessionId } } })
 
   const [bookmark, setBookmark] = React.useState<Bookmark>(initialBookmark)
   const bookmarkRef = React.useRef(initialBookmark)

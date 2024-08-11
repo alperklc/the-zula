@@ -27,9 +27,8 @@ import (
 	referencesService "github.com/alperklc/the-zula/service/services/references"
 	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
 	usersService "github.com/alperklc/the-zula/service/services/users"
+	"github.com/gorilla/mux"
 	middleware "github.com/oapi-codegen/nethttp-middleware"
-
-	"github.com/go-chi/chi/v5"
 )
 
 func main() {
@@ -60,7 +59,7 @@ func main() {
 	b := bookmarks.NewDb(d)
 	pc := pageContent.NewDb(d)
 
-	ws := webScraper.NewWebScraper()
+	wsc := webScraper.NewWebScraper()
 
 	ums, errMemstore := cache.NewCache[usersService.User](1 * time.Hour)
 	if errMemstore != nil {
@@ -76,7 +75,7 @@ func main() {
 	}
 
 	us := usersService.NewService(ac, ums, mqp)
-	bs := bookmarksService.NewService(us, b, pc, ws, mqp)
+	bs := bookmarksService.NewService(us, b, pc, wsc, mqp)
 
 	nrs := referencesService.NewService(nr, nrr)
 	ns := notesService.NewService(us, nr, ndr, nrs, mqp)
@@ -85,13 +84,19 @@ func main() {
 	uasmq := userActivityService.NewMqConsumer(l, uad, mq)
 	uasmq.Start()
 
-	a := api.NewApi(us, uas, bs, ns)
-	r := chi.NewRouter()
-	r.Use(middleware.OapiRequestValidator(swagger))
+	hub := api.NewHub()
+	go hub.Run()
+
+	ws := api.NewNotifier(l, mq, *hub)
+	ws.SendNotification()
+
+	a := api.NewApi(us, uas, bs, ns, *hub)
+	r := mux.NewRouter()
 
 	r.Use(api.GetLoggingMiddleware(l))
 	r.Use(api.GetAuthorizationMiddleware(l, config.AuthDomain, config.AuthKeyFilePath))
 	r.Use(api.GetAuthenticationMiddleware(nr, config.AuthDomain, config.AuthKeyFilePath))
+	r.Use(middleware.OapiRequestValidator(swagger))
 
 	api.HandlerFromMux(a, r)
 

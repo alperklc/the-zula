@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/mux"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
@@ -302,112 +302,9 @@ type ServerInterface interface {
 	// Get dashboard insights
 	// (GET /api/v1/users/{shortId}/insights)
 	GetInsights(w http.ResponseWriter, r *http.Request, shortId string)
-}
-
-// Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
-
-type Unimplemented struct{}
-
-// List bookmarks
-// (GET /api/v1/bookmarks)
-func (_ Unimplemented) GetBookmarks(w http.ResponseWriter, r *http.Request, params GetBookmarksParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Create a new bookmark
-// (POST /api/v1/bookmarks)
-func (_ Unimplemented) CreateBookmark(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Delete a bookmark by shortId
-// (DELETE /api/v1/bookmarks/{shortId})
-func (_ Unimplemented) DeleteBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Get a bookmark by shortId
-// (GET /api/v1/bookmarks/{shortId})
-func (_ Unimplemented) GetBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Update a bookmark by shortId
-// (PUT /api/v1/bookmarks/{shortId})
-func (_ Unimplemented) UpdateBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// List notes
-// (GET /api/v1/notes)
-func (_ Unimplemented) GetNotes(w http.ResponseWriter, r *http.Request, params GetNotesParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Create a new note
-// (POST /api/v1/notes)
-func (_ Unimplemented) CreateNote(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Delete a note by shortId
-// (DELETE /api/v1/notes/{shortId})
-func (_ Unimplemented) DeleteNote(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Get a note by shortId
-// (GET /api/v1/notes/{shortId})
-func (_ Unimplemented) GetNote(w http.ResponseWriter, r *http.Request, shortId string, params GetNoteParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Update a note by shortId
-// (PUT /api/v1/notes/{shortId})
-func (_ Unimplemented) UpdateNote(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Delete a notes draft by note shortId
-// (DELETE /api/v1/notes/{shortId}/draft)
-func (_ Unimplemented) DeleteNoteDraft(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Save draft of a note by notes shortId
-// (PUT /api/v1/notes/{shortId}/draft)
-func (_ Unimplemented) SaveNoteDraft(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Get tags
-// (GET /api/v1/tags)
-func (_ Unimplemented) GetTags(w http.ResponseWriter, r *http.Request, params GetTagsParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Get a user by ID
-// (GET /api/v1/users/{shortId})
-func (_ Unimplemented) GetUser(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Update a user by ID
-// (PUT /api/v1/users/{shortId})
-func (_ Unimplemented) UpdateUser(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Get user activity
-// (GET /api/v1/users/{shortId}/activity)
-func (_ Unimplemented) GetUserActivity(w http.ResponseWriter, r *http.Request, shortId string, params GetUserActivityParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// Get dashboard insights
-// (GET /api/v1/users/{shortId}/insights)
-func (_ Unimplemented) GetInsights(w http.ResponseWriter, r *http.Request, shortId string) {
-	w.WriteHeader(http.StatusNotImplemented)
+	// Connect to websocket
+	// (GET /api/v1/ws/{user})
+	ConnectWs(w http.ResponseWriter, r *http.Request, user string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -511,7 +408,7 @@ func (siw *ServerInterfaceWrapper) DeleteBookmark(w http.ResponseWriter, r *http
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -537,7 +434,7 @@ func (siw *ServerInterfaceWrapper) GetBookmark(w http.ResponseWriter, r *http.Re
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -563,7 +460,7 @@ func (siw *ServerInterfaceWrapper) UpdateBookmark(w http.ResponseWriter, r *http
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -672,7 +569,7 @@ func (siw *ServerInterfaceWrapper) DeleteNote(w http.ResponseWriter, r *http.Req
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -698,7 +595,7 @@ func (siw *ServerInterfaceWrapper) GetNote(w http.ResponseWriter, r *http.Reques
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -735,7 +632,7 @@ func (siw *ServerInterfaceWrapper) UpdateNote(w http.ResponseWriter, r *http.Req
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -761,7 +658,7 @@ func (siw *ServerInterfaceWrapper) DeleteNoteDraft(w http.ResponseWriter, r *htt
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -787,7 +684,7 @@ func (siw *ServerInterfaceWrapper) SaveNoteDraft(w http.ResponseWriter, r *http.
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -849,7 +746,7 @@ func (siw *ServerInterfaceWrapper) GetUser(w http.ResponseWriter, r *http.Reques
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -875,7 +772,7 @@ func (siw *ServerInterfaceWrapper) UpdateUser(w http.ResponseWriter, r *http.Req
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -901,7 +798,7 @@ func (siw *ServerInterfaceWrapper) GetUserActivity(w http.ResponseWriter, r *htt
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -962,7 +859,7 @@ func (siw *ServerInterfaceWrapper) GetInsights(w http.ResponseWriter, r *http.Re
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -970,6 +867,32 @@ func (siw *ServerInterfaceWrapper) GetInsights(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetInsights(w, r, shortId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// ConnectWs operation middleware
+func (siw *ServerInterfaceWrapper) ConnectWs(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "user" -------------
+	var user string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "user", mux.Vars(r)["user"], &user, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ConnectWs(w, r, user)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1050,36 +973,36 @@ func (e *TooManyValuesForParamError) Error() string {
 
 // Handler creates http.Handler with routing matching OpenAPI spec.
 func Handler(si ServerInterface) http.Handler {
-	return HandlerWithOptions(si, ChiServerOptions{})
+	return HandlerWithOptions(si, GorillaServerOptions{})
 }
 
-type ChiServerOptions struct {
+type GorillaServerOptions struct {
 	BaseURL          string
-	BaseRouter       chi.Router
+	BaseRouter       *mux.Router
 	Middlewares      []MiddlewareFunc
 	ErrorHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
 }
 
 // HandlerFromMux creates http.Handler with routing matching OpenAPI spec based on the provided mux.
-func HandlerFromMux(si ServerInterface, r chi.Router) http.Handler {
-	return HandlerWithOptions(si, ChiServerOptions{
+func HandlerFromMux(si ServerInterface, r *mux.Router) http.Handler {
+	return HandlerWithOptions(si, GorillaServerOptions{
 		BaseRouter: r,
 	})
 }
 
-func HandlerFromMuxWithBaseURL(si ServerInterface, r chi.Router, baseURL string) http.Handler {
-	return HandlerWithOptions(si, ChiServerOptions{
+func HandlerFromMuxWithBaseURL(si ServerInterface, r *mux.Router, baseURL string) http.Handler {
+	return HandlerWithOptions(si, GorillaServerOptions{
 		BaseURL:    baseURL,
 		BaseRouter: r,
 	})
 }
 
 // HandlerWithOptions creates http.Handler with additional options
-func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handler {
+func HandlerWithOptions(si ServerInterface, options GorillaServerOptions) http.Handler {
 	r := options.BaseRouter
 
 	if r == nil {
-		r = chi.NewRouter()
+		r = mux.NewRouter()
 	}
 	if options.ErrorHandlerFunc == nil {
 		options.ErrorHandlerFunc = func(w http.ResponseWriter, r *http.Request, err error) {
@@ -1092,57 +1015,41 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/v1/bookmarks", wrapper.GetBookmarks)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/v1/bookmarks", wrapper.CreateBookmark)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.DeleteBookmark)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.GetBookmark)
-	})
-	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.UpdateBookmark)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/v1/notes", wrapper.GetNotes)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/api/v1/notes", wrapper.CreateNote)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.DeleteNote)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.GetNote)
-	})
-	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.UpdateNote)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.DeleteNoteDraft)
-	})
-	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.SaveNoteDraft)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/v1/tags", wrapper.GetTags)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/v1/users/{shortId}", wrapper.GetUser)
-	})
-	r.Group(func(r chi.Router) {
-		r.Put(options.BaseURL+"/api/v1/users/{shortId}", wrapper.UpdateUser)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/v1/users/{shortId}/activity", wrapper.GetUserActivity)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/api/v1/users/{shortId}/insights", wrapper.GetInsights)
-	})
+	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks", wrapper.GetBookmarks).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks", wrapper.CreateBookmark).Methods("POST")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.DeleteBookmark).Methods("DELETE")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.GetBookmark).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.UpdateBookmark).Methods("PUT")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/notes", wrapper.GetNotes).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/notes", wrapper.CreateNote).Methods("POST")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.DeleteNote).Methods("DELETE")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.GetNote).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.UpdateNote).Methods("PUT")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.DeleteNoteDraft).Methods("DELETE")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.SaveNoteDraft).Methods("PUT")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/tags", wrapper.GetTags).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/users/{shortId}", wrapper.GetUser).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/users/{shortId}", wrapper.UpdateUser).Methods("PUT")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/users/{shortId}/activity", wrapper.GetUserActivity).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/users/{shortId}/insights", wrapper.GetInsights).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/ws/{user}", wrapper.ConnectWs).Methods("GET")
 
 	return r
 }
@@ -1150,32 +1057,33 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"1spA8eAB55JH92gYuPo7AAD//xc9GLp2LQAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -1,10 +1,6 @@
 import React from 'react'
 import { User, UserProfile } from "oidc-client-ts";
-import { RawIntlProvider, createIntl, createIntlCache } from 'react-intl'
-import { ToastMessageProvider } from '../components/toast/toast-message-context';
-import { useAuth } from './authContext'
-import English from "../messages/en.json"
-import German from "../messages/de.json"
+import { useAuth } from './authContext';
 
 interface UIContext {
   language: string
@@ -30,20 +26,6 @@ export const UIContext = React.createContext<UIContext>({
   setOverflowMenu: (_: string) => ({}),
 })
 
-const messages = {
-  'en': English,
-  'de': German
-}
-
-const initialLocale = 'en'
-
-export const cache = createIntlCache()
-
-export let intl = createIntl(
-  {locale: initialLocale, messages: English},
-  cache
-)
-
 type ExtendedProfile = UserProfile & {
   "urn:zitadel:iam:user:metadata"?: {theme?: string}[]
 }
@@ -59,14 +41,13 @@ function getTheme(user: User | null) {
 }
 
 export const UIProvider = ({ children }: { children: React.ReactElement }) => {
-  const { user } = useAuth()
+  const { user } = useAuth();
   const defaultLocale = user?.profile.locale || 'en'
   // TODO: read initial theme here
  
   const isMobileDevice = !!(navigator.userAgent || '').match(
     /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i,
   )
-
   const [language, setLanguage] = React.useState<string>(defaultLocale)
   const [theme, setTheme] = React.useState<string>(getTheme(user!))
   const [backdropActive, setBackdropActive] = React.useState<boolean>(false)
@@ -75,8 +56,6 @@ export const UIProvider = ({ children }: { children: React.ReactElement }) => {
 
   const switchLanguage = (nextLanguage: string) => {
     document.documentElement.setAttribute('lang', nextLanguage)
-
-    intl = createIntl({locale: nextLanguage, messages: messages[nextLanguage as 'en' |'de']}, cache)
     document.documentElement.lang = nextLanguage
 
     setLanguage(nextLanguage)
@@ -125,11 +104,7 @@ export const UIProvider = ({ children }: { children: React.ReactElement }) => {
         setOverflowMenu,
       }}
     >
-      <RawIntlProvider value={intl}>
-        <ToastMessageProvider>
           {children}
-        </ToastMessageProvider>
-      </RawIntlProvider>
     </UIContext.Provider>
   )
 }

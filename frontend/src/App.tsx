@@ -1,5 +1,5 @@
-import React from 'react'
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useIntl } from 'react-intl';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { UIProvider } from './contexts/uiContext';
 import { useAuth } from './contexts/authContext';
@@ -14,7 +14,9 @@ import CreateBookmark from './pages/bookmarks/create';
 import BookmarkDetails from './pages/bookmarks/detail';
 import { BookmarksListPage } from './pages/bookmarks/list';
 import { ActivitiesListPage } from './pages/activityLog';
-import './App.css'
+import { useToast } from './components/toast/toast-message-context';
+import { toStatusTextKey } from './components/toast/status-text-mapping';
+import './App.css';
 
 function PrivateRoute({ path, element }: { path: string; element: React.ReactElement }) {
   const auth = useAuth();
@@ -30,6 +32,68 @@ function PrivateRoute({ path, element }: { path: string; element: React.ReactEle
 }
 
 function App() {
+  const { user, setSessionId } = useAuth();
+  const { show: showToast } = useToast();
+  const intl = useIntl();
+  
+  const webSocketConnection = React.useRef<WebSocket | null>(null);
+
+  React.useEffect(() => {
+    setWebSocketConnection();
+    subscribeToSocketMessage();
+  }, []);
+
+  const setWebSocketConnection = () => {
+    if (window["WebSocket"]) {
+      const socketConnection = new WebSocket(`wss://${document.location.host}/api/v1/ws/${user?.profile.sub}?token=${user?.access_token}`);
+      webSocketConnection.current = socketConnection;
+    }
+  }
+
+  const subscribeToSocketMessage = () => {
+    if (webSocketConnection.current === null) {
+        return;
+    }
+
+    webSocketConnection.current.onclose = (evt) => {
+      console.log('Your Connection is closed.');
+    };
+
+    webSocketConnection.current.onmessage = (event) => {
+      try {
+          const socketPayload = JSON.parse(event.data);
+          switch (socketPayload.eventName) {
+              case 'join':
+              case 'disconnect':
+                  if (!socketPayload.eventPayload) {
+                      return
+                  }
+                  console.log('joined / disconnected.', socketPayload);
+                  setSessionId(socketPayload.eventPayload.sessionID)
+                  break;
+              case 'msg':
+                 const statusTextKey = toStatusTextKey(
+                    socketPayload.eventPayload.resourceType,
+                    socketPayload.eventPayload?.action,
+                  )
+                  if (statusTextKey) {
+                    const message = intl.formatMessage({ id: statusTextKey })
+            
+                    showToast(message, 'success');
+                    }
+                  console.log(socketPayload)
+                  
+                  break;
+              default:
+                  break;
+          }
+        } catch (error) {
+            console.log(error)
+            console.warn('Something went wrong while decoding the Message Payload')
+        }
+    };
+  }
+
   React.useEffect(() => {
     window.addEventListener('appinstalled', () => {
       alert('👍 app successfully installed')
@@ -49,6 +113,7 @@ function App() {
     }
   }, [])
 
+  // TODO: fix theme selection
   return (
     <UIProvider initialTheme={''}>
       <Router>

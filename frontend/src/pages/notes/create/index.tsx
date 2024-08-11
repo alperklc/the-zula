@@ -34,8 +34,8 @@ const CreateNote = () => {
   const navigate = useNavigate()
   const { show: showToast } = useToast()
 
-  const { user } = useAuth()
-  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}` } } })
+  const { user, sessionId } = useAuth()
+  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}`, sessionId } } })
   
   const [note, setNote] = React.useState<Note>(initialNote)
   

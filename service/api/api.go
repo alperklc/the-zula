@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,6 +12,7 @@ import (
 	notesService "github.com/alperklc/the-zula/service/services/notes"
 	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
 	usersService "github.com/alperklc/the-zula/service/services/users"
+	"github.com/gorilla/websocket"
 	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
 )
 
@@ -19,10 +21,11 @@ type a struct {
 	userActivities userActivityService.UserActivityService
 	bookmarks      bookmarksService.BookmarkService
 	notes          notesService.NoteService
+	clientHub      Hub
 }
 
-func NewApi(u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService) ServerInterface {
-	return &a{users: u, userActivities: ua, bookmarks: bs, notes: n}
+func NewApi(u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService, clientHub Hub) ServerInterface {
+	return &a{users: u, userActivities: ua, bookmarks: bs, notes: n, clientHub: clientHub}
 }
 
 func sendResponse(w http.ResponseWriter, code int, data any) {
@@ -97,6 +100,7 @@ func (s *a) GetNotes(w http.ResponseWriter, r *http.Request, params GetNotesPara
 
 func (s *a) CreateNote(w http.ResponseWriter, r *http.Request) {
 	user := authorization.UserID(r.Context())
+	sessionId := r.Header.Get("sessionId")
 
 	var input NoteInput
 	err := json.NewDecoder(r.Body).Decode(&input)
@@ -105,7 +109,7 @@ func (s *a) CreateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	noteCreated, errCreateNote := s.notes.CreateNote(user, "1", input.Title, input.Content, input.Tags)
+	noteCreated, errCreateNote := s.notes.CreateNote(user, sessionId, input.Title, input.Content, input.Tags)
 	if errCreateNote != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not create note, %s", errCreateNote.Error()))
 		return
@@ -339,4 +343,25 @@ func (s *a) GetInsights(w http.ResponseWriter, r *http.Request, id string) {
 	response := Insights{}
 	response.ConvertInsights(activityGraph, mostVisited, lastVisited, nrOfNotes, nrOfBookmarks)
 	sendResponse(w, http.StatusOK, response)
+}
+
+func (s *a) ConnectWs(w http.ResponseWriter, r *http.Request, user string) {
+	fmt.Println(7877)
+
+	var upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	// Reading username from request parameter
+
+	fmt.Println(user)
+	// Upgrading the HTTP connection socket connection
+	connection, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	CreateNewSocketUser(&s.clientHub, connection, user)
 }

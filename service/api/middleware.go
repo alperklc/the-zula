@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/alperklc/the-zula/service/infrastructure/db/notes"
@@ -45,6 +46,8 @@ func GetLoggingMiddleware(log zerolog.Logger) func(next http.Handler) http.Handl
 	}
 }
 
+var bypassPrefixes = []string{"/api/v1/ws"}
+
 func GetAuthorizationMiddleware(log zerolog.Logger, domain, key string) func(_ http.Handler) http.Handler {
 	ctx := context.Background()
 
@@ -56,18 +59,30 @@ func GetAuthorizationMiddleware(log zerolog.Logger, domain, key string) func(_ h
 		os.Exit(1)
 	}
 
-	return middleware.New(authZ).RequireAuthorization()
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Check if the current path should bypass the authorization check
+			for _, path := range bypassPrefixes {
+				if strings.HasPrefix(r.URL.Path, path) {
+					// Bypass the authorization check and continue to the next handler
+					next.ServeHTTP(w, r)
+					return
+				}
+			}
+
+			// If not bypassing, apply the authorization middleware
+			middleware.New(authZ).RequireAuthorization()(next).ServeHTTP(w, r)
+		})
+	}
 }
 
 func GetAuthenticationMiddleware(notes notes.Collection, domain, key string) func(_ http.Handler) http.Handler {
-
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-			user := authorization.UserID(req.Context())
+			// user := authorization.UserID(req.Context())
 
-			fmt.Println(user)
+			// fmt.Println(user)
 			fmt.Println(req.URL.Path)
-
 			next.ServeHTTP(res, req) // req.WithContext(ctx))
 		})
 	}
