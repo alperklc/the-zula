@@ -98,13 +98,13 @@ func (d *datasources) ListNotes(userId string, q *string, p, ps *int, sb, sd *st
 	// query drafts of note entries on the page
 	idsOfNotes := make([]string, len(notes))
 	for i, v := range notes {
-		idsOfNotes[i] = v.Id
+		idsOfNotes[i] = v.ShortId
 	}
 	draftsOnPage, _ := d.notesDrafts.CheckExistence(idsOfNotes)
 
 	var items []Note = make([]Note, 0, len(notes))
 	for _, b := range notes {
-		note := Note{b.ShortId, b.UpdatedAt, b.UpdatedBy, b.CreatedBy, b.CreatedAt, b.Title, "", b.Tags, draftsOnPage[b.Id]}
+		note := Note{b.ShortId, b.UpdatedAt, b.UpdatedBy, b.CreatedBy, b.CreatedAt, b.Title, "", b.Tags, draftsOnPage[b.ShortId]}
 		items = append(items, note)
 	}
 
