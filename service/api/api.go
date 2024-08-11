@@ -120,8 +120,9 @@ func (s *a) CreateNote(w http.ResponseWriter, r *http.Request) {
 
 func (s *a) DeleteNote(w http.ResponseWriter, r *http.Request, id string) {
 	user := authorization.UserID(r.Context())
+	sessionId := r.Header.Get("sessionId")
 
-	err := s.notes.DeleteNote(id, user, "1")
+	err := s.notes.DeleteNote(id, user, sessionId)
 	if err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not delete note, %s", err.Error()))
 		return
@@ -132,8 +133,9 @@ func (s *a) DeleteNote(w http.ResponseWriter, r *http.Request, id string) {
 
 func (s *a) GetNote(w http.ResponseWriter, r *http.Request, id string, params GetNoteParams) {
 	user := authorization.UserID(r.Context())
+	sessionId := r.Header.Get("sessionId")
 
-	response, errGetNotes := s.notes.GetNote(id, user, "1", params.LoadDraft != nil && *params.LoadDraft)
+	response, errGetNotes := s.notes.GetNote(id, user, sessionId, params.LoadDraft != nil && *params.LoadDraft)
 	if errGetNotes != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get note, %s", errGetNotes.Error()))
 		return
@@ -144,6 +146,7 @@ func (s *a) GetNote(w http.ResponseWriter, r *http.Request, id string, params Ge
 
 func (s *a) UpdateNote(w http.ResponseWriter, r *http.Request, id string) {
 	user := authorization.UserID(r.Context())
+	sessionId := r.Header.Get("sessionId")
 
 	var updateInput = make(map[string]interface{})
 	err := json.NewDecoder(r.Body).Decode(&updateInput)
@@ -152,7 +155,7 @@ func (s *a) UpdateNote(w http.ResponseWriter, r *http.Request, id string) {
 		return
 	}
 
-	errUpdateNote := s.notes.UpdateNote(id, user, "1", updateInput)
+	errUpdateNote := s.notes.UpdateNote(id, user, sessionId, updateInput)
 	if errUpdateNote != nil {
 		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not update note, %s", errUpdateNote.Error()))
 		return
@@ -189,6 +192,7 @@ func (s *a) GetBookmarks(w http.ResponseWriter, r *http.Request, params GetBookm
 
 func (s *a) CreateBookmark(w http.ResponseWriter, r *http.Request) {
 	user := authorization.UserID(r.Context())
+	sessionId := r.Header.Get("sessionId")
 
 	var input BookmarkInput
 	err := json.NewDecoder(r.Body).Decode(&input)
@@ -197,7 +201,7 @@ func (s *a) CreateBookmark(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	noteCreated, errCreateNote := s.bookmarks.CreateBookmark(user, "1", input.Url, *input.Title, input.Tags)
+	noteCreated, errCreateNote := s.bookmarks.CreateBookmark(user, sessionId, input.Url, *input.Title, input.Tags)
 	if errCreateNote != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not create bookmark, %s", errCreateNote.Error()))
 		return
@@ -208,8 +212,9 @@ func (s *a) CreateBookmark(w http.ResponseWriter, r *http.Request) {
 
 func (s *a) DeleteBookmark(w http.ResponseWriter, r *http.Request, id string) {
 	user := authorization.UserID(r.Context())
+	sessionId := r.Header.Get("sessionId")
 
-	err := s.bookmarks.DeleteBookmark(id, user, "1")
+	err := s.bookmarks.DeleteBookmark(id, user, sessionId)
 	if err != nil {
 		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not delete bookmark, %s", err.Error()))
 		return
@@ -220,8 +225,9 @@ func (s *a) DeleteBookmark(w http.ResponseWriter, r *http.Request, id string) {
 
 func (s *a) GetBookmark(w http.ResponseWriter, r *http.Request, id string) {
 	user := authorization.UserID(r.Context())
+	sessionId := r.Header.Get("sessionId")
 
-	response, errGetNotes := s.bookmarks.GetBookmark(id, user, "1")
+	response, errGetNotes := s.bookmarks.GetBookmark(id, user, sessionId)
 	if errGetNotes != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get note, %s", errGetNotes.Error()))
 		return
@@ -232,6 +238,7 @@ func (s *a) GetBookmark(w http.ResponseWriter, r *http.Request, id string) {
 
 func (s *a) UpdateBookmark(w http.ResponseWriter, r *http.Request, id string) {
 	user := authorization.UserID(r.Context())
+	sessionId := r.Header.Get("sessionId")
 
 	var updateInput = make(map[string]interface{})
 	err := json.NewDecoder(r.Body).Decode(&updateInput)
@@ -240,7 +247,7 @@ func (s *a) UpdateBookmark(w http.ResponseWriter, r *http.Request, id string) {
 		return
 	}
 
-	errUpdateNote := s.bookmarks.UpdateBookmark(id, user, "1", updateInput)
+	errUpdateNote := s.bookmarks.UpdateBookmark(id, user, sessionId, updateInput)
 	if errUpdateNote != nil {
 		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not update bookmark, %s", errUpdateNote.Error()))
 		return
@@ -346,16 +353,12 @@ func (s *a) GetInsights(w http.ResponseWriter, r *http.Request, id string) {
 }
 
 func (s *a) ConnectWs(w http.ResponseWriter, r *http.Request, user string) {
-	fmt.Println(7877)
 
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
 
-	// Reading username from request parameter
-
-	fmt.Println(user)
 	// Upgrading the HTTP connection socket connection
 	connection, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
