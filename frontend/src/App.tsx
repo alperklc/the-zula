@@ -9,6 +9,7 @@ import Callback from './pages/authCallback';
 import { ListPage } from './pages/notes/list';
 import CreateNote from './pages/notes/create';
 import Note from './pages/notes/detail';
+import EditNote from './pages/notes/edit';
 import Profile from './pages/settings/profile';
 import CreateBookmark from './pages/bookmarks/create';
 import BookmarkDetails from './pages/bookmarks/detail';
@@ -125,6 +126,7 @@ function App() {
           <Route path="/notes" element={<PrivateRoute path={"/notes"} element={<ListPage />}/>}/>
           <Route path="/notes/create" element={<PrivateRoute path={"/notes/create"} element={<CreateNote />}/>}/>
           <Route path="/notes/:shortId" element={<PrivateRoute path={"/notes/:shortId"} element={<Note />}/>}/>
+          <Route path="/notes/:shortId/edit" element={<PrivateRoute path={"/notes/:shortId/edit"} element={<EditNote />}/>}/>
           <Route path="/bookmarks" element={<PrivateRoute path={"/bookmarks"} element={<BookmarksListPage />}/>}/>
           <Route path="/bookmarks/create" element={<PrivateRoute path={"/bookmarks/create"} element={<CreateBookmark />}/>}/>
           <Route path="/bookmarks/:shortId" element={<PrivateRoute path={"/bookmarks/:shortId"} element={<BookmarkDetails />}/>}/>
