@@ -8,6 +8,7 @@ export const NoteListItem = ({ item }: { item: Note }) => {
     return <BaseListItem
         href={item.shortId!}
         title={item.title ?? ""}
+        hasDraft={item.hasDraft}
         description={(item?.tags || []).length > 0 && (
             <TagsDisplay
                 className={styles.tagsDisplay}

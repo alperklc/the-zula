@@ -28,7 +28,6 @@
 }
 
 .rightSide {
-
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -55,6 +54,11 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+}
+
+.draftIndicator {
+    color: var(--link-color);
+    font-weight: bold;
 }
 
 .tagsDisplay {
