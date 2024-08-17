@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom'
 import { Api } from '../../../types/Api.ts'
 import { useAuth } from '../../../contexts/authContext'
 import useDebounce from '../../../utils/useDebounce'
-import MdEditor from '../../../components/mdEditor'
+import Content from '../../../components/content/index.tsx'
 
 interface Note {
   tags: string[]
@@ -172,11 +172,7 @@ const CreateNote = () => {
               />
             </div>
           )}
-          {initialized && <MdEditor
-            className="mdxeditor-root" 
-            content={note.content}
-            onChange={handleContentChange}
-          />}
+          <Content value={note.content} onChange={handleContentChange} />
         </>
         <>
           <TagsInput

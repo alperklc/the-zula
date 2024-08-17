@@ -8,22 +8,20 @@ import Breadcrumbs from '../../../components/breadcrumbs'
 import icons from '../../../components/icons'
 import { useAuth } from '../../../contexts/authContext'
 import { Api, Note } from '../../../types/Api.ts'
-import TimeDisplay from '../../../components/timeDisplay'
 import { useUI } from '../../../contexts/uiContext'
 import MessageBox from '../../../components/messageBox/index.tsx'
 import useModal from '../../../components/modal/index.tsx'
 import DeleteNoteConfirmation, { DeleteNoteConfirmationModalProps } from '../../../components/notes/deleteNoteModal/index.tsx'
 import useDebounce from '../../../utils/useDebounce.tsx'
-import MdEditor from '../../../components/mdEditor/index.tsx'
 import Input from '../../../components/form/input/index.tsx'
 import TagsInput, { searchTags } from '../../../components/tagsInput/index.tsx'
+import Content from '../../../components/content/index.tsx'
 
 const emptyNote: Note = {
-    tags: [],
-    title: '',
-    content: '',
-  }
-  
+  tags: [],
+  title: '',
+  content: '',
+}
 
 export const EditNote = () => {
   const intl = useIntl()
@@ -32,7 +30,7 @@ export const EditNote = () => {
   const { shortId } = useParams()
   const [searchParams] = useSearchParams()
   const loadDraft = searchParams.get("loadDraft") === "true"
-    
+
   const { isMobile } = useUI()
 
   const [DeleteConfirmationModal, openDeleteModal, closeDeleteModal] =
@@ -43,53 +41,18 @@ export const EditNote = () => {
   const [errorLoading, setErrorLoading] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [errorSaving, setErrorSaving] = React.useState<string | null>(null);
-  
-  const { user } = useAuth()
-  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}` } } })
 
-  const [topPosition, setTopPosition] = React.useState(100)
-  const debouncedTopOfTextArea = useDebounce<number>(topPosition, 100)
-
-  const mdxEditorRef = React.useRef<HTMLDivElement>(null)
-
-  const calculateTopOfTextArea = () => {
-    mdxEditorRef.current = document.querySelector(".mdxeditor-root")
-    const startPoint = mdxEditorRef.current?.getBoundingClientRect()?.top || 200
-
-    setTopPosition(Math.round(startPoint))
-  }
-
-  const setEditorHeight = () => {
-    if (mdxEditorRef?.current?.style) {
-      mdxEditorRef.current.style.height = `calc(100vh - ${topPosition}px - 1.2rem)`
-      mdxEditorRef.current.style.paddingBottom = `calc(calc(100vh - ${topPosition}px) - 3.2rem)`
-    }
-  }
-
-  React.useEffect(setEditorHeight, [debouncedTopOfTextArea, topPosition])
-
-  React.useEffect(() => {
-    calculateTopOfTextArea()
-    window.addEventListener('resize', calculateTopOfTextArea)
-
-    return () => {
-      window.removeEventListener('resize', calculateTopOfTextArea)
-    }
-  }, [])
-
-  React.useEffect(() => {
-    calculateTopOfTextArea()
-  }, [])
-
+  const { user, sessionId } = useAuth()
+  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}`, sessionId } } })
 
   const debouncedInput = useDebounce(note, 1000)
 
   React.useEffect(() => {
-    if (note === emptyNote) {
+    if (note === emptyNote || note === undefined) {
       return
     }
 
-    api.api.saveNoteDraft(shortId!, 
+    api.api.saveNoteDraft(shortId!,
       { title: note?.title, content: note?.content, tags: note?.tags },
     ).then(() => {
       console.log('saved draft')
@@ -138,17 +101,17 @@ export const EditNote = () => {
   const save = async () => {
     setSaving(true);
     setErrorSaving(null);
-    
+
     try {
-      await api.api.updateNote(shortId!,{
+      await api.api.updateNote(shortId!, {
         title: note?.title,
         tags: note?.tags,
         content: note?.content,
       })
-      
+
       setSaving(false);
       navigate('/notes')
-        
+
     } catch (e) {
       console.error(e);
     }
@@ -158,13 +121,13 @@ export const EditNote = () => {
   const deleteNote = async () => {
     setSaving(true);
     setErrorSaving(null);
-    
+
     try {
       await api.api.deleteNote(shortId!)
       
       setSaving(false);
       navigate('/notes')
-        
+
     } catch (e) {
       console.error(e);
     }
@@ -185,27 +148,26 @@ export const EditNote = () => {
                 <icons.ArrowLeft />
               </Button>
               {!isMobile && (
-
-                    <Input
-                    type='text'
-                    placeholder={intl.formatMessage({ id: 'notes.form.label.title' })}
-                    value={note?.title}
-                    onChange={handleTitleChange}
-                    title={note?.title}
-                    className={layoutStyles.titleInSubHeader}
-                    />
+                <Input
+                  type='text'
+                  placeholder={intl.formatMessage({ id: 'notes.form.label.title' })}
+                  value={note?.title}
+                  onChange={handleTitleChange}
+                  title={note?.title}
+                  className={layoutStyles.titleInSubHeader}
+                />
               )}
             </div>
 
             {!errorLoading && (
-                <div style={{ whiteSpace: 'nowrap' }}>
-                  <Button danger onClick={openDeleteConfirmationModal}>
-                    <FormattedMessage id='common.buttons.delete' />
-                  </Button>
-                  <Button primary onClick={save}>
-                    <FormattedMessage id='common.buttons.save' />
-                  </Button>
-                </div>
+              <div style={{ whiteSpace: 'nowrap' }}>
+                <Button danger onClick={openDeleteConfirmationModal}>
+                  <FormattedMessage id='common.buttons.delete' />
+                </Button>
+                <Button primary onClick={save}>
+                  <FormattedMessage id='common.buttons.save' />
+                </Button>
+              </div>
             )}
           </div>
         </>
@@ -215,9 +177,8 @@ export const EditNote = () => {
         <MessageBox type='error'>{errorLoading}</MessageBox> :
         <PageContent loading={loading} isMobile={isMobile}>
           <>
-
             {isMobile && (
-                <Input
+              <Input
                 type='text'
                 placeholder={intl.formatMessage({ id: 'notes.form.label.title' })}
                 value={note?.title}
@@ -225,36 +186,20 @@ export const EditNote = () => {
                 className={layoutStyles.title}
               />
             )}
-                <MdEditor
-            className="mdxeditor-root" 
-            content={note?.content ?? ""}
-
-            onChange={handleContentChange}
-          />
+            <Content
+              data-testid='content'
+              value={note?.content ?? ""}
+              onChange={handleContentChange}
+            />
           </>
           <>
-            <div>
-              <label>
-                <FormattedMessage id='common.labels.updated_at' />
-              </label>
-              <div className={layoutStyles.secondaryText}>
-                <span>{note?.updatedBy}, </span>
-                <TimeDisplay isoDate={note?.updatedAt ?? ""} />
-              </div>
-            </div>
-            {note?.tags && note?.tags.length > 0 && (
-              <>
-                <hr />
-
-                <TagsInput
-            onSearch={searchTags('note')}
-            tags={note.tags}
-            onChange={handleTagsChange}
-            label='Tags'
-            placeholder={intl.formatMessage({ id: 'notes.form.label.tags' })}
-          />
-              </>
-            )}
+            <TagsInput
+              onSearch={searchTags('note')}
+              tags={note?.tags || []}
+              onChange={handleTagsChange}
+              label='Tags'
+              placeholder={intl.formatMessage({ id: 'notes.form.label.tags' })}
+            />
           </>
         </PageContent>
       }

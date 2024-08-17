@@ -10,22 +10,22 @@ import { useAuth } from '../../../contexts/authContext'
 import { Api, Note } from '../../../types/Api.ts'
 import TagsDisplay from '../../../components/tagsDisplay'
 import TimeDisplay from '../../../components/timeDisplay'
-import { MDXEditor } from '@mdxeditor/editor'
 import { useUI } from '../../../contexts/uiContext'
 import MessageBox from '../../../components/messageBox/index.tsx'
+import MarkdownDisplay from '../../../components/markdownDisplay/index.tsx'
 
 export const EditNote = () => {
   const navigate = useNavigate()
   const { shortId } = useParams()
   const { isMobile } = useUI()
+  const { user, sessionId } = useAuth()
 
   const [note, setNote] = React.useState<Note>()
 
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const { user } = useAuth()
-  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}` } } })
+  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}`, sessionId } } })
 
   const fetchNote = async () => {
     try {
@@ -104,7 +104,10 @@ export const EditNote = () => {
                 </span>
               </div>
             )}
-            {note?.content && <MDXEditor markdown={note?.content} readOnly />}
+            <MarkdownDisplay
+              className={layoutStyles.htmlContentOfBookmark}
+              content={note?.content || ''}
+            />
           </>
           <>
             <div>
