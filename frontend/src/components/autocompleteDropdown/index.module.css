@@ -1,0 +1,30 @@
+.dropdownList {
+    z-index: 9;
+    position: absolute;
+    background: var(--background);
+    color: var(--color);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid var(--border-color-focus);
+    margin-top: -1px;
+    box-shadow: 0 2px 4px #7c7e80;
+}
+
+.dropdownListItem {
+    padding: 0.75rem;
+    cursor: pointer;
+    height: 2rem;
+    line-height: 0.5rem;
+    font-size: var(--font-size-small);
+}
+
+.highlightdDropdownListItem {
+    background-color: var(--theme-color);
+    color: #ebebeb;
+}
+
+.dropdownListItem:hover {
+    background-color: #4d6074;
+    color: #ebebeb;
+}

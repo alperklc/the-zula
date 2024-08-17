@@ -1,74 +1,12 @@
-import React, { useState, ChangeEvent, useEffect } from 'react'
+import React, { useState, ChangeEvent } from 'react'
 import Input from '../form/input'
 import Icons from '../icons'
 import TagsDisplay from '../tagsDisplay'
 import { searchTags } from './search-tags'
+import { Tag } from '../../types/Api'
+import { AutocompleteDropdown } from '../autocompleteDropdown'
 
 import styles from './index.module.css'
-import { Tag } from '../../types/Api'
-
-const TagsDropdownList = ({ listItems, handleFoundTagClick, onTagHighlighted }: any) => {
-  const [indexOfhighlightedItem, _setIndexOfhighlightedItem] = React.useState<number>(-1)
-  const highlightedItemRef = React.useRef(indexOfhighlightedItem)
-  const tagsList = React.useRef<any>([])
-
-  const setIndexOfhighlightedItem = (indexOfNewHighlightedItem: number) => {
-    highlightedItemRef.current = indexOfNewHighlightedItem
-    _setIndexOfhighlightedItem(indexOfNewHighlightedItem)
-
-    onTagHighlighted(tagsList.current?.[indexOfNewHighlightedItem]?.value || '')
-  }
-
-  useEffect(() => {
-    tagsList.current = listItems
-    setIndexOfhighlightedItem(-1)
-  }, [listItems?.length])
-
-  const highlightPreviousItem = () => {
-    if (highlightedItemRef.current >= 0) {
-      setIndexOfhighlightedItem(highlightedItemRef.current - 1)
-    }
-  }
-
-  const highlightNextItem = () => {
-    if (highlightedItemRef.current < tagsList.current.length - 1) {
-      setIndexOfhighlightedItem(highlightedItemRef.current + 1)
-    }
-  }
-
-  const handleKeydown: any = (event: React.KeyboardEvent) => {
-    if (event.key === 'ArrowDown') {
-      highlightNextItem()
-    } else if (event.key === 'ArrowUp') {
-      highlightPreviousItem()
-    }
-  }
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeydown)
-
-    return () => {
-      document.removeEventListener('keydown', handleKeydown)
-    }
-  }, [])
-
-  return listItems?.length > 0 ? (
-    <div className={styles.dropdownList}>
-      {listItems.map((tag: any, index: number) => (
-        <span
-          data-testid='dropdown-list-item'
-          className={`${styles.dropdownListItem} ${
-            indexOfhighlightedItem === index ? styles.highlightdDropdownListItem : ''
-          }`}
-          key={index}
-          onMouseDown={handleFoundTagClick(tag)}
-        >
-          {tag.value}
-        </span>
-      ))}
-    </div>
-  ) : null
-}
 
 export interface TagsInputProps {
   tags: string[]
@@ -161,10 +99,10 @@ export function TagsInput(props: TagsInputProps) {
         inputFieldActive &&
         !searchResponse?.fetching &&
         searchResponse?.foundTags.length > 0 && (
-          <TagsDropdownList
+          <AutocompleteDropdown
             listItems={searchResponse.foundTags}
-            handleFoundTagClick={handleFoundTagClick}
-            onTagHighlighted={setHighlightedTag}
+            handleFoundItemClick={handleFoundTagClick}
+            onItemHighlighted={setHighlightedTag}
           />
         )}
     </div>

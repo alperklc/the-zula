@@ -33,8 +33,8 @@ export const DashboardSection = ({
   )
 }
 
-export const ContentDisplay = (props: VisitingStatistics) => {
-  if (props.typename === 'Note') {
+export const ContentDisplay = (props: VisitingStatistics) => {  
+  if (props.typename === 'NOTE') {
     return (
       <Link to={`/notes/${props.id}`}>
         <div data-testid='content' className={styles.truncatedText}>
@@ -46,7 +46,7 @@ export const ContentDisplay = (props: VisitingStatistics) => {
       </Link>
     )
   }
-  if (props.typename === 'Bookmark') {
+  if (props.typename === 'BOOKMARK') {
     return (
       <Link to={`/bookmarks/${props.id}`}>
         <div data-testid='content' className={styles.truncatedText}>

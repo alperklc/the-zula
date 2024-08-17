@@ -1,8 +1,7 @@
 import * as React from 'react'
-import classNames from 'classnames'
+import { useNavigate } from 'react-router-dom'
 import { Converter } from 'showdown'
 import styles from './index.module.css'
-import { useNavigate } from 'react-router-dom'
 
 interface MarkdownDisplayProps {
   className?: string
@@ -41,7 +40,7 @@ const MarkdownDisplay = (props: MarkdownDisplayProps) => {
 
   return (
     <div
-      className={classNames(props.className, styles.container)}
+      className={`${props.className} ${styles.container}`}
       dangerouslySetInnerHTML={{ __html }}
       ref={divRef as React.RefObject<HTMLDivElement>}
       onClick={handleClick}
