@@ -38,9 +38,9 @@ export const EditNote = () => {
 
   const [note, setNote] = React.useState<Note>()
   const [loading, setLoading] = React.useState(true);
-  const [errorLoading, setErrorLoading] = React.useState<string | null>(null);
+  const [errorLoading, setErrorLoading] = React.useState<string>("");
   const [saving, setSaving] = React.useState(false);
-  const [errorSaving, setErrorSaving] = React.useState<string | null>(null);
+  const [errorSaving, setErrorSaving] = React.useState<string>("");
 
   const { user, sessionId } = useAuth()
   const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}`, sessionId } } })
@@ -76,7 +76,7 @@ export const EditNote = () => {
   const fetchNote = async (loadDraft: boolean) => {
     try {
       setLoading(true);
-      setErrorLoading(null);
+      setErrorLoading("");
 
       const { data, status } = await api.api.getNote(shortId ?? "", loadDraft ? { loadDraft: true } : undefined)
 
@@ -100,7 +100,7 @@ export const EditNote = () => {
 
   const save = async () => {
     setSaving(true);
-    setErrorSaving(null);
+    setErrorSaving("");
 
     try {
       await api.api.updateNote(shortId!, {
@@ -110,7 +110,7 @@ export const EditNote = () => {
       })
 
       setSaving(false);
-      navigate('/notes')
+      navigate(-1)
 
     } catch (e) {
       console.error(e);
@@ -120,13 +120,13 @@ export const EditNote = () => {
 
   const deleteNote = async () => {
     setSaving(true);
-    setErrorSaving(null);
+    setErrorSaving("");
 
     try {
       await api.api.deleteNote(shortId!)
       
       setSaving(false);
-      navigate('/notes')
+      navigate(-2)
 
     } catch (e) {
       console.error(e);

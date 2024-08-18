@@ -1,5 +1,4 @@
 import React, { ChangeEvent } from 'react'
-import classNames from 'classnames'
 import { useIntl, FormattedMessage } from 'react-intl'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
 import Button from '../../../components/form/button'
@@ -120,7 +119,7 @@ const BookmarkDetails = () => {
         url: bookmark?.url,
       })
       
-      navigate('/bookmarks')
+      navigate(-1)
     } catch (e) {
       console.error(e);
       showToast(intl.formatMessage({ id: 'messages.bookmarks.update_failure' }), 'error')
@@ -135,7 +134,7 @@ const BookmarkDetails = () => {
       await api.api.deleteBookmark(shortId!)
       closeDeleteModal()
       
-      navigate('/bookmarks')
+      navigate(-2)
     } catch (e) {
       console.error(e);
       showToast(intl.formatMessage({ id: 'messages.bookmarks.delete_failure' }), 'error')
@@ -186,7 +185,7 @@ const BookmarkDetails = () => {
                   value={bookmark.title}
                   onChange={handleTitleChange}
                   title={bookmark.title}
-                  className={classNames(layoutStyles.title, layoutStyles.truncatedText)}
+                  className={`${layoutStyles.title} ${layoutStyles.truncatedText}`}
                 />
               )}
             </div>
@@ -214,7 +213,7 @@ const BookmarkDetails = () => {
               value={bookmark.title}
               onChange={handleTitleChange}
               title={bookmark.title}
-              className={classNames(layoutStyles.title, layoutStyles.truncatedText)}
+              className={`${layoutStyles.title} ${layoutStyles.truncatedText}`}
             />
           )}
           {bookmark?.pageContent?.mdContent ? (
@@ -241,7 +240,7 @@ const BookmarkDetails = () => {
 
             {!isMobile && (
               <a
-                className={classNames(layoutStyles.copyLink, layoutStyles.labelLink)}
+                className={`${layoutStyles.copyLink} ${layoutStyles.labelLink}`}
                 onClick={onCopyLinkClick}
               >
                 <FormattedMessage id='bookmarks.overflow_menu.copy_link' />
@@ -254,7 +253,7 @@ const BookmarkDetails = () => {
               href={bookmark.url}
               target='_blank'
               rel='noreferrer'
-              className={classNames(layoutStyles.secondaryText)}
+              className={layoutStyles.secondaryText}
             >
               {bookmark.url}
             </a>

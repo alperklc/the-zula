@@ -1,6 +1,8 @@
 package notesService
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"math"
 
@@ -18,7 +20,7 @@ type NoteService interface {
 	ListNotes(userId string, searchKeyword *string, page, pageSize *int, sortBy, sortDirection *string, tags *[]string) (NotesPage, error)
 	CreateNote(userId, clientId string, title, content *string, tags *[]string) (Note, error)
 	UpdateNote(noteId, userId, clientId string, update map[string]interface{}) error
-	GetNote(noteId, userId, clientId string, loadDraft bool) (Note, error)
+	GetNote(noteId, userId, clientId string, params GetNoteParams) (Note, error)
 	GetNotes(userId string, noteIds, fields []string) ([]Note, error)
 	DeleteNote(noteId, userId, clientId string) error
 	GetDraftOfNote(userId, noteId string) (Note, error)
@@ -104,7 +106,7 @@ func (d *datasources) ListNotes(userId string, q *string, p, ps *int, sb, sd *st
 
 	var items []Note = make([]Note, 0, len(notes))
 	for _, b := range notes {
-		note := Note{b.ShortId, b.UpdatedAt, b.UpdatedBy, b.CreatedBy, b.CreatedAt, b.Title, "", b.Tags, draftsOnPage[b.ShortId]}
+		note := Note{b.ShortId, b.UpdatedAt, b.UpdatedBy, b.CreatedBy, b.CreatedAt, b.Title, "", b.Tags, draftsOnPage[b.ShortId], nil, nil}
 		items = append(items, note)
 	}
 
@@ -130,9 +132,12 @@ func (d *datasources) CreateNote(userId, clientId string, title, content *string
 
 	createdNote, err := d.notes.InsertOne(userId, *title, *content, tags)
 
-	go d.references.UpsertReferencesOfNote(createdNote.ShortId, *content)
 	if err == nil {
-		go d.mqpublisher.Publish(mqpublisher.NoteCreated(userId, clientId, createdNote.ShortId, nil))
+		createdNoteBuffer := new(bytes.Buffer)
+		json.NewEncoder(createdNoteBuffer).Encode(createdNote)
+		createdNoteBytes := createdNoteBuffer.Bytes()
+
+		go d.mqpublisher.Publish(mqpublisher.NoteCreated(userId, clientId, createdNote.ShortId, &createdNoteBytes))
 	}
 
 	return Note{
@@ -165,19 +170,18 @@ func (d *datasources) UpdateNote(noteId, userId, clientId string, update map[str
 		d.notesDrafts.DeleteOne(noteId)
 	}
 
-	content, contentChanged := update["content"]
-	if contentChanged {
-		go d.references.UpsertReferencesOfNote(noteId, content.(string))
-	}
-
 	if err == nil {
-		go d.mqpublisher.Publish(mqpublisher.NoteUpdated(userId, clientId, noteId, update))
+		updateContentBuffer := new(bytes.Buffer)
+		json.NewEncoder(updateContentBuffer).Encode(update)
+		updateContentBytes := updateContentBuffer.Bytes()
+
+		go d.mqpublisher.Publish(mqpublisher.NoteUpdated(userId, clientId, noteId, &updateContentBytes))
 	}
 
 	return err
 }
 
-func (d *datasources) GetNote(noteId, userId, clientId string, loadDraft bool) (Note, error) {
+func (d *datasources) GetNote(noteId, userId, clientId string, params GetNoteParams) (Note, error) {
 	note, getNoteErr := d.notes.GetOne(noteId)
 	if getNoteErr != nil || note.Id == "" {
 		return Note{}, getNoteErr
@@ -209,7 +213,7 @@ func (d *datasources) GetNote(noteId, userId, clientId string, loadDraft bool) (
 		HasDraft:  draftExist[note.ShortId],
 	}
 
-	if loadDraft {
+	if params.LoadDraft {
 		draftOfNote, errGetDraft := d.notesDrafts.GetOne(noteId)
 		if errGetDraft != nil {
 			return response, nil
@@ -218,6 +222,19 @@ func (d *datasources) GetNote(noteId, userId, clientId string, loadDraft bool) (
 		response.Content = draftOfNote.Content
 		response.Title = draftOfNote.Title
 		response.Tags = draftOfNote.Tags
+	}
+
+	if params.GetHistory {
+		// todo
+	}
+
+	if params.GetReferences {
+		references, errGetReferences := d.references.ListReferencesToNote(userId, noteId, 1)
+		if errGetReferences != nil {
+			return Note{}, errGetReferences
+		}
+
+		response.References = &references
 	}
 
 	go d.mqpublisher.Publish(mqpublisher.NoteRead(userId, clientId, noteId, nil))

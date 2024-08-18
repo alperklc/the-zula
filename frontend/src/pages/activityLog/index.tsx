@@ -88,7 +88,7 @@ export function ActivitiesListPage() {
     q: params.get('q') || '',
     page: parseInt(params.get('page') as string) || 1,
     pageSize: parseInt(params.get('pageSize') as string) || 10,
-    sortBy: params.get('sortBy') || 'updatedAt',
+    sortBy: params.get('sortBy') || 'timestamp',
     sortDirection: params.get('sortDirection') || 'desc',
   }
 

@@ -285,12 +285,6 @@ export class TextArea extends React.Component<TextAreaProps, TextAreaState> {
   }
 
   handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (this.previous === "AltGraph"){
-      console.log(22222222222222222)
-      debugger
-    } 
-    this.previous = event.key
-
     const { suggestionTriggerCharacters, value } = this.props
     const { mention } = this.state
     const { key } = event

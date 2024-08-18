@@ -208,6 +208,14 @@ paths:
           name: loadDraft
           schema:
             type: boolean
+        - in: query
+          name: getReferences
+          schema:
+            type: boolean
+        - in: query
+          name: getHistory
+          schema:
+            type: boolean        
       responses:
         '200':
           description: Successful response
@@ -530,6 +538,8 @@ components:
           type: string
         hasDraft:
           type: boolean
+        versions:
+          type: integer
         references:
           $ref: '#/components/schemas/noteReferences'
 

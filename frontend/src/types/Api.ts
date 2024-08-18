@@ -72,6 +72,7 @@ export interface Note {
   updatedAt?: string;
   updatedBy?: string;
   hasDraft?: boolean;
+  versions?: number;
   references?: NoteReferences;
 }
 
@@ -258,9 +259,9 @@ export class HttpClient<SecurityDataType = unknown> {
     [ContentType.Json]: (input: any) =>
       input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
     [ContentType.Text]: (input: any) => (input !== null && typeof input !== "string" ? JSON.stringify(input) : input),
-    [ContentType.FormData]: (input: FormData) =>
-      (Array.from(input.keys()) || []).reduce((formData, key) => {
-        const property = input.get(key);
+    [ContentType.FormData]: (input: any) =>
+      Object.keys(input || {}).reduce((formData, key) => {
+        const property = input[key];
         formData.append(
           key,
           property instanceof Blob
@@ -380,6 +381,20 @@ export class HttpClient<SecurityDataType = unknown> {
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   api = {
+    /**
+     * No description
+     *
+     * @name ConnectWs
+     * @summary Connect to websocket
+     * @request GET:/api/v1/ws/{user}
+     */
+    connectWs: (user: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/v1/ws/${user}`,
+        method: "GET",
+        ...params,
+      }),
+
     /**
      * No description
      *
@@ -528,6 +543,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       shortId: string,
       query?: {
         loadDraft?: boolean;
+        getReferences?: boolean;
+        getHistory?: boolean;
       },
       params: RequestParams = {},
     ) =>

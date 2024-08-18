@@ -51,7 +51,7 @@ func (d *datasources) ListReferencesToNote(userId, noteId string, depth int) (Re
 	references, listErr := d.references.ListReferencesOfNoteInDepth(noteId, depth)
 	nodeIds := GetNoteIdsFromReferences(references)
 
-	notes, getNotesErr := d.notes.GetNotes(nodeIds, []string{"id", "title"})
+	notes, getNotesErr := d.notes.GetNotes(nodeIds, []string{"id", "shortId", "title"})
 	if getNotesErr != nil {
 		return ReferencesResponse{}, getNotesErr
 	}
@@ -68,13 +68,13 @@ func (d *datasources) UpsertReferencesOfNote(noteId, noteContent string) error {
 	}
 
 	// check if each note exist
-	validReferences, errGetNotes := d.notes.GetNotes(idsOfReferences, []string{"id"})
+	validReferences, errGetNotes := d.notes.GetNotes(idsOfReferences, []string{"id", "shortId"})
 	if errGetNotes != nil {
 		return errGetNotes
 	}
 	var idsOfValidReferences []string
 	for _, r := range validReferences {
-		idsOfValidReferences = append(idsOfValidReferences, r.Id)
+		idsOfValidReferences = append(idsOfValidReferences, r.ShortId)
 	}
 
 	errInsert := d.references.InsertMany(noteId, idsOfValidReferences)

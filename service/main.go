@@ -84,6 +84,9 @@ func main() {
 	uasmq := userActivityService.NewMqConsumer(l, uad, mq)
 	uasmq.Start()
 
+	rsmq := referencesService.NewMqConsumer(l, nrs, mq)
+	rsmq.Start()
+
 	hub := api.NewHub()
 	go hub.Run()
 

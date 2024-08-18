@@ -32,7 +32,7 @@ func NewMqConsumer(l zerolog.Logger, ua useractivity.Collection, mq *messagequeu
 func (ds *dataSources) Start() {
 	deliveries, err := ds.mq.Channel.Consume(
 		messagequeue.Q_ACTIVITY_LOG, // name
-		ds.mq.Tag,                   // consumerTag,
+		ds.mq.Tag+"activity_log",    // consumerTag,
 		false,                       // noAck
 		false,                       // exclusive
 		false,                       // noLocal

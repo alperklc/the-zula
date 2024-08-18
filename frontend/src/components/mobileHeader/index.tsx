@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import classNames from 'classnames'
 import { styles as layoutStyles } from '../layout'
 import Logo from '../logo'
 import SearchInput from '../search'
@@ -29,7 +28,7 @@ const MobileHeader = (props: {
     searchInputRef.current?.focus()
   }
   return (
-    <div className={classNames(styles.container, props.className)}>
+    <div className={`${styles.container} ${props.className}`}>
       <span className={styles.leftSide}>
         <Button onClick={props.onMenuIconClicked}>
           <icons.Menu />

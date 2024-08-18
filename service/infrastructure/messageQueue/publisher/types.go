@@ -1,8 +1,6 @@
 package mqpublisher
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 
 	messagequeue "github.com/alperklc/the-zula/service/infrastructure/messageQueue"
@@ -55,18 +53,13 @@ func NoteCreated(userId, clientId, objectId string, object *[]byte) ActivityMess
 	return newActivityMessage(&routingKey, userId, clientId, objectId, ResourceTypeNote, ActionCreate, object)
 }
 
-func NoteUpdated(userId, clientId, objectId string, object map[string]interface{}) ActivityMessage {
+func NoteUpdated(userId, clientId, objectId string, object *[]byte) ActivityMessage {
 	routingKey := messagequeue.RK_NOTI_REF
-	jsonData, err := json.Marshal(object)
-	if err != nil {
-		fmt.Println("Error converting map to JSON:", err)
-	}
-
-	return newActivityMessage(&routingKey, userId, clientId, objectId, ResourceTypeNote, ActionUpdate, &jsonData)
+	return newActivityMessage(&routingKey, userId, clientId, objectId, ResourceTypeNote, ActionUpdate, object)
 }
 
 func NoteDeleted(userId, clientId, objectId string, object *[]byte) ActivityMessage {
-	routingKey := messagequeue.RK_NOTIFICA
+	routingKey := messagequeue.RK_NOTI_REF
 	return newActivityMessage(&routingKey, userId, clientId, objectId, ResourceTypeNote, ActionDelete, object)
 }
 

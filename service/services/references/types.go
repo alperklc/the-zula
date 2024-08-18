@@ -21,7 +21,6 @@ type ReferencesResponse struct {
 }
 
 func NewReferencesResponse(l []references.ReferencesDocument, n []notes.NoteDocument) ReferencesResponse {
-
 	var links []ReferenceLink
 	for _, link := range l {
 		links = append(links, ReferenceLink{
@@ -34,7 +33,7 @@ func NewReferencesResponse(l []references.ReferencesDocument, n []notes.NoteDocu
 	for _, node := range n {
 		nodes = append(nodes, ReferenceNode{
 			Title: node.Title,
-			ID:    node.Id,
+			ID:    node.ShortId,
 		})
 	}
 

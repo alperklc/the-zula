@@ -1,17 +1,29 @@
 package notesService
 
-import "time"
+import (
+	"time"
+
+	referencesService "github.com/alperklc/the-zula/service/services/references"
+)
+
+type GetNoteParams struct {
+	LoadDraft     bool
+	GetHistory    bool
+	GetReferences bool
+}
 
 type Note struct {
-	ShortId   string    `json:"id"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	UpdatedBy string    `json:"updatedBy"`
-	CreatedBy string    `json:"createdBy"`
-	CreatedAt time.Time `json:"createdAt"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Tags      []string  `json:"tags"`
-	HasDraft  bool      `json:"hasDraft"`
+	ShortId    string                                `json:"id"`
+	UpdatedAt  time.Time                             `json:"updatedAt"`
+	UpdatedBy  string                                `json:"updatedBy"`
+	CreatedBy  string                                `json:"createdBy"`
+	CreatedAt  time.Time                             `json:"createdAt"`
+	Title      string                                `json:"title"`
+	Content    string                                `json:"content"`
+	Tags       []string                              `json:"tags"`
+	HasDraft   bool                                  `json:"hasDraft"`
+	Versions   *int32                                `json:"versions,omitempty"`
+	References *referencesService.ReferencesResponse `json:"references,omitempty"`
 }
 
 type PaginationMeta struct {

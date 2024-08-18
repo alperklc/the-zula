@@ -13,6 +13,11 @@ import TimeDisplay from '../../../components/timeDisplay'
 import { useUI } from '../../../contexts/uiContext'
 import MessageBox from '../../../components/messageBox/index.tsx'
 import MarkdownDisplay from '../../../components/markdownDisplay/index.tsx'
+import ReferencesGraph from '../../../components/referencesGraph/index.tsx'
+import { ResizeWrapper } from '../../../components/referencesGraph/resizeWrapper.tsx'
+import useModal from '../../../components/modal/index.tsx'
+import { ReferencesModal, styles } from '../../../components/referencesModal/index.tsx'
+import { GraphData } from 'react-force-graph-2d'
 
 export const EditNote = () => {
   const navigate = useNavigate()
@@ -25,14 +30,17 @@ export const EditNote = () => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
+  const [ReferencesExpanded, openReferencesModal, closeReferencesModal] =
+    useModal<{ noteUid: string; references: GraphData }>(ReferencesModal)
+
   const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}`, sessionId } } })
 
-  const fetchNote = async () => {
+  const fetchNote = async (shortId: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      const { data, status } = await api.api.getNote(shortId ?? "")
+      const { data, status } = await api.api.getNote(shortId ?? "", { loadDraft: false, getHistory: true, getReferences: true } )
 
       if (status === 200) {
         setNote(data);
@@ -49,8 +57,9 @@ export const EditNote = () => {
   };
 
   React.useEffect(() => {
-    fetchNote()
-  }, [])
+    closeReferencesModal()
+    shortId && fetchNote(shortId)
+  }, [shortId])
 
 
   const onEditClicked = () => {
@@ -59,6 +68,10 @@ export const EditNote = () => {
       : false
 
     navigate(`/notes/${shortId}/edit${shouldLoadDraft ? '?loadDraft=true' : ''}`)
+  }
+
+  const expandReferences = () => {
+    openReferencesModal()
   }
 
   return (
@@ -96,7 +109,6 @@ export const EditNote = () => {
         <MessageBox type='error'>{error}</MessageBox> :
         <PageContent loading={loading} isMobile={isMobile}>
           <>
-
             {isMobile && (
               <div className={layoutStyles.flex}>
                 <span data-testid='title' className={layoutStyles.title}>
@@ -129,9 +141,36 @@ export const EditNote = () => {
                 <TagsDisplay tags={note.tags} />
               </>
             )}
+            {note?.references?.links && note?.references?.links.length > 0 && (
+             <>
+               <hr />
+               <div className={layoutStyles.refernencesLabel}>
+                 <label>
+                   <FormattedMessage id='notes.form.label.referenced_by' />
+                 </label>
+                 <label className={layoutStyles.labelLink} onClick={expandReferences}>
+                   expand
+                 </label>
+               </div>
+               <ResizeWrapper>
+                 {(props: any) => (
+                   <ReferencesGraph
+                     {...props}
+                     noteId={shortId}
+                     graphData={note?.references}
+                   />
+                 )}
+               </ResizeWrapper>
+             </>
+             )}
           </>
         </PageContent>
       }
+      <ReferencesExpanded
+        className={styles.modal}
+        noteUid={shortId as string}
+        references={note?.references as GraphData}
+      />
     </Layout>
   )
 }

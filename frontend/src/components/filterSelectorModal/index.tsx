@@ -1,5 +1,4 @@
 import React from 'react'
-import classNames from 'classnames'
 import { FormattedMessage, useIntl } from 'react-intl'
 import Button from '../form/button'
 import TagsInput, { searchTags } from '../tagsInput'
@@ -71,9 +70,7 @@ const FilterSelector = (props: FilterSelectorModalProps) => {
               {props?.sortableFields.map((field: string, index: number) => (
                 <span
                   key={index}
-                  className={classNames(styles.choice, {
-                    [styles.selectedChoice]: field === sortBy,
-                  })}
+                  className={`${styles.choice} ${field === sortBy ? styles.selectedChoice: ''}`}
                   onClick={onSortByChanged(field)}
                 >
                   {field}
@@ -85,17 +82,13 @@ const FilterSelector = (props: FilterSelectorModalProps) => {
                 <FormattedMessage id='filter_selector_modal.sort_direction_label' />
               </label>
               <span
-                className={classNames(styles.choice, {
-                  [styles.selectedChoice]: 'asc' === sortDirection,
-                })}
+                className={`${styles.choice} ${'asc' === sortDirection ? styles.selectedChoice : ''}`}
                 onClick={onSortDirectionChangedTo('asc')}
               >
                 asc
               </span>
               <span
-                className={classNames(styles.choice, {
-                  [styles.selectedChoice]: 'desc' === sortDirection,
-                })}
+                className={`${styles.choice} ${'desc' === sortDirection ? styles.selectedChoice : ''}`}
                 onClick={onSortDirectionChangedTo('desc')}
               >
                 desc

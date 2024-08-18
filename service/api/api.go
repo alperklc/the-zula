@@ -135,7 +135,18 @@ func (s *a) GetNote(w http.ResponseWriter, r *http.Request, id string, params Ge
 	user := authorization.UserID(r.Context())
 	sessionId := r.Header.Get("sessionId")
 
-	response, errGetNotes := s.notes.GetNote(id, user, sessionId, params.LoadDraft != nil && *params.LoadDraft)
+	p := notesService.GetNoteParams{}
+	if params.LoadDraft != nil {
+		p.LoadDraft = *params.LoadDraft
+	}
+	if params.GetHistory != nil {
+		p.GetReferences = *params.GetHistory
+	}
+	if params.GetReferences != nil {
+		p.GetReferences = *params.GetReferences
+	}
+
+	response, errGetNotes := s.notes.GetNote(id, user, sessionId, p)
 	if errGetNotes != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get note, %s", errGetNotes.Error()))
 		return

@@ -13,7 +13,6 @@ import { useUI } from '../../../contexts/uiContext'
 import { useNavigate } from 'react-router-dom'
 import { Api } from '../../../types/Api.ts'
 import { useAuth } from '../../../contexts/authContext'
-import useDebounce from '../../../utils/useDebounce'
 import Content from '../../../components/content/index.tsx'
 
 interface Note {
@@ -41,41 +40,6 @@ const CreateNote = () => {
   
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [initialized, setInitialized] = React.useState(false);
-
-  const [topPosition, setTopPosition] = React.useState(100)
-  const debouncedTopOfTextArea = useDebounce<number>(topPosition, 100)
-
-  const mdxEditorRef = React.useRef<HTMLDivElement>(null)
-
-  const calculateTopOfTextArea = () => {
-    mdxEditorRef.current = document.querySelector(".mdxeditor-root")
-    const startPoint = mdxEditorRef.current?.getBoundingClientRect()?.top || 200
-
-    setTopPosition(Math.round(startPoint))
-  }
-
-  const setEditorHeight = () => {
-    if (mdxEditorRef?.current?.style) {
-      mdxEditorRef.current.style.height = `calc(100vh - ${topPosition}px - 1.2rem)`
-      mdxEditorRef.current.style.paddingBottom = `calc(calc(100vh - ${topPosition}px) - 3.2rem)`
-    }
-  }
-
-  React.useEffect(setEditorHeight, [debouncedTopOfTextArea, topPosition])
-
-  React.useEffect(() => {
-    calculateTopOfTextArea()
-    window.addEventListener('resize', calculateTopOfTextArea)
-
-    return () => {
-      window.removeEventListener('resize', calculateTopOfTextArea)
-    }
-  }, [])
-
-  React.useEffect(() => {
-    calculateTopOfTextArea()
-  }, [initialized])
 
   React.useEffect(() => {
     const title = NoteCache.read<string>('new-note-title') ?? ""
@@ -85,8 +49,6 @@ const CreateNote = () => {
     if (title?.length || content?.length || tags?.length) {
       setNote({ title, content, tags})
     }
-
-    setInitialized(true)
   }, [])
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

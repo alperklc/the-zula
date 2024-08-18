@@ -1,0 +1,13 @@
+.modal {
+  overflow: hidden;
+}
+.modal canvas {
+  width: unset;
+  height: unset;
+}
+@media (min-width: 600px) {
+  .modal {
+    height: 80% !important;
+    width: 70% !important;
+  }
+}

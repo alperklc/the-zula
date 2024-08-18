@@ -19,7 +19,7 @@ import Icons from "../../../components/icons";
 function NotesList() {
   const { isMobile } = useUI()
   const [FilterSelectionModal, openFilterSelection] =
-    useModal<FilterSelectorModalProps>(FilterSelector)
+    useModal<FilterSelectorModalProps>(FilterSelector);
 
   const { query, applyFilterAndSort, tagsAsArray, changePageSize, updateQuery, paginate } = React.useContext(QueryContext)
   const [loading, setLoading] = React.useState(true);
