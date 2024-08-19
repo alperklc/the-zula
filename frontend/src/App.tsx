@@ -42,6 +42,8 @@ function App() {
   React.useEffect(() => {
     setWebSocketConnection();
     subscribeToSocketMessage();
+
+    return () => webSocketConnection.current?.close();
   }, []);
 
   const setWebSocketConnection = () => {
