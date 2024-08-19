@@ -54,7 +54,7 @@ func NewExchange(name, xchgType string) ExchangeConfig {
 		Name:       name,
 		Type:       xchgType,
 		Durable:    true,
-		AutoDelete: true,
+		AutoDelete: false,
 		Internal:   false,
 		NoWait:     false,
 		Args:       nil,
@@ -65,7 +65,7 @@ func NewDurableQueue(name string) QueueConfig {
 	return QueueConfig{
 		Name:       name,
 		Durable:    true,
-		AutoDelete: true,
+		AutoDelete: false,
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
