@@ -4,6 +4,11 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: 'vitest.setup.ts',
+  },
   server: {
     port: 3000,
     hmr: {
@@ -14,5 +19,4 @@ export default defineConfig({
     },
     host: true,
   },
-  
 })

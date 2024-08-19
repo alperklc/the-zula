@@ -5,8 +5,8 @@ import { TagsInput } from './index'
 import SearchInput from '../layout/list-content/search-input'
 
 describe('TagsInput', () => {
-  const onChange = jest.fn()
-  const searchTags = jest.fn()
+  const onChange = vi.fn()
+  const searchTags = vi.fn()
 
   it('displays given tags above text input', async () => {
     const tags = ['testing', 'tags', 'input']

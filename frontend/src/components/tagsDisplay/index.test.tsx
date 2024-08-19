@@ -55,7 +55,7 @@ describe('TagsDisplay', () => {
   it('calls removeTag function with the correct tag value if user clicks on remove-tag-icon', async () => {
     // arrange
     const tags = ['this', 'is', 'for', 'testing']
-    const mockRemoveTag = jest.fn()
+    const mockRemoveTag = vi.fn()
     const indexOfTagToBeRemoved = 2
 
     // act

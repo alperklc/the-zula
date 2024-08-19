@@ -1,8 +1,8 @@
 import { render } from '@testing-library/react'
 import { AllContentSection, DashboardSection, Content, DashboardContentRow } from './index'
 
-jest.mock('react-intl', () => ({
-  useIntl: () => ({ formatMessage: jest.fn() }),
+vi.mock('react-intl', () => ({
+  useIntl: () => ({ formatMessage: vi.fn() }),
 }))
 
 describe('DashboardSection', () => {

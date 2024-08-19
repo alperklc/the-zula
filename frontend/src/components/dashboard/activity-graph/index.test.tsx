@@ -3,8 +3,8 @@ import { render } from '@testing-library/react'
 
 import { ActivityGraph } from './index'
 
-jest.mock('react-intl', () => ({
-  useIntl: () => ({ formatMessage: jest.fn() }),
+vi.mock('react-intl', () => ({
+  useIntl: () => ({ formatMessage: vi.fn() }),
 }))
 
 describe('ActivityGraph', () => {
