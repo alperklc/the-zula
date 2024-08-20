@@ -22,8 +22,8 @@ func (m *MockedNotesChanges) GetCountOfChanges(noteId string) (int64, error) {
 	return args.Get(0).(int64), args.Error(1)
 }
 
-func (m *MockedNotesChanges) GetOne(noteId, timestamp string) (NotesChangesDocument, error) {
-	args := m.Called(noteId, timestamp)
+func (m *MockedNotesChanges) GetOne(shortId string) (NotesChangesDocument, error) {
+	args := m.Called(shortId)
 
 	return args.Get(0).(NotesChangesDocument), args.Error(1)
 }

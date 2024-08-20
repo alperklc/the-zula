@@ -29,7 +29,7 @@
   "notes.form.label.tags": "Tags",
   "notes.form.label.files": "Dateien",
   "notes.form.label.referenced_by": "References",
-  "notes.history.label": "Verlauf ({number})",
+  "notes.changes.label": "Änderungen ({number})",
   "files.table.columns.type": "Typ",
   "files.table.columns.file": "Name",
   "files.form.label.file": "Datei hochladen",

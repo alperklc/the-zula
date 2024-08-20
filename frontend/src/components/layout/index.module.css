@@ -215,3 +215,20 @@
   flex-direction: row;
   justify-content: space-between;
 }
+
+.labelLink {
+  color: var(--link-color);
+  text-transform: none;
+  font-size: 0.7rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.historyLink {
+  text-transform: uppercase;
+  font-size: var(--font-size-small);
+}
+
+.labelLink:hover {
+  color: var(--link-hover-color);
+}

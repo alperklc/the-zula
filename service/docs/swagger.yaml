@@ -329,7 +329,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/notesChangesResult'
 
-  /api/v1/notes/{shortId}/changes/{timestamp}:
+  /api/v1/notes/{shortId}/changes/{changeShortId}:
     get:
       operationId: getNotesChange
       summary: Brings a change on a note
@@ -340,7 +340,7 @@ paths:
           schema:
             type: string
         - in: path
-          name: timestamp
+          name: changeShortId
           required: true
           schema:
             type: string

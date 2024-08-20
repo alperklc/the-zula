@@ -18,6 +18,8 @@ import { ActivitiesListPage } from './pages/activityLog';
 import { useToast } from './components/toast/toast-message-context';
 import { toStatusTextKey } from './components/toast/status-text-mapping';
 import './App.css';
+import { NotesChangesListPage } from './pages/notes/changes';
+import { NoteChangePage } from './pages/notes/changes/change';
 
 function PrivateRoute({ path, element }: { path: string; element: React.ReactElement }) {
   const auth = useAuth();
@@ -129,6 +131,8 @@ function App() {
           <Route path="/notes/create" element={<PrivateRoute path={"/notes/create"} element={<CreateNote />}/>}/>
           <Route path="/notes/:shortId" element={<PrivateRoute path={"/notes/:shortId"} element={<Note />}/>}/>
           <Route path="/notes/:shortId/edit" element={<PrivateRoute path={"/notes/:shortId/edit"} element={<EditNote />}/>}/>
+          <Route path="/notes/:shortId/changes" element={<PrivateRoute path={"/notes/:shortId/changes"} element={<NotesChangesListPage />}/>}/>
+          <Route path="/notes/:shortId/changes/:timestamp" element={<PrivateRoute path={"/notes/:shortId/changes/:timestamp"} element={<NoteChangePage />}/>}/>
           <Route path="/bookmarks" element={<PrivateRoute path={"/bookmarks"} element={<BookmarksListPage />}/>}/>
           <Route path="/bookmarks/create" element={<PrivateRoute path={"/bookmarks/create"} element={<CreateBookmark />}/>}/>
           <Route path="/bookmarks/:shortId" element={<PrivateRoute path={"/bookmarks/:shortId"} element={<BookmarkDetails />}/>}/>

@@ -31,7 +31,7 @@ type NoteService interface {
 	UpdateDraft(userId, noteId, title, content string, tags []string) error
 	DeleteDraft(userId, noteId string) error
 	ListNotesChanges(userId, noteId string, page, pageSize *int) (NotesChangesPage, error)
-	GetNotesChange(noteId, timestamp string) (NotesChanges, error)
+	GetNotesChange(noteId, shortId string) (NotesChanges, error)
 }
 
 type datasources struct {
@@ -404,14 +404,24 @@ func (d *datasources) ListNotesChanges(userId, noteId string, p, ps *int) (Notes
 
 }
 
-func (d *datasources) GetNotesChange(noteId, timestamp string) (NotesChanges, error) {
-	historyEntry, getNotesChangesErr := d.notesChanges.GetOne(noteId, timestamp)
+func (d *datasources) GetNotesChange(noteId, shortId string) (NotesChanges, error) {
+	_, getNoteErr := d.notes.GetOne(noteId)
+	if getNoteErr != nil {
+		return NotesChanges{}, getNoteErr
+	}
+
+	historyEntry, getNotesChangesErr := d.notesChanges.GetOne(shortId)
+
+	updater, errGetUpdaterUser := d.users.GetUser(historyEntry.UpdatedBy)
+	if errGetUpdaterUser != nil {
+		return NotesChanges{}, errGetUpdaterUser
+	}
 
 	return NotesChanges{
 		ShortId:   historyEntry.ShortId,
 		NoteId:    historyEntry.NoteId,
 		UpdatedAt: historyEntry.UpdatedAt,
-		UpdatedBy: historyEntry.UpdatedBy,
+		UpdatedBy: updater.DisplayName,
 		Change:    historyEntry.Change,
 	}, getNotesChangesErr
 }

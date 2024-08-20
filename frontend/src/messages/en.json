@@ -24,7 +24,7 @@
   "notes.form.label.tags": "Tags",
   "notes.form.label.files": "Files",
   "notes.form.label.referenced_by": "References",
-  "notes.history.label": "History ({number})",
+  "notes.changes.label": "Changes ({number})",
   "files.table.columns.type": "Type",
   "files.table.columns.name": "Name",
   "files.form.label.file": "File upload",

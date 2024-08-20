@@ -72,8 +72,16 @@ export interface Note {
   updatedAt?: string;
   updatedBy?: string;
   hasDraft?: boolean;
-  versions?: number;
+  changesCount?: number;
   references?: NoteReferences;
+}
+
+export interface NoteChange {
+  shortId?: string;
+  noteId?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+  change?: string;
 }
 
 export interface PageContent {
@@ -124,6 +132,11 @@ export interface UserActivity {
 export interface NoteSearchResult {
   meta?: PaginationMeta;
   items?: Note[];
+}
+
+export interface NotesChangesResult {
+  meta?: PaginationMeta;
+  items?: NoteChange[];
 }
 
 export interface BookmarkSearchResult {
@@ -544,7 +557,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         loadDraft?: boolean;
         getReferences?: boolean;
-        getHistory?: boolean;
+        getChanges?: boolean;
       },
       params: RequestParams = {},
     ) =>
@@ -616,6 +629,44 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<boolean, any>({
         path: `/api/v1/notes/${shortId}/draft`,
         method: "DELETE",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetNotesChanges
+     * @summary Brings a list of changes on a note
+     * @request GET:/api/v1/notes/{shortId}/changes
+     */
+    getNotesChanges: (
+      shortId: string,
+      query?: {
+        page?: number;
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<NotesChangesResult, any>({
+        path: `/api/v1/notes/${shortId}/changes`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name GetNotesChange
+     * @summary Brings a change on a note
+     * @request GET:/api/v1/notes/{shortId}/changes/{changeShortId}
+     */
+    getNotesChange: (shortId: string, changeShortId: string, params: RequestParams = {}) =>
+      this.request<NoteChange, any>({
+        path: `/api/v1/notes/${shortId}/changes/${changeShortId}`,
+        method: "GET",
         format: "json",
         ...params,
       }),

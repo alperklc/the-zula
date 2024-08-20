@@ -1,13 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./index.module.css";
 import { Bookmark } from "../../types/Api";
 import TagsDisplay from "../tagsDisplay";
 import TimeDisplay from "../timeDisplay";
 import Icons from "../icons";
 import OverflowMenu from "../bookmarkOverflowMenu";
-import { styles as layoutStyles } from '../layout'
 import { useUI } from "../../contexts/uiContext";
+import { styles as layoutStyles } from '../layout'
+import styles from "./index.module.css";
 
 const FaviconDisplay = (props: { faviconUrl: string }) => {
     const [faviconUrl, setFaviconUrl] = React.useState(props.faviconUrl)

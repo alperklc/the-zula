@@ -1,8 +1,8 @@
 import { BaseListItem } from "./BaseListItem";
-import styles from "./index.module.css";
 import { Note } from "../../types/Api";
 import TagsDisplay from "../tagsDisplay";
 import TimeDisplay from "../timeDisplay";
+import styles from "./index.module.css";
 
 export const NoteListItem = ({ item }: { item: Note }) => {
     return <BaseListItem

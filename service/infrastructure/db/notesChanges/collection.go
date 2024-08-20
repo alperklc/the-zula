@@ -14,7 +14,7 @@ const collectionName = "notes_changes"
 type Collection interface {
 	ListHistoryOfNote(noteId string, page, pageSize int) ([]NotesChangesDocument, int, error)
 	GetCountOfChanges(noteId string) (int64, error)
-	GetOne(noteId, timestamp string) (NotesChangesDocument, error)
+	GetOne(shortId string) (NotesChangesDocument, error)
 	InsertOne(noteId string, updatedAt time.Time, updatedBy, change string) error
 }
 
@@ -77,9 +77,9 @@ func (d *db) GetCountOfChanges(noteId string) (int64, error) {
 	return d.collection.CountDocuments(context.TODO(), filter)
 }
 
-func (d *db) GetOne(noteId, timestamp string) (NotesChangesDocument, error) {
+func (d *db) GetOne(shortId string) (NotesChangesDocument, error) {
 	var noteHistoryDocument NotesChangesDocument
-	filter := bson.M{"noteId": noteId, "updatedAt": timestamp}
+	filter := bson.M{"shortId": shortId}
 	err := d.collection.FindOne(context.TODO(), filter).Decode(&noteHistoryDocument)
 
 	if err != nil {

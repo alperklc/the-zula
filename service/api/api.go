@@ -202,8 +202,8 @@ func (s *a) GetNotesChanges(w http.ResponseWriter, r *http.Request, shortId stri
 	})
 }
 
-func (s *a) GetNotesChange(w http.ResponseWriter, r *http.Request, shortId string, timestamp string) {
-	response, errGetNotesChange := s.notes.GetNotesChange(shortId, timestamp)
+func (s *a) GetNotesChange(w http.ResponseWriter, r *http.Request, noteId, shortId string) {
+	response, errGetNotesChange := s.notes.GetNotesChange(noteId, shortId)
 	if errGetNotesChange != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get notes change, %s", errGetNotesChange.Error()))
 		return

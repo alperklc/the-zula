@@ -1,11 +1,11 @@
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
 import { useNavigate, useParams } from 'react-router-dom'
+import { GraphData } from 'react-force-graph-2d'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
 import Button from '../../../components/form/button'
 import PageContent from '../../../components/pageContent'
 import Breadcrumbs from '../../../components/breadcrumbs'
-import icons from '../../../components/icons'
 import { useAuth } from '../../../contexts/authContext'
 import { Api, Note } from '../../../types/Api.ts'
 import TagsDisplay from '../../../components/tagsDisplay'
@@ -13,11 +13,12 @@ import TimeDisplay from '../../../components/timeDisplay'
 import { useUI } from '../../../contexts/uiContext'
 import MessageBox from '../../../components/messageBox/index.tsx'
 import MarkdownDisplay from '../../../components/markdownDisplay/index.tsx'
-import ReferencesGraph from '../../../components/referencesGraph/index.tsx'
+import ReferencesGraph, { ReferencesGraphProps } from '../../../components/referencesGraph/index.tsx'
 import { ResizeWrapper } from '../../../components/referencesGraph/resizeWrapper.tsx'
 import useModal from '../../../components/modal/index.tsx'
 import { ReferencesModal, styles } from '../../../components/referencesModal/index.tsx'
-import { GraphData } from 'react-force-graph-2d'
+import { Link } from 'react-router-dom'
+import icons from '../../../components/icons'
 
 export const EditNote = () => {
   const navigate = useNavigate()
@@ -25,8 +26,7 @@ export const EditNote = () => {
   const { isMobile } = useUI()
   const { user, sessionId } = useAuth()
 
-  const [note, setNote] = React.useState<Note>()
-
+  const [note, setNote] = React.useState<Note>();
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -40,7 +40,7 @@ export const EditNote = () => {
       setLoading(true);
       setError(null);
 
-      const { data, status } = await api.api.getNote(shortId ?? "", { loadDraft: false, getHistory: true, getReferences: true } )
+      const { data, status } = await api.api.getNote(shortId ?? "", { loadDraft: false, getChanges: true, getReferences: true } )
 
       if (status === 200) {
         setNote(data);
@@ -141,6 +141,19 @@ export const EditNote = () => {
                 <TagsDisplay tags={note.tags} />
               </>
             )}
+             {note?.changesCount && note?.changesCount > 0 && (
+              <>
+                <hr />
+                <Link to={`/notes/${shortId}/changes`}>  
+                  <label className={`${layoutStyles.labelLink} ${layoutStyles.historyLink}`}>
+                    <FormattedMessage
+                      id='notes.changes.label'
+                      values={{ number: note.changesCount }}
+                    />
+                  </label>
+                </Link>
+              </>
+            )}
             {note?.references?.links && note?.references?.links.length > 0 && (
              <>
                <hr />
@@ -153,10 +166,10 @@ export const EditNote = () => {
                  </label>
                </div>
                <ResizeWrapper>
-                 {(props: any) => (
+                 {(props: ReferencesGraphProps) => (
                    <ReferencesGraph
                      {...props}
-                     noteId={shortId}
+                     noteId={shortId!}
                      graphData={note?.references}
                    />
                  )}
