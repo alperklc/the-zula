@@ -58,7 +58,8 @@ func (ds *dataSources) Start() {
 				break
 			}
 
-			ds.logger.Debug().Msgf("userActivityService: received message %s - tag: %s, length: %d", d.Body, d.DeliveryTag, len(d.Body))
+			ds.logger.Info().Msgf("userActivityService: received message %s - tag: %s, length: %d", d.Body, d.DeliveryTag, len(d.Body))
+			d.Ack(false)
 		}
 		ds.logger.Debug().Msg("userActivityService: deliveries channel closed")
 		<-done

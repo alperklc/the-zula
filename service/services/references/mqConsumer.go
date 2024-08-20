@@ -2,7 +2,6 @@ package referencesService
 
 import (
 	"encoding/json"
-	"fmt"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog"
@@ -58,8 +57,6 @@ func (ds *dataSources) Start() {
 				break
 			}
 
-			fmt.Println(incomingMessage)
-
 			if incomingMessage.Action == mqpublisher.ActionCreate {
 				note := notes.NoteDocument{}
 				errUnmarshal := json.Unmarshal(*incomingMessage.Object, &note)
@@ -86,6 +83,7 @@ func (ds *dataSources) Start() {
 			}
 
 			ds.logger.Info().Msgf("referencesService: received message %s - tag: %d, length: %d", d.Body, d.DeliveryTag, len(d.Body))
+			d.Ack(false)
 		}
 		ds.logger.Debug().Msg("referencesService: deliveries channel closed")
 		<-done

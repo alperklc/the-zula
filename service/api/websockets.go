@@ -53,6 +53,8 @@ func (r *resources) SendNotification() {
 			}
 			r.logger.Debug().Msgf("notifications: received message %s - tag: %d, length: %d", d.Body, d.DeliveryTag, len(d.Body))
 			EmitToSpecificClient(&r.clientHub, SocketEventStruct{EventName: "msg", EventPayload: incomingMessage}, incomingMessage.ClientID)
+
+			d.Ack(false)
 		}
 		r.logger.Debug().Msg("notifications: deliveries channel closed")
 		<-done
