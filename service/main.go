@@ -13,6 +13,7 @@ import (
 	"github.com/alperklc/the-zula/service/infrastructure/db"
 	"github.com/alperklc/the-zula/service/infrastructure/db/bookmarks"
 	"github.com/alperklc/the-zula/service/infrastructure/db/notes"
+	"github.com/alperklc/the-zula/service/infrastructure/db/notesChanges"
 	"github.com/alperklc/the-zula/service/infrastructure/db/notesDrafts"
 	"github.com/alperklc/the-zula/service/infrastructure/db/pageContent"
 	"github.com/alperklc/the-zula/service/infrastructure/db/references"
@@ -53,6 +54,7 @@ func main() {
 	ac := auth.NewAuthClient(fmt.Sprintf("https://%s/", config.AuthDomain), config.AuthServiceAccountUser, config.AuthServiceAccountSecret)
 
 	nr := notes.NewDb(d)
+	ncr := notesChanges.NewDb(d)
 	ndr := notesDrafts.NewDb(d)
 	nrr := references.NewDb(d)
 	uad := useractivity.NewDb(d)
@@ -78,7 +80,7 @@ func main() {
 	bs := bookmarksService.NewService(us, b, pc, wsc, mqp)
 
 	nrs := referencesService.NewService(nr, nrr)
-	ns := notesService.NewService(us, nr, ndr, nrs, mqp)
+	ns := notesService.NewService(us, nr, ncr, ndr, nrs, mqp)
 	uas := userActivityService.NewService(*uams, *usms, us, uad, ns, bs)
 
 	uasmq := userActivityService.NewMqConsumer(l, uad, mq)

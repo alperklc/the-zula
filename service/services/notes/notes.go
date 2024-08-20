@@ -7,11 +7,15 @@ import (
 	"math"
 
 	"github.com/alperklc/the-zula/service/infrastructure/db/notes"
+	"github.com/alperklc/the-zula/service/infrastructure/db/notesChanges"
 	"github.com/alperklc/the-zula/service/infrastructure/db/notesDrafts"
 	mqpublisher "github.com/alperklc/the-zula/service/infrastructure/messageQueue/publisher"
 	referencesService "github.com/alperklc/the-zula/service/services/references"
 	usersService "github.com/alperklc/the-zula/service/services/users"
 	"github.com/alperklc/the-zula/service/utils"
+	"github.com/hexops/gotextdiff"
+	"github.com/hexops/gotextdiff/myers"
+	"github.com/hexops/gotextdiff/span"
 )
 
 type NoteService interface {
@@ -26,19 +30,22 @@ type NoteService interface {
 	GetDraftOfNote(userId, noteId string) (Note, error)
 	UpdateDraft(userId, noteId, title, content string, tags []string) error
 	DeleteDraft(userId, noteId string) error
+	ListNotesChanges(userId, noteId string, page, pageSize int) (NotesChangesPage, error)
+	GetNotesChanges(noteId, timestamp string) (NotesChanges, error)
 }
 
 type datasources struct {
-	users       usersService.UsersService
-	notes       notes.Collection
-	notesDrafts notesDrafts.Collection
-	references  referencesService.ReferencesService
-	mqpublisher mqpublisher.MessagePublisher
+	users        usersService.UsersService
+	notes        notes.Collection
+	notesChanges notesChanges.Collection
+	notesDrafts  notesDrafts.Collection
+	references   referencesService.ReferencesService
+	mqpublisher  mqpublisher.MessagePublisher
 }
 
-func NewService(u usersService.UsersService, n notes.Collection, nd notesDrafts.Collection, nrs referencesService.ReferencesService, mqp mqpublisher.MessagePublisher) NoteService {
+func NewService(u usersService.UsersService, n notes.Collection, nc notesChanges.Collection, nd notesDrafts.Collection, nrs referencesService.ReferencesService, mqp mqpublisher.MessagePublisher) NoteService {
 	return &datasources{
-		users: u, notes: n, notesDrafts: nd, references: nrs, mqpublisher: mqp,
+		users: u, notes: n, notesChanges: nc, notesDrafts: nd, references: nrs, mqpublisher: mqp,
 	}
 }
 
@@ -167,10 +174,19 @@ func (d *datasources) UpdateNote(noteId, userId, clientId string, update map[str
 	updatedFields := utils.FilterFieldsOfObject(allowedFields, update)
 	err := d.notes.UpdateOne(userId, noteId, updatedFields)
 	if err == nil {
+		// draft
 		d.notesDrafts.DeleteOne(noteId)
-	}
 
-	if err == nil {
+		// changes history
+		edits := myers.ComputeEdits(span.URIFromPath(note.Title), note.Content, update["content"].(string))
+		newTitle, titleUpdated := update["title"].(string)
+		if !titleUpdated {
+			newTitle = note.Title
+		}
+		diff := fmt.Sprint(gotextdiff.ToUnified(note.Title, newTitle, note.Content, edits))
+		d.notesChanges.InsertOne(noteId, note.UpdatedAt, userId, diff)
+
+		// activity log & references
 		updateContentBuffer := new(bytes.Buffer)
 		json.NewEncoder(updateContentBuffer).Encode(update)
 		updateContentBytes := updateContentBuffer.Bytes()
@@ -224,8 +240,13 @@ func (d *datasources) GetNote(noteId, userId, clientId string, params GetNotePar
 		response.Tags = draftOfNote.Tags
 	}
 
-	if params.GetHistory {
-		// todo
+	if params.GetChanges {
+		countOfChanges, errGetCountOfChanges := d.notesChanges.GetCountOfChanges(noteId)
+		if errGetCountOfChanges != nil {
+			return Note{}, errGetCountOfChanges
+		}
+		count := int32(countOfChanges)
+		response.ChangesCount = &count
 	}
 
 	if params.GetReferences {
@@ -344,4 +365,43 @@ func (d *datasources) DeleteDraft(userId, noteId string) error {
 	}
 
 	return d.notesDrafts.DeleteOne(noteId)
+}
+
+func (d *datasources) ListNotesChanges(userId, noteId string, page, pageSize int) (NotesChangesPage, error) {
+	notes, count, listErr := d.notesChanges.ListHistoryOfNote(noteId, page, pageSize)
+
+	var items []NotesChanges = make([]NotesChanges, 0, len(notes))
+	for _, b := range notes {
+		note := NotesChanges{
+			ShortId:   b.ShortId,
+			NoteId:    b.NoteId,
+			UpdatedAt: b.UpdatedAt,
+			UpdatedBy: b.UpdatedBy,
+			Change:    b.Change,
+		}
+		items = append(items, note)
+	}
+
+	return NotesChangesPage{
+		Items: items,
+		Meta: PaginationMeta{
+			Count:    count,
+			Page:     page,
+			PageSize: pageSize,
+			Range:    getPaginationRange(count, page, pageSize),
+		},
+	}, listErr
+
+}
+
+func (d *datasources) GetNotesChanges(noteId, timestamp string) (NotesChanges, error) {
+	historyEntry, getNotesChangesErr := d.notesChanges.GetOne(noteId, timestamp)
+
+	return NotesChanges{
+		ShortId:   historyEntry.ShortId,
+		NoteId:    historyEntry.NoteId,
+		UpdatedAt: historyEntry.UpdatedAt,
+		UpdatedBy: historyEntry.UpdatedBy,
+		Change:    historyEntry.Change,
+	}, getNotesChangesErr
 }

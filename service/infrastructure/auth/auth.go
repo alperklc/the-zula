@@ -67,7 +67,6 @@ func (c *AuthClient) TokenValid() bool {
 }
 
 func (c *AuthClient) GetUser(userId string) (*User, error) {
-	fmt.Println("debug fetch user")
 	if !c.TokenValid() {
 		err := c.Authenticate()
 		if err != nil {

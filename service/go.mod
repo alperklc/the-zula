@@ -4,6 +4,9 @@ go 1.22.5
 
 require (
 	github.com/getkin/kin-openapi v0.127.0
+	github.com/google/uuid v1.6.0
+	github.com/gorilla/websocket v1.5.3
+	github.com/hexops/gotextdiff v1.0.3
 	github.com/jellydator/ttlcache/v3 v3.2.0
 	github.com/matoous/go-nanoid v1.5.0
 	github.com/oapi-codegen/runtime v1.1.1
@@ -25,9 +28,7 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
-	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/invopop/yaml v0.3.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect

@@ -24,6 +24,7 @@ paths:
       responses:
         '200':
           description: Successful response
+  
   /api/v1/users/{shortId}:
     get:
       operationId: getUser
@@ -213,7 +214,7 @@ paths:
           schema:
             type: boolean
         - in: query
-          name: getHistory
+          name: getChanges
           schema:
             type: boolean        
       responses:
@@ -300,7 +301,56 @@ paths:
           content:
             application/json:
               schema:
-                type: boolean                
+                type: boolean
+
+  /api/v1/notes/{shortId}/changes:
+    get:
+      operationId: getNotesChanges
+      summary: Brings a list of changes on a note
+      parameters:
+        - in: path
+          name: shortId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/notesChangesResult'
+
+  /api/v1/notes/{shortId}/changes/{timestamp}:
+    get:
+      operationId: getNotesChange
+      summary: Brings a change on a note
+      parameters:
+        - in: path
+          name: shortId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: timestamp
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/noteChange'
 
   /api/v1/bookmarks:
     get:
@@ -538,10 +588,24 @@ components:
           type: string
         hasDraft:
           type: boolean
-        versions:
+        changesCount:
           type: integer
         references:
           $ref: '#/components/schemas/noteReferences'
+
+    noteChange:
+      type: object
+      properties:
+        shortId:
+          type: string
+        noteId:
+          type: string
+        updatedAt:
+          type: string
+        updatedBy:
+          type: string
+        change:
+          type: string
 
     pageContent:
       type: object
@@ -639,6 +703,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/note'
+
+    notesChangesResult:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/paginationMeta'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/noteChange'
 
     bookmarkSearchResult:
       type: object

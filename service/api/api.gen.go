@@ -73,17 +73,26 @@ type MostVisited struct {
 
 // Note defines model for note.
 type Note struct {
-	Content    *string         `json:"content,omitempty"`
-	CreatedAt  *string         `json:"createdAt,omitempty"`
-	CreatedBy  *string         `json:"createdBy,omitempty"`
-	HasDraft   *bool           `json:"hasDraft,omitempty"`
-	References *NoteReferences `json:"references,omitempty"`
-	ShortId    *string         `json:"shortId,omitempty"`
-	Tags       *[]string       `json:"tags,omitempty"`
-	Title      *string         `json:"title,omitempty"`
-	UpdatedAt  *string         `json:"updatedAt,omitempty"`
-	UpdatedBy  *string         `json:"updatedBy,omitempty"`
-	Versions   *int            `json:"versions,omitempty"`
+	ChangesCount *int            `json:"changesCount,omitempty"`
+	Content      *string         `json:"content,omitempty"`
+	CreatedAt    *string         `json:"createdAt,omitempty"`
+	CreatedBy    *string         `json:"createdBy,omitempty"`
+	HasDraft     *bool           `json:"hasDraft,omitempty"`
+	References   *NoteReferences `json:"references,omitempty"`
+	ShortId      *string         `json:"shortId,omitempty"`
+	Tags         *[]string       `json:"tags,omitempty"`
+	Title        *string         `json:"title,omitempty"`
+	UpdatedAt    *string         `json:"updatedAt,omitempty"`
+	UpdatedBy    *string         `json:"updatedBy,omitempty"`
+}
+
+// NoteChange defines model for noteChange.
+type NoteChange struct {
+	Change    *string `json:"change,omitempty"`
+	NoteId    *string `json:"noteId,omitempty"`
+	ShortId   *string `json:"shortId,omitempty"`
+	UpdatedAt *string `json:"updatedAt,omitempty"`
+	UpdatedBy *string `json:"updatedBy,omitempty"`
 }
 
 // NoteInput defines model for noteInput.
@@ -115,6 +124,12 @@ type NoteReferences struct {
 // NoteSearchResult defines model for noteSearchResult.
 type NoteSearchResult struct {
 	Items *[]Note         `json:"items,omitempty"`
+	Meta  *PaginationMeta `json:"meta,omitempty"`
+}
+
+// NotesChangesResult defines model for notesChangesResult.
+type NotesChangesResult struct {
+	Items *[]NoteChange   `json:"items,omitempty"`
 	Meta  *PaginationMeta `json:"meta,omitempty"`
 }
 
@@ -217,7 +232,13 @@ type GetNotesParams struct {
 type GetNoteParams struct {
 	LoadDraft     *bool `form:"loadDraft,omitempty" json:"loadDraft,omitempty"`
 	GetReferences *bool `form:"getReferences,omitempty" json:"getReferences,omitempty"`
-	GetHistory    *bool `form:"getHistory,omitempty" json:"getHistory,omitempty"`
+	GetChanges    *bool `form:"getChanges,omitempty" json:"getChanges,omitempty"`
+}
+
+// GetNotesChangesParams defines parameters for GetNotesChanges.
+type GetNotesChangesParams struct {
+	Page     *int `form:"page,omitempty" json:"page,omitempty"`
+	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 }
 
 // GetTagsParams defines parameters for GetTags.
@@ -284,6 +305,12 @@ type ServerInterface interface {
 	// Update a note by shortId
 	// (PUT /api/v1/notes/{shortId})
 	UpdateNote(w http.ResponseWriter, r *http.Request, shortId string)
+	// Brings a list of changes on a note
+	// (GET /api/v1/notes/{shortId}/changes)
+	GetNotesChanges(w http.ResponseWriter, r *http.Request, shortId string, params GetNotesChangesParams)
+	// Brings a change on a note
+	// (GET /api/v1/notes/{shortId}/changes/{timestamp})
+	GetNotesChange(w http.ResponseWriter, r *http.Request, shortId string, timestamp string)
 	// Delete a notes draft by note shortId
 	// (DELETE /api/v1/notes/{shortId}/draft)
 	DeleteNoteDraft(w http.ResponseWriter, r *http.Request, shortId string)
@@ -623,11 +650,11 @@ func (siw *ServerInterfaceWrapper) GetNote(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// ------------- Optional query parameter "getHistory" -------------
+	// ------------- Optional query parameter "getChanges" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "getHistory", r.URL.Query(), &params.GetHistory)
+	err = runtime.BindQueryParameter("form", true, false, "getChanges", r.URL.Query(), &params.GetChanges)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "getHistory", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "getChanges", Err: err})
 		return
 	}
 
@@ -659,6 +686,86 @@ func (siw *ServerInterfaceWrapper) UpdateNote(w http.ResponseWriter, r *http.Req
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateNote(w, r, shortId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetNotesChanges operation middleware
+func (siw *ServerInterfaceWrapper) GetNotesChanges(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "shortId" -------------
+	var shortId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
+		return
+	}
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetNotesChangesParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", r.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "page", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "pageSize" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "pageSize", r.URL.Query(), &params.PageSize)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "pageSize", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetNotesChanges(w, r, shortId, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// GetNotesChange operation middleware
+func (siw *ServerInterfaceWrapper) GetNotesChange(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "shortId" -------------
+	var shortId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
+		return
+	}
+
+	// ------------- Path parameter "timestamp" -------------
+	var timestamp string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "timestamp", mux.Vars(r)["timestamp"], &timestamp, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "timestamp", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetNotesChange(w, r, shortId, timestamp)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1054,6 +1161,10 @@ func HandlerWithOptions(si ServerInterface, options GorillaServerOptions) http.H
 
 	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.UpdateNote).Methods("PUT")
 
+	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/changes", wrapper.GetNotesChanges).Methods("GET")
+
+	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/changes/{timestamp}", wrapper.GetNotesChange).Methods("GET")
+
 	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.DeleteNoteDraft).Methods("DELETE")
 
 	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.SaveNoteDraft).Methods("PUT")
@@ -1076,33 +1187,35 @@ func HandlerWithOptions(si ServerInterface, options GorillaServerOptions) http.H
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

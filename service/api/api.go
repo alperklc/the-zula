@@ -139,8 +139,8 @@ func (s *a) GetNote(w http.ResponseWriter, r *http.Request, id string, params Ge
 	if params.LoadDraft != nil {
 		p.LoadDraft = *params.LoadDraft
 	}
-	if params.GetHistory != nil {
-		p.GetReferences = *params.GetHistory
+	if params.GetChanges != nil {
+		p.GetChanges = *params.GetChanges
 	}
 	if params.GetReferences != nil {
 		p.GetReferences = *params.GetReferences
