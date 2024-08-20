@@ -30,8 +30,8 @@ type NoteService interface {
 	GetDraftOfNote(userId, noteId string) (Note, error)
 	UpdateDraft(userId, noteId, title, content string, tags []string) error
 	DeleteDraft(userId, noteId string) error
-	ListNotesChanges(userId, noteId string, page, pageSize int) (NotesChangesPage, error)
-	GetNotesChanges(noteId, timestamp string) (NotesChanges, error)
+	ListNotesChanges(userId, noteId string, page, pageSize *int) (NotesChangesPage, error)
+	GetNotesChange(noteId, timestamp string) (NotesChanges, error)
 }
 
 type datasources struct {
@@ -367,7 +367,17 @@ func (d *datasources) DeleteDraft(userId, noteId string) error {
 	return d.notesDrafts.DeleteOne(noteId)
 }
 
-func (d *datasources) ListNotesChanges(userId, noteId string, page, pageSize int) (NotesChangesPage, error) {
+func (d *datasources) ListNotesChanges(userId, noteId string, p, ps *int) (NotesChangesPage, error) {
+	page := 1
+	if p != nil {
+		page = *p
+	}
+
+	pageSize := 10
+	if ps != nil {
+		pageSize = *ps
+	}
+
 	notes, count, listErr := d.notesChanges.ListHistoryOfNote(noteId, page, pageSize)
 
 	var items []NotesChanges = make([]NotesChanges, 0, len(notes))
@@ -394,7 +404,7 @@ func (d *datasources) ListNotesChanges(userId, noteId string, page, pageSize int
 
 }
 
-func (d *datasources) GetNotesChanges(noteId, timestamp string) (NotesChanges, error) {
+func (d *datasources) GetNotesChange(noteId, timestamp string) (NotesChanges, error) {
 	historyEntry, getNotesChangesErr := d.notesChanges.GetOne(noteId, timestamp)
 
 	return NotesChanges{

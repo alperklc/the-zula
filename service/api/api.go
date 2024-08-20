@@ -175,6 +175,43 @@ func (s *a) UpdateNote(w http.ResponseWriter, r *http.Request, id string) {
 	sendResponse(w, http.StatusOK, "ok")
 }
 
+func (s *a) GetNotesChanges(w http.ResponseWriter, r *http.Request, shortId string, params GetNotesChangesParams) {
+	user := authorization.UserID(r.Context())
+
+	response, errGetNotesChanges := s.notes.ListNotesChanges(user, shortId, params.Page, params.PageSize)
+	if errGetNotesChanges != nil {
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not get notes changes, %s", errGetNotesChanges.Error()))
+		return
+	}
+
+	converted := make([]NoteChange, 0, len(response.Items))
+	for _, item := range response.Items {
+		formattedUpdatedAt := item.UpdatedAt.Format(time.RFC3339)
+		converted = append(converted, NoteChange{ShortId: &item.ShortId, NoteId: &item.NoteId, UpdatedAt: &formattedUpdatedAt, Change: &item.Change, UpdatedBy: &item.UpdatedBy})
+	}
+
+	sendResponse(w, http.StatusOK, NotesChangesResult{
+		Meta: &PaginationMeta{
+			Count:         &response.Meta.Count,
+			Page:          &response.Meta.Page,
+			PageSize:      &response.Meta.PageSize,
+			SortBy:        &response.Meta.SortBy,
+			SortDirection: &response.Meta.SortDirection,
+		},
+		Items: &converted,
+	})
+}
+
+func (s *a) GetNotesChange(w http.ResponseWriter, r *http.Request, shortId string, timestamp string) {
+	response, errGetNotesChange := s.notes.GetNotesChange(shortId, timestamp)
+	if errGetNotesChange != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get notes change, %s", errGetNotesChange.Error()))
+		return
+	}
+
+	sendResponse(w, http.StatusOK, response)
+}
+
 func (s *a) GetBookmarks(w http.ResponseWriter, r *http.Request, params GetBookmarksParams) {
 	user := authorization.UserID(r.Context())
 
