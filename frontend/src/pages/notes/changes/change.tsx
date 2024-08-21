@@ -3,7 +3,6 @@ import { FormattedMessage } from 'react-intl'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
 import Button from '../../../components/form/button'
 import MessageBox from '../../../components/messageBox'
-import MarkdownDisplay from '../../../components/markdownDisplay'
 import TimeDisplay from '../../../components/timeDisplay'
 import PageContent from '../../../components/pageContent'
 import Breadcrumbs from '../../../components/breadcrumbs'
@@ -12,6 +11,8 @@ import { Api, NoteChange } from '../../../types/Api'
 import { useAuth } from '../../../contexts/authContext'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useUI } from '../../../contexts/uiContext'
+import { Diff2HtmlUI, Diff2HtmlUIConfig } from 'diff2html/lib/ui/js/diff2html-ui-slim.js'
+import 'diff2html/bundles/css/diff2html.min.css';
 
 export const NoteChangePage = () => {
   const navigate = useNavigate()
@@ -19,6 +20,7 @@ export const NoteChangePage = () => {
   const { shortId, timestamp } = useParams()
   const { user } = useAuth()
 
+  const changeArea = React.useRef<HTMLDivElement>(null);
   const [noteChange, setNoteChange] = React.useState<NoteChange>()
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -48,6 +50,25 @@ export const NoteChangePage = () => {
   React.useEffect(() => {
     shortId && fetchNoteChange(shortId)
   }, [shortId])
+
+  const configuration = {
+    drawFileList: false,
+    fileListToggle: false,
+    fileListStartVisible: false,
+    fileContentToggle: false,
+    matching: 'lines',
+    outputFormat: 'line-by-line',
+    synchronisedScroll: true,
+    highlight: true,
+    renderNothingWhenEmpty: false,
+  };
+
+  React.useEffect(() => {    
+    if (!loading) {
+      const diff2htmlUi = new Diff2HtmlUI(changeArea.current!, noteChange?.change, configuration as Diff2HtmlUIConfig);
+      diff2htmlUi.draw();
+    }
+  }, [noteChange?.change, loading])
 
   return (
     <Layout
@@ -85,10 +106,7 @@ export const NoteChangePage = () => {
                 </span>
               </div>
             )}
-            <MarkdownDisplay
-              className={layoutStyles.htmlContentOfBookmark}
-              content={noteChange?.change || ''}
-            />
+            <div ref={changeArea}></div>
           </>
 
           <>

@@ -49,9 +49,9 @@ export const EditNote = () => {
         setError("could not fetch");
       }
 
-    } catch (e: any) {
-      console.error(e.error);
-      setError(e.error.message as string);
+    } catch (e: unknown) {
+      console.error(e?.error);
+      setError(e?.error.message as string);
     }
     setLoading(false);
   };
@@ -170,7 +170,7 @@ export const EditNote = () => {
                    <ReferencesGraph
                      {...props}
                      noteId={shortId!}
-                     graphData={note?.references}
+                     graphData={note?.references as GraphData}
                    />
                  )}
                </ResizeWrapper>
