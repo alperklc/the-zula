@@ -23,29 +23,33 @@ function getKeyframes(type: string) {
 export const Animation = (props: AnimationProps) => {
   const { visible, className } = props
 
-  const [render, setRender] = React.useState(visible)
-
-  React.useEffect(() => {
-    if (visible) setRender(true)
-  }, [visible])
-
-  const onAnimationEnd = () => {
-    if (!visible) setRender(false)
-  }
+  const [render, setRender] = React.useState(visible);
+  const [animate, setAnimate] = React.useState(visible);
 
   const [animationIn, animationOut] = getKeyframes(props.type)
+
+  React.useEffect(() => {
+    if (visible) {
+      setTimeout(() => setRender(true), 1);
+      setTimeout(() => setAnimate(true), 1);
+    }  else {
+      setAnimate(false);
+      setTimeout(() => setRender(false), 300);
+    }
+  }, [visible]);
 
   return render ? (
     <div
       className={`${styles.container} ${className}`}
       style={{
-        animation: `${visible ? animationIn : animationOut} 0.3s`,
+        animation: `${animate ? animationIn : animationOut} 0.3s`,
       }}
-      onAnimationEnd={onAnimationEnd}
     >
       {props.children}
     </div>
   ) : null
+
+
 }
 
 export default Animation
