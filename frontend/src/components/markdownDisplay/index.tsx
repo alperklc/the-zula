@@ -15,6 +15,8 @@ const converter = new Converter({
   tasklists: true,
 })
 
+converter.setFlavor("github");
+
 const getMarkdownPreview = (markdown: string) => Promise.resolve(converter.makeHtml(markdown))
 
 const MarkdownDisplay = (props: MarkdownDisplayProps) => {
@@ -32,7 +34,7 @@ const MarkdownDisplay = (props: MarkdownDisplayProps) => {
 
   const handleClick = (event: React.MouseEvent) => {
     const clickedElement = event.target as HTMLAnchorElement
-    if (clickedElement?.href?.includes(`jottie.de/notes/`)) {
+    if (clickedElement?.href?.includes(`/notes/`)) {
       event.preventDefault()
       navigate(clickedElement.pathname)
     }

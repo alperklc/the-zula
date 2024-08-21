@@ -22,7 +22,7 @@ export const ReferencesModal = (props: {
               <ReferencesGraph
                 width={innerWidth > 600 ? graphProps.width : window.innerWidth * 0.95}
                 height={innerWidth > 600 ? graphProps.height : window.innerHeight * 0.95}
-                noteUid={props.noteUid}
+                noteId={props.noteUid}
                 graphData={props.references}
               />
             )

@@ -26,7 +26,7 @@ export const EditNote = () => {
   const { isMobile } = useUI()
   const { user, sessionId } = useAuth()
 
-  const [note, setNote] = React.useState<Note>();
+  const [note, setNote] = React.useState<Note>()
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -141,14 +141,14 @@ export const EditNote = () => {
                 <TagsDisplay tags={note.tags} />
               </>
             )}
-             {note?.changesCount && note?.changesCount > 0 && (
+             {Number(note?.changesCount) > 0 && (
               <>
                 <hr />
                 <Link to={`/notes/${shortId}/changes`}>  
                   <label className={`${layoutStyles.labelLink} ${layoutStyles.historyLink}`}>
                     <FormattedMessage
                       id='notes.changes.label'
-                      values={{ number: note.changesCount }}
+                      values={{ number: note?.changesCount }}
                     />
                   </label>
                 </Link>
