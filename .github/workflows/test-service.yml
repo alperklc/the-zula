@@ -15,7 +15,7 @@ on:
       - .github/workflows/test-service.yml
 
 jobs:
-  test:
+  test-service:
     runs-on: ubuntu-latest
     steps:
       - name: Install Go
