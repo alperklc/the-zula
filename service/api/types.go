@@ -27,10 +27,10 @@ func (i *Insights) ConvertInsights(ag []useractivity.ActivityGraphEntry, mv []us
 		count := float32(mv[i].Count)
 
 		mostVisited[i] = MostVisited{
-			Count: &count,
-			Id:    &mv[i].ObjectID,
-			// Name: mv[i].
-			// Title: mv[i]
+			Count:    &count,
+			Id:       &mv[i].ObjectID,
+			Name:     &mv[i].Title,
+			Title:    &mv[i].Title,
 			Typename: &mv[i].ResourceType,
 		}
 	}

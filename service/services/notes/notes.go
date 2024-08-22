@@ -25,7 +25,7 @@ type NoteService interface {
 	CreateNote(userId, clientId string, title, content *string, tags *[]string) (Note, error)
 	UpdateNote(noteId, userId, clientId string, update map[string]interface{}) error
 	GetNote(noteId, userId, clientId string, params GetNoteParams) (Note, error)
-	GetNotes(userId string, noteIds, fields []string) ([]Note, error)
+	GetNotes(noteIds, fields []string) (map[string]Note, error)
 	DeleteNote(noteId, userId, clientId string) error
 	GetDraftOfNote(userId, noteId string) (Note, error)
 	UpdateDraft(userId, noteId, title, content string, tags []string) error
@@ -263,28 +263,25 @@ func (d *datasources) GetNote(noteId, userId, clientId string, params GetNotePar
 	return response, getNoteErr
 }
 
-func (d *datasources) GetNotes(userId string, noteIds, fields []string) ([]Note, error) {
+func (d *datasources) GetNotes(noteIds, fields []string) (map[string]Note, error) {
 	notesFound, err := d.notes.GetNotes(noteIds, fields)
-	var items []Note = make([]Note, 0, len(notesFound))
+	var items = make(map[string]Note, 0)
 
 	draftExist, _ := d.notesDrafts.CheckExistence(noteIds)
 
 	for _, b := range notesFound {
-		if b.CreatedBy == userId {
-			note := Note{
-				ShortId:   b.ShortId,
-				UpdatedAt: b.UpdatedAt,
-				UpdatedBy: b.UpdatedBy,
-				CreatedBy: b.CreatedBy,
-				CreatedAt: b.CreatedAt,
-				Title:     b.Title,
-				Content:   b.Content,
-				Tags:      b.Tags,
-				HasDraft:  draftExist[b.ShortId],
-			}
-
-			items = append(items, note)
+		note := Note{
+			ShortId:   b.ShortId,
+			UpdatedAt: b.UpdatedAt,
+			UpdatedBy: b.UpdatedBy,
+			CreatedBy: b.CreatedBy,
+			CreatedAt: b.CreatedAt,
+			Title:     b.Title,
+			Content:   b.Content,
+			Tags:      b.Tags,
+			HasDraft:  draftExist[b.ShortId],
 		}
+		items[b.ShortId] = note
 	}
 
 	return items, err

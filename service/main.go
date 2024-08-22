@@ -77,7 +77,7 @@ func main() {
 	}
 
 	us := usersService.NewService(ac, ums, mqp)
-	bs := bookmarksService.NewService(us, b, pc, wsc, mqp)
+	bs := bookmarksService.NewService(l, us, b, pc, wsc, mqp)
 
 	nrs := referencesService.NewService(nr, nrr)
 	ns := notesService.NewService(us, nr, ncr, ndr, nrs, mqp)

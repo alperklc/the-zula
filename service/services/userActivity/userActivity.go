@@ -8,6 +8,7 @@ import (
 	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
 	notesService "github.com/alperklc/the-zula/service/services/notes"
 	usersService "github.com/alperklc/the-zula/service/services/users"
+	"golang.org/x/exp/maps"
 )
 
 const (
@@ -98,6 +99,22 @@ func (d *datasources) GetMostVisited(userID string) ([]useractivity.UsageStatist
 		return nil, errMostVisitedItems
 	}
 
+	var idsMap map[string]string = make(map[string]string)
+	for _, item := range mostVisitedItems {
+		idsMap[item.ObjectID] = ""
+	}
+
+	bookmarksFound, _ := d.bookmarks.GetBookmarks(maps.Keys(idsMap), []string{"title", "shortId"})
+	notesFound, _ := d.notes.GetNotes(maps.Keys(idsMap), []string{"title", "shortId"})
+
+	for i := range mostVisitedItems {
+		if mostVisitedItems[i].ResourceType == "BOOKMARK" {
+			mostVisitedItems[i].Title = bookmarksFound[mostVisitedItems[i].ObjectID].Title
+		} else if mostVisitedItems[i].ResourceType == "NOTE" {
+			mostVisitedItems[i].Title = notesFound[mostVisitedItems[i].ObjectID].Title
+		}
+	}
+
 	d.mostVisitedCache.Write(CACHE_PREFIX_MOST_VISITED+userID, mostVisitedItems)
 	return mostVisitedItems, nil
 }
@@ -141,6 +158,7 @@ func (d *datasources) GetInsightsForDashboard(userID string) ([]useractivity.Act
 	if errMostVisited != nil {
 		return nil, nil, nil, 0, 0, errMostVisited
 	}
+	fmt.Println(mostVisited)
 
 	lastVisited, errLastVisited := d.GetLastVisited(userID)
 	if errLastVisited != nil {

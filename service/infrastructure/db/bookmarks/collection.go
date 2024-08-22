@@ -7,6 +7,7 @@ import (
 	gonanoid "github.com/matoous/go-nanoid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const collectionName = "bookmarks"
@@ -16,6 +17,7 @@ type Collection interface {
 	Count(userId string) (int64, error)
 	List(userId, searchKeyword string, page, pageSize int, sortBy, sortDirection string, tags []string) ([]BookmarkDocument, int, error)
 	GetOne(id string) (BookmarkDocument, error)
+	GetBookmarks(ids, fields []string) ([]BookmarkDocument, error)
 	InsertOne(userId, URL, title string, tags []string) (BookmarkDocument, error)
 	UpdateOne(userId, id string, update interface{}) error
 	DeleteOne(id string) error
@@ -130,6 +132,30 @@ func (d *db) GetOne(id string) (BookmarkDocument, error) {
 	err := d.collection.FindOne(context.TODO(), filter).Decode(&bookmarkDocument)
 
 	return bookmarkDocument, err
+}
+
+func (d *db) GetBookmarks(ids, fields []string) ([]BookmarkDocument, error) {
+	var bookmarkDocuments []BookmarkDocument
+	filter := bson.M{"shortId": bson.M{"$in": ids}}
+
+	var projection = make(map[string]interface{})
+	for _, field := range fields {
+		projection[field] = 1
+	}
+
+	findOptions := &options.FindOptions{Projection: projection}
+	cursor, findErr := d.collection.Find(context.TODO(), filter, findOptions)
+	if findErr != nil {
+		return nil, findErr
+	}
+
+	if decodeError := cursor.All(context.TODO(), &bookmarkDocuments); decodeError != nil {
+		return nil, decodeError
+	}
+
+	defer cursor.Close(context.TODO())
+
+	return bookmarkDocuments, nil
 }
 
 func (d *db) InsertOne(userId, URL, title string, tags []string) (BookmarkDocument, error) {

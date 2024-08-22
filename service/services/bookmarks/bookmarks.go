@@ -11,6 +11,7 @@ import (
 	usersService "github.com/alperklc/the-zula/service/services/users"
 	"github.com/alperklc/the-zula/service/utils"
 	gonanoid "github.com/matoous/go-nanoid"
+	"github.com/rs/zerolog"
 )
 
 type BookmarkService interface {
@@ -20,12 +21,14 @@ type BookmarkService interface {
 	CreateBookmark(userID, clientId, URL, title string, tags *[]string) (Bookmark, error)
 	UpdateBookmark(bookmarkID, userID, clientId string, update map[string]interface{}) error
 	GetBookmark(bookmarkID, userID, clientId string) (Bookmark, error)
+	GetBookmarks(ids, fields []string) (map[string]Bookmark, error)
 	DeleteBookmark(bookmarkID, userID, clientId string) error
 	GetPageContentOfBookmark(bookmarkID string) (PageContent, error)
 	ParsePageContentOfBookmark(bookmark bookmarks.BookmarkDocument) (PageContent, error)
 }
 
 type datasources struct {
+	logger      zerolog.Logger
 	users       usersService.UsersService
 	bookmarks   bookmarks.Collection
 	pageContent pageContent.Collection
@@ -33,8 +36,8 @@ type datasources struct {
 	mqpublisher mqpublisher.MessagePublisher
 }
 
-func NewService(u usersService.UsersService, b bookmarks.Collection, pc pageContent.Collection, w webScraper.WebScraper, mqp mqpublisher.MessagePublisher) BookmarkService {
-	return &datasources{users: u, bookmarks: b, pageContent: pc, webScraper: w, mqpublisher: mqp}
+func NewService(l zerolog.Logger, u usersService.UsersService, b bookmarks.Collection, pc pageContent.Collection, w webScraper.WebScraper, mqp mqpublisher.MessagePublisher) BookmarkService {
+	return &datasources{logger: l, users: u, bookmarks: b, pageContent: pc, webScraper: w, mqpublisher: mqp}
 }
 
 func getPaginationRange(count, page, pageSize int) string {
@@ -120,18 +123,14 @@ func (d *datasources) ListBookmarks(userID string, q *string, p, ps *int, sb, sd
 			Range:         getPaginationRange(count, page, pageSize),
 		},
 	}, listErr
-
 }
 
 func (d *datasources) CreateBookmark(userID, clientId, URL, title string, tags *[]string) (Bookmark, error) {
 	createdBookmark, err := d.bookmarks.InsertOne(userID, URL, title, *tags)
 
-	fmt.Println(createdBookmark)
 	go func() {
-		_, err1 := d.ParsePageContentOfBookmark(createdBookmark)
-
-		// todo: add logger
-		fmt.Println(err1)
+		_, errParse := d.ParsePageContentOfBookmark(createdBookmark)
+		d.logger.Error().Msgf("bookmarksService: could not parse content of bookmark %s - error: %s", URL, errParse.Error())
 	}()
 
 	response := Bookmark{
@@ -196,7 +195,7 @@ func (d *datasources) GetBookmark(bookmarkID, userID, clientId string) (Bookmark
 
 	content, getContentErr := d.pageContent.GetLatest(bookmark.URL)
 	if getContentErr != nil {
-		//
+		d.logger.Error().Msgf("bookmarksService: could not get latest parsed content of bookmark %s - error: %s", bookmark.URL, getContentErr.Error())
 	}
 
 	response := Bookmark{
@@ -214,6 +213,27 @@ func (d *datasources) GetBookmark(bookmarkID, userID, clientId string) (Bookmark
 	go d.mqpublisher.Publish(mqpublisher.BookmarkRead(userID, clientId, bookmarkID, nil))
 
 	return response.AddPageContent(content), getBookmarkErr
+}
+
+func (d *datasources) GetBookmarks(bookmarkIds, fields []string) (map[string]Bookmark, error) {
+	bookmarksFound, err := d.bookmarks.GetBookmarks(bookmarkIds, fields)
+	var items = make(map[string]Bookmark)
+
+	for _, b := range bookmarksFound {
+		bookmark := Bookmark{
+			ShortId:   b.ShortId,
+			UpdatedAt: b.UpdatedAt,
+			UpdatedBy: b.UpdatedBy,
+			CreatedBy: b.CreatedBy,
+			CreatedAt: b.CreatedAt,
+			Title:     b.Title,
+			Tags:      b.Tags,
+		}
+
+		items[b.ShortId] = bookmark
+	}
+
+	return items, err
 }
 
 func (d *datasources) DeleteBookmark(bookmarkID, userID, clientId string) error {
@@ -256,7 +276,7 @@ func (d *datasources) GetPageContentOfBookmark(bookmarkUrl string) (PageContent,
 func (d *datasources) ParsePageContentOfBookmark(bookmark bookmarks.BookmarkDocument) (PageContent, error) {
 	pageContent, scrapErr := d.webScraper.ScrapPage(bookmark.URL)
 	if scrapErr != nil {
-		return PageContent{}, fmt.Errorf("COULD_NOT_SCRAP_PAGE__%s", &scrapErr)
+		return PageContent{}, fmt.Errorf("COULD_NOT_SCRAP_PAGE__%s", scrapErr)
 	}
 
 	ID, _ := gonanoid.Nanoid(8)

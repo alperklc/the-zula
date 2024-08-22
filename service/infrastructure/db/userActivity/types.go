@@ -29,6 +29,7 @@ type UsageStatisticsEntry struct {
 	ObjectID     string    `json:"objectID" bson:"objectID"`
 	Timestamp    time.Time `json:"timestamp" bson:"timestamp"`
 	Count        int       `json:"count" bson:"count"`
+	Title        string    `json:"title" bson:"title"`
 }
 
 type ActivityGraphEntry struct {
