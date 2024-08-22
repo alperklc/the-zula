@@ -34,17 +34,19 @@ function addNeighbors(data: GraphData) {
   return data
 }
 
+export interface ReferencesGraphProps {
+  height?: number,
+  width?: number,
+  noteId: string,
+  graphData: GraphData, 
+}
+
 export function ReferencesGraph({
   height,
   width,
   noteId,
   graphData,
-}: {
-  height?: number
-  width?: number
-  noteId: string
-  graphData: GraphData
-}) {
+}: ReferencesGraphProps) {
   const data = addNeighbors(graphData)
   const navigate = useNavigate()
   const fgRef = React.useRef<ForceGraphMethods>()

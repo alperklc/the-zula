@@ -80,7 +80,7 @@ export class CommandOrchestrator {
   handlePossibleKeyCommand = (e: React.KeyboardEvent<HTMLTextAreaElement>): boolean => {
     for (const commandName of this.keyActivatedCommands) {
       if (this.getCommand(commandName).handleKeyCommand?.(e)) {
-        this.executeCommand(commandName).then((r: any) => ({}))
+        this.executeCommand(commandName).then((/* r: any */) => ({}))
         return true
       }
     }

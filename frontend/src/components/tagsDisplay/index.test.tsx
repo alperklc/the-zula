@@ -1,4 +1,4 @@
-import React from 'react'
+import { describe, vi, it, expect } from 'vitest';
 import { act, render } from '@testing-library/react'
 
 import TagsDisplay from './index'

@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { formatDateTime } from './format-datetime'
 
 interface Test {
@@ -7,7 +8,7 @@ interface Test {
 }
 
 describe('formatDateTime', () => {
-  ;[
+  [
     {
       language: 'de',
       dateTime: '2021-05-09T19:56:42.328Z',

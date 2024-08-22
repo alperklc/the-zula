@@ -40,18 +40,18 @@ export const EditNote = () => {
       setLoading(true);
       setError(null);
 
-      const { data, status } = await api.api.getNote(shortId ?? "", { loadDraft: false, getChanges: true, getReferences: true } )
+      const { data, error, status } = await api.api.getNote(shortId ?? "", { loadDraft: false, getChanges: true, getReferences: true } )
 
       if (status === 200) {
         setNote(data);
       } else {
-        console.error(data);
-        setError("could not fetch");
+        console.error(error);
+        setError(error);
       }
 
     } catch (e: unknown) {
-      console.error(e?.error);
-      setError(e?.error.message as string);
+      console.error(e);
+      setError(e as string);
     }
     setLoading(false);
   };

@@ -5,7 +5,6 @@ import styles from './index.module.css'
 
 export enum SettingsTabs {
   PROFILE = 'profile',
-  SECURITY = 'security',
 }
 
 const Tabs = (props: { selectedTab: SettingsTabs }) => {

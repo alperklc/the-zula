@@ -80,13 +80,13 @@ export const unorderedListCommand: Command = {
 export const orderedListCommand: Command = {
   buttonProps: { 'aria-label': 'Add ordered list' },
   execute: ({ initialState, textApi }) => {
-    makeList(initialState, textApi, (item, index) => `${index + 1}. `)
+    makeList(initialState, textApi, (_, index) => `${index + 1}. `)
   },
 }
 
 export const checkedListCommand: Command = {
   buttonProps: { 'aria-label': 'Add checked list' },
   execute: ({ initialState, textApi }) => {
-    makeList(initialState, textApi, (item, index) => `- [ ] `)
+    makeList(initialState, textApi, (/* item, index */) => `- [ ] `)
   },
 }

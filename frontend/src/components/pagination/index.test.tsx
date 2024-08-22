@@ -1,6 +1,5 @@
-import React from 'react'
+import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react'
-
 import Pagination from './index'
 
 describe('Pagination', () => {
@@ -20,7 +19,7 @@ describe('Pagination', () => {
       currentPage: 9,
       expectedResult: ['1', '. . .', '8', '9', '10', '. . .', '14'],
     },
-  ].map(({ numberOfPages, currentPage, expectedResult }: any) => {
+  ].map(({ numberOfPages, currentPage, expectedResult }) => {
     it('displays pagination buttons correctly', async () => {
       const pagination = render(
         <Pagination

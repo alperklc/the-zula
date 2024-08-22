@@ -1,8 +1,6 @@
-import React from 'react'
-import { render, fireEvent, waitFor, act } from '@testing-library/react'
-
+import { describe, vi, it, expect } from 'vitest';
+import { render, fireEvent, waitFor } from '@testing-library/react'
 import { TagsInput } from './index'
-import SearchInput from '../layout/list-content/search-input'
 
 describe('TagsInput', () => {
   const onChange = vi.fn()

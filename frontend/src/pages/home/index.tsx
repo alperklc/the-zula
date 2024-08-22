@@ -33,13 +33,13 @@ const Dashboard = () => {
       setLoading(true);
       setError(null);
 
-      const { data, status } = await api.api.getInsights(user?.profile.sub ?? "")
+      const { data, error, status } = await api.api.getInsights(user?.profile.sub ?? "")
 
       if (status === 200) {
         setData(data);
       } else {
-        console.error(data);
-        setError(data);
+        console.error(error);
+        setError(error);
       }
 
     } catch (e: unknown) {
@@ -53,11 +53,11 @@ const Dashboard = () => {
     fetch()
   }, [])
 
+  const lastVisited = (data?.lastVisited || [])
+  const mostVisited = (data?.mostVisited || [])
 
-  const lastVisited = (data?.lastVisited || []).map((d: any) => d.content)
-  const mostVisited = (data?.mostVisited || []).map((d: any) => d.content)
-
-  const MostVisitedAndLastVisited = () => (
+  const MostVisitedAndLastVisited = () => {
+    return (
     <>
       {lastVisited?.length > 0 && (
         <DashboardSection
@@ -72,11 +72,9 @@ const Dashboard = () => {
         />
       )}
     </>
-  )
-console.log(data.numberOfBookmarks)
-console.log(data.numberOfNotes)
+  )}
 
-return (
+    return (
     <Layout narrow>
       {!loading && !data && error ? (
         <MessageBox type='error'>Error</MessageBox>
@@ -99,7 +97,7 @@ return (
           {!isMobile && (
             // on desktop two columns BUT only one column is shown, if the most visited and last visited are empty
             <PageContent loading={loading}>
-              {mostVisited?.length > 0 && lastVisited?.length > 0 && <MostVisitedAndLastVisited />}
+              <MostVisitedAndLastVisited />
 
               <AllContentSection data={data} />
             </PageContent>

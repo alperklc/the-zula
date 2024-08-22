@@ -35,13 +35,13 @@ function NotesList() {
       setError(null);
 
       const filteredQuery = filterEmptyValues(query)
-      const { data, status } = await api.api.getNotes(filteredQuery)
+      const { data, error, status } = await api.api.getNotes(filteredQuery)
 
       if (status === 200) {
         setData(data);
       } else {
-        console.error(data);
-        setError(data);
+        console.error(error);
+        setError(error);
       }
 
     } catch (e: unknown) {

@@ -12,7 +12,7 @@ const TagsDisplay = (props: TagsDisplayProps) => {
     props.removeTag?.(tag)
   }
 
-  let tagsToDisplay = [...props?.tags]
+  let tagsToDisplay = [...props.tags]
 
   if (props.maxNumberOfTagsToDisplay) {
     tagsToDisplay = tagsToDisplay.slice(0, props.maxNumberOfTagsToDisplay)

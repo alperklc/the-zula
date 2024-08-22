@@ -7,7 +7,7 @@ export const getDaysSequenceOfPastYear = (date: Date) => {
 
   return Array(daysInYear + 1)
     .fill(0)
-    .map((i, j) => {
+    .map((_, j) => {
       const date = addDays(aYearAgo, j)
 
       return {

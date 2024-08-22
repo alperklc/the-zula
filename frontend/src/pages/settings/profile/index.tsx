@@ -42,16 +42,16 @@ const Profile = () => {
       setLoading(true);
       setError(null);
 
-      const { data, status } = await api.api.getUser(user.profile.sub!)
+      const { data, error, status } = await api.api.getUser(user.profile.sub!)
 
       if (status === 200) {
         setUserData(data);
       } else {
-        console.error(data);
-        setError(data);
+        console.error(error);
+        setError(error);
       }
 
-    } catch (e: unknown) {
+    } catch (e) {
       console.error(e);
       setError(e as string);
     }

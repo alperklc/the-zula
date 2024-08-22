@@ -60,7 +60,7 @@ function filterItems(
 }
 
 export const saveImageCommand: Command = {
-  async execute({ initialState, textApi, context }: ExecuteOptions): Promise<void> {
+  async execute({ textApi, context }: ExecuteOptions): Promise<void> {
     if (!context) {
       throw new Error('wrong context')
     }

@@ -39,7 +39,7 @@ const CreateNote = () => {
   const [note, setNote] = React.useState<Note>(initialNote)
   
   const [saving, setSaving] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [_, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const title = NoteCache.read<string>('new-note-title') ?? ""

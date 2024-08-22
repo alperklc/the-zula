@@ -1,7 +1,7 @@
 import React from "react";
 
 export const debounce = (fn: (..._: unknown[]) => void, time: number) => {
-  let timeoutId: number | null
+  let timeoutId: NodeJS.Timeout | number | null
 
   return wrapper
 

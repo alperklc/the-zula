@@ -33,7 +33,7 @@ export const EditNote = () => {
 
   const { isMobile } = useUI()
 
-  const [DeleteConfirmationModal, openDeleteModal, closeDeleteModal] =
+  const [DeleteConfirmationModal, openDeleteModal] =
     useModal<DeleteNoteConfirmationModalProps>(DeleteNoteConfirmation)
 
   const [note, setNote] = React.useState<Note>()
@@ -78,18 +78,18 @@ export const EditNote = () => {
       setLoading(true);
       setErrorLoading("");
 
-      const { data, status } = await api.api.getNote(shortId ?? "", loadDraft ? { loadDraft: true } : undefined)
+      const { data, error, status } = await api.api.getNote(shortId ?? "", loadDraft ? { loadDraft: true } : undefined)
 
       if (status === 200) {
         setNote(data);
       } else {
-        console.error(data);
-        setErrorLoading("could not fetch");
+        console.error(error);
+        setErrorLoading(error);
       }
 
-    } catch (e: any) {
-      console.error(e.error);
-      setErrorLoading(e.error.message as string);
+    } catch (e) {
+      console.error(e);
+      setErrorLoading(e as string);
     }
     setLoading(false);
   };
@@ -177,6 +177,8 @@ export const EditNote = () => {
         <MessageBox type='error'>{errorLoading}</MessageBox> :
         <PageContent loading={loading} isMobile={isMobile}>
           <>
+          {!saving && errorSaving && <MessageBox type='error'>{errorSaving}</MessageBox>}
+
             {isMobile && (
               <Input
                 type='text'

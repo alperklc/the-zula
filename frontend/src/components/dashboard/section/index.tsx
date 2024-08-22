@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 import { useIntl } from 'react-intl'
 import icons from '../../icons'
+import { Insights, VisitingStatistics } from '../../../types/Api'
 
 import styles from './index.module.css'
-import { Insights, VisitingStatistics } from '../../../types/Api'
 
 export type Content = {
   typename: 'Note' | 'Bookmark'

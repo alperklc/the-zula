@@ -157,10 +157,10 @@ export class TextArea extends React.Component<TextAreaProps, TextAreaState> {
     const { mention } = this.state
 
     this.getTextArea().selectionStart = (mention.startPosition as number) - 1
-    const textForInsert = this.props.value.substr(
+    /* const textForInsert = this.props.value.substr(
       this.getTextArea().selectionStart,
       this.getTextArea().selectionEnd - this.getTextArea().selectionStart,
-    )
+    ) */
 
     insertText(this.getTextArea(), mention.suggestions[index].value + ' ')
     this.setState({

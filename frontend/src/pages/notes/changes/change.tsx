@@ -31,18 +31,18 @@ export const NoteChangePage = () => {
       setLoading(true);
       setError(null);
 
-      const { data, status } = await api.api.getNotesChange(shortId ?? "", timestamp || "")
+      const { data, error, status } = await api.api.getNotesChange(shortId ?? "", timestamp || "")
 
       if (status === 200) {
         setNoteChange(data);
       } else {
-        console.error(data);
-        setError("could not fetch");
+        console.error(error);
+        setError(error);
       }
 
-    } catch (e: any) {
-      console.error(e.error);
-      setError(e.error.message as string);
+    } catch (e) {
+      console.error(e);
+      setError(e as string);
     }
     setLoading(false);
   };

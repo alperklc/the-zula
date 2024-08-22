@@ -60,13 +60,18 @@ function App() {
         return;
     }
 
-    webSocketConnection.current.onclose = (evt) => {
+    webSocketConnection.current.onclose = () => {
       console.log('Your Connection is closed.');
     };
 
     webSocketConnection.current.onmessage = (event) => {
       try {
           const socketPayload = JSON.parse(event.data);
+          const statusTextKey = toStatusTextKey(
+            socketPayload.eventPayload.resourceType,
+            socketPayload.eventPayload?.action,
+          );
+
           switch (socketPayload.eventName) {
               case 'join':
               case 'disconnect':
@@ -77,17 +82,10 @@ function App() {
                   setSessionId(socketPayload.eventPayload.sessionID)
                   break;
               case 'msg':
-                 const statusTextKey = toStatusTextKey(
-                    socketPayload.eventPayload.resourceType,
-                    socketPayload.eventPayload?.action,
-                  )
                   if (statusTextKey) {
                     const message = intl.formatMessage({ id: statusTextKey })
-            
                     showToast(message, 'success');
-                    }
-                  console.log(socketPayload)
-                  
+                  }
                   break;
               default:
                   break;
@@ -118,9 +116,8 @@ function App() {
     }
   }, [])
 
-  // TODO: fix theme selection
   return (
-    <UIProvider initialTheme={''}>
+    <UIProvider>
       <Router>
         <Routes>
           <Route path="/" element={<PrivateRoute path={"/"} element={<Home />}/>} />
