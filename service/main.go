@@ -5,6 +5,8 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/alperklc/the-zula/service/api"
@@ -28,7 +30,7 @@ import (
 	referencesService "github.com/alperklc/the-zula/service/services/references"
 	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
 	usersService "github.com/alperklc/the-zula/service/services/users"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	middleware "github.com/oapi-codegen/nethttp-middleware"
 )
 
@@ -96,20 +98,35 @@ func main() {
 	ws.SendNotification()
 
 	a := api.NewApi(us, uas, bs, ns, *hub)
-	r := mux.NewRouter()
+	r := chi.NewRouter()
 
 	r.Use(api.GetLoggingMiddleware(l))
 	r.Use(api.GetAuthorizationMiddleware(l, config.AuthDomain, config.AuthKeyFilePath))
 	r.Use(api.GetAuthenticationMiddleware(nr, config.AuthDomain, config.AuthKeyFilePath))
-	r.Use(middleware.OapiRequestValidator(swagger))
 
-	api.HandlerFromMux(a, r)
+	staticFileDir := "./static"
+	r.Group(func(r chi.Router) {
+		r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+			filePath := filepath.Join(staticFileDir, r.URL.Path)
+			_, err := os.Stat(filePath)
+
+			if !os.IsNotExist(err) {
+				http.ServeFile(w, r, filepath.Join(staticFileDir, r.URL.Path))
+			} else {
+				http.ServeFile(w, r, filepath.Join(staticFileDir, "index.html"))
+			}
+		})
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.OapiRequestValidator(swagger))
+		api.HandlerFromMux(a, r)
+	})
 
 	server := &http.Server{
 		Handler: r,
 		Addr:    net.JoinHostPort("0.0.0.0", fmt.Sprintf("%d", config.Port)),
 	}
-
 	l.Info().Msgf("the zula service started on http://localhost:%d/", config.Port)
 	log.Fatal(server.ListenAndServe())
 }

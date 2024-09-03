@@ -62,6 +62,11 @@ func GetAuthorizationMiddleware(log zerolog.Logger, domain, key string) func(_ h
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Check if the current path should bypass the authorization check
+			if !strings.HasPrefix(r.URL.Path, "/api") {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			for _, path := range bypassPrefixes {
 				if strings.HasPrefix(r.URL.Path, path) {
 					// Bypass the authorization check and continue to the next handler

@@ -81,11 +81,43 @@ services:
       - ../frontend:/app
       - ../frontend/node_modules:/app/node_modules
 
-  service:
+  #service:
+  #  build:
+  #    context: ../service
+  #    dockerfile: Dockerfile.dev
+  #  working_dir: /app
+  #  restart: always
+  #  networks:
+  #    - net
+  #  depends_on:
+  #    - zitadel
+  #    - mongodb
+  #    - rabbitmq
+  #  ports:
+  #    - 8081:8081
+  #  volumes:
+  #    - ../service/:/app
+  #   # - ./certs/zitadel-key.json:/app/certs/zitadel-key.json
+  #  environment:
+  #    - MONGO_URI=mongodb://admin:123456@mongodb:27017/zula?directConnection=true
+  #    - LOG_LEVEL=info
+  #    - ENVIRONMENT=dev
+  #    - VERSION=0.0.1
+  #    - PORT=8081
+  #    - AUTH_CLIENT_ID=265970463790923782@zula
+  #    - RABBIT_MQ_USER=user
+  #    - RABBIT_MQ_PASSWORD=password
+  #    - RABBIT_MQ_URI=amqp://user:password@rabbitmq:5672?heartbeat=30
+  #    - AUTH_KEY_FILE_PATH=./certs/zitadel-key.json
+  #    - AUTH_DOMAIN=auth.local.the-zula.app:8080
+  #    - AUTH_SERVICE_ACCOUNT_USER=serviceaccount
+  #    - AUTH_SERVICE_ACCOUNT_SECRET=OmeAGdbZLkMmEux4cIwwoN0zJqk7lmp08CygFeNhxhzdVffejb3pMETphRZTvgEc
+
+  service-prod:
     build:
-      context: ../service
-      dockerfile: Dockerfile.dev
-    working_dir: /app
+      context: ../
+      dockerfile: Dockerfile
+    working_dir: /zula
     restart: always
     networks:
       - net
@@ -96,10 +128,22 @@ services:
     ports:
       - 8081:8081
     volumes:
-      - ../service/:/app
-     # - ./certs/zitadel-key.json:/app/certs/zitadel-key.json
+      - ../service/:/zula
+      - ../service/certs:/zula/certs:ro
     environment:
-      - MONGO_URI=mongodb://localhost:27017/zula
+      - MONGO_URI=mongodb://admin:123456@mongodb:27017/zula?directConnection=true
+      - LOG_LEVEL=info
+      - ENVIRONMENT=dev
+      - VERSION=0.0.1
+      - PORT=8081
+      - AUTH_CLIENT_ID=265970463790923782@zula
+      - RABBIT_MQ_USER=user
+      - RABBIT_MQ_PASSWORD=password
+      - RABBIT_MQ_URI=amqp://user:password@rabbitmq:5672?heartbeat=30
+      - AUTH_KEY_FILE_PATH=./certs/zitadel-key.json
+      - AUTH_DOMAIN=auth.local.the-zula.app:8080
+      - AUTH_SERVICE_ACCOUNT_USER=serviceaccount
+      - AUTH_SERVICE_ACCOUNT_SECRET=OmeAGdbZLkMmEux4cIwwoN0zJqk7lmp08CygFeNhxhzdVffejb3pMETphRZTvgEc
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -127,5 +171,6 @@ services:
       - "443:443"
     volumes:
       - "./traefik.yaml:/etc/traefik/traefik.yaml"
+      # - "./traefik.yaml:/etc/traefik/traefik.dev.yaml"
       - ./certs/cert.pem:/etc/certs/cert.pem
       - ./certs/privkey.pem:/etc/certs/privkey.key

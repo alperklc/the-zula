@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
@@ -337,6 +337,130 @@ type ServerInterface interface {
 	ConnectWs(w http.ResponseWriter, r *http.Request, user string)
 }
 
+// Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
+
+type Unimplemented struct{}
+
+// List bookmarks
+// (GET /api/v1/bookmarks)
+func (_ Unimplemented) GetBookmarks(w http.ResponseWriter, r *http.Request, params GetBookmarksParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Create a new bookmark
+// (POST /api/v1/bookmarks)
+func (_ Unimplemented) CreateBookmark(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Delete a bookmark by shortId
+// (DELETE /api/v1/bookmarks/{shortId})
+func (_ Unimplemented) DeleteBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get a bookmark by shortId
+// (GET /api/v1/bookmarks/{shortId})
+func (_ Unimplemented) GetBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Update a bookmark by shortId
+// (PUT /api/v1/bookmarks/{shortId})
+func (_ Unimplemented) UpdateBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List notes
+// (GET /api/v1/notes)
+func (_ Unimplemented) GetNotes(w http.ResponseWriter, r *http.Request, params GetNotesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Create a new note
+// (POST /api/v1/notes)
+func (_ Unimplemented) CreateNote(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Delete a note by shortId
+// (DELETE /api/v1/notes/{shortId})
+func (_ Unimplemented) DeleteNote(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get a note by shortId
+// (GET /api/v1/notes/{shortId})
+func (_ Unimplemented) GetNote(w http.ResponseWriter, r *http.Request, shortId string, params GetNoteParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Update a note by shortId
+// (PUT /api/v1/notes/{shortId})
+func (_ Unimplemented) UpdateNote(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Brings a list of changes on a note
+// (GET /api/v1/notes/{shortId}/changes)
+func (_ Unimplemented) GetNotesChanges(w http.ResponseWriter, r *http.Request, shortId string, params GetNotesChangesParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Brings a change on a note
+// (GET /api/v1/notes/{shortId}/changes/{changeShortId})
+func (_ Unimplemented) GetNotesChange(w http.ResponseWriter, r *http.Request, shortId string, changeShortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Delete a notes draft by note shortId
+// (DELETE /api/v1/notes/{shortId}/draft)
+func (_ Unimplemented) DeleteNoteDraft(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Save draft of a note by notes shortId
+// (PUT /api/v1/notes/{shortId}/draft)
+func (_ Unimplemented) SaveNoteDraft(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get tags
+// (GET /api/v1/tags)
+func (_ Unimplemented) GetTags(w http.ResponseWriter, r *http.Request, params GetTagsParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get a user by ID
+// (GET /api/v1/users/{shortId})
+func (_ Unimplemented) GetUser(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Update a user by ID
+// (PUT /api/v1/users/{shortId})
+func (_ Unimplemented) UpdateUser(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get user activity
+// (GET /api/v1/users/{shortId}/activity)
+func (_ Unimplemented) GetUserActivity(w http.ResponseWriter, r *http.Request, shortId string, params GetUserActivityParams) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Get dashboard insights
+// (GET /api/v1/users/{shortId}/insights)
+func (_ Unimplemented) GetInsights(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Connect to websocket
+// (GET /api/v1/ws/{user})
+func (_ Unimplemented) ConnectWs(w http.ResponseWriter, r *http.Request, user string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
 // ServerInterfaceWrapper converts contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler            ServerInterface
@@ -438,7 +562,7 @@ func (siw *ServerInterfaceWrapper) DeleteBookmark(w http.ResponseWriter, r *http
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -464,7 +588,7 @@ func (siw *ServerInterfaceWrapper) GetBookmark(w http.ResponseWriter, r *http.Re
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -490,7 +614,7 @@ func (siw *ServerInterfaceWrapper) UpdateBookmark(w http.ResponseWriter, r *http
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -599,7 +723,7 @@ func (siw *ServerInterfaceWrapper) DeleteNote(w http.ResponseWriter, r *http.Req
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -625,7 +749,7 @@ func (siw *ServerInterfaceWrapper) GetNote(w http.ResponseWriter, r *http.Reques
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -678,7 +802,7 @@ func (siw *ServerInterfaceWrapper) UpdateNote(w http.ResponseWriter, r *http.Req
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -704,7 +828,7 @@ func (siw *ServerInterfaceWrapper) GetNotesChanges(w http.ResponseWriter, r *htt
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -749,7 +873,7 @@ func (siw *ServerInterfaceWrapper) GetNotesChange(w http.ResponseWriter, r *http
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -758,7 +882,7 @@ func (siw *ServerInterfaceWrapper) GetNotesChange(w http.ResponseWriter, r *http
 	// ------------- Path parameter "changeShortId" -------------
 	var changeShortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "changeShortId", mux.Vars(r)["changeShortId"], &changeShortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "changeShortId", chi.URLParam(r, "changeShortId"), &changeShortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "changeShortId", Err: err})
 		return
@@ -784,7 +908,7 @@ func (siw *ServerInterfaceWrapper) DeleteNoteDraft(w http.ResponseWriter, r *htt
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -810,7 +934,7 @@ func (siw *ServerInterfaceWrapper) SaveNoteDraft(w http.ResponseWriter, r *http.
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -872,7 +996,7 @@ func (siw *ServerInterfaceWrapper) GetUser(w http.ResponseWriter, r *http.Reques
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -898,7 +1022,7 @@ func (siw *ServerInterfaceWrapper) UpdateUser(w http.ResponseWriter, r *http.Req
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -924,7 +1048,7 @@ func (siw *ServerInterfaceWrapper) GetUserActivity(w http.ResponseWriter, r *htt
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -985,7 +1109,7 @@ func (siw *ServerInterfaceWrapper) GetInsights(w http.ResponseWriter, r *http.Re
 	// ------------- Path parameter "shortId" -------------
 	var shortId string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "shortId", mux.Vars(r)["shortId"], &shortId, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "shortId", chi.URLParam(r, "shortId"), &shortId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "shortId", Err: err})
 		return
@@ -1011,7 +1135,7 @@ func (siw *ServerInterfaceWrapper) ConnectWs(w http.ResponseWriter, r *http.Requ
 	// ------------- Path parameter "user" -------------
 	var user string
 
-	err = runtime.BindStyledParameterWithOptions("simple", "user", mux.Vars(r)["user"], &user, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "user", chi.URLParam(r, "user"), &user, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user", Err: err})
 		return
@@ -1099,36 +1223,36 @@ func (e *TooManyValuesForParamError) Error() string {
 
 // Handler creates http.Handler with routing matching OpenAPI spec.
 func Handler(si ServerInterface) http.Handler {
-	return HandlerWithOptions(si, GorillaServerOptions{})
+	return HandlerWithOptions(si, ChiServerOptions{})
 }
 
-type GorillaServerOptions struct {
+type ChiServerOptions struct {
 	BaseURL          string
-	BaseRouter       *mux.Router
+	BaseRouter       chi.Router
 	Middlewares      []MiddlewareFunc
 	ErrorHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
 }
 
 // HandlerFromMux creates http.Handler with routing matching OpenAPI spec based on the provided mux.
-func HandlerFromMux(si ServerInterface, r *mux.Router) http.Handler {
-	return HandlerWithOptions(si, GorillaServerOptions{
+func HandlerFromMux(si ServerInterface, r chi.Router) http.Handler {
+	return HandlerWithOptions(si, ChiServerOptions{
 		BaseRouter: r,
 	})
 }
 
-func HandlerFromMuxWithBaseURL(si ServerInterface, r *mux.Router, baseURL string) http.Handler {
-	return HandlerWithOptions(si, GorillaServerOptions{
+func HandlerFromMuxWithBaseURL(si ServerInterface, r chi.Router, baseURL string) http.Handler {
+	return HandlerWithOptions(si, ChiServerOptions{
 		BaseURL:    baseURL,
 		BaseRouter: r,
 	})
 }
 
 // HandlerWithOptions creates http.Handler with additional options
-func HandlerWithOptions(si ServerInterface, options GorillaServerOptions) http.Handler {
+func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handler {
 	r := options.BaseRouter
 
 	if r == nil {
-		r = mux.NewRouter()
+		r = chi.NewRouter()
 	}
 	if options.ErrorHandlerFunc == nil {
 		options.ErrorHandlerFunc = func(w http.ResponseWriter, r *http.Request, err error) {
@@ -1141,45 +1265,66 @@ func HandlerWithOptions(si ServerInterface, options GorillaServerOptions) http.H
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
-	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks", wrapper.GetBookmarks).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks", wrapper.CreateBookmark).Methods("POST")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.DeleteBookmark).Methods("DELETE")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.GetBookmark).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.UpdateBookmark).Methods("PUT")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/notes", wrapper.GetNotes).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/notes", wrapper.CreateNote).Methods("POST")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.DeleteNote).Methods("DELETE")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.GetNote).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.UpdateNote).Methods("PUT")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/changes", wrapper.GetNotesChanges).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/changes/{changeShortId}", wrapper.GetNotesChange).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.DeleteNoteDraft).Methods("DELETE")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.SaveNoteDraft).Methods("PUT")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/tags", wrapper.GetTags).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/users/{shortId}", wrapper.GetUser).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/users/{shortId}", wrapper.UpdateUser).Methods("PUT")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/users/{shortId}/activity", wrapper.GetUserActivity).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/users/{shortId}/insights", wrapper.GetInsights).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/api/v1/ws/{user}", wrapper.ConnectWs).Methods("GET")
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/bookmarks", wrapper.GetBookmarks)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/v1/bookmarks", wrapper.CreateBookmark)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.DeleteBookmark)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.GetBookmark)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.UpdateBookmark)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/notes", wrapper.GetNotes)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/v1/notes", wrapper.CreateNote)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.DeleteNote)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.GetNote)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/api/v1/notes/{shortId}", wrapper.UpdateNote)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/notes/{shortId}/changes", wrapper.GetNotesChanges)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/notes/{shortId}/changes/{changeShortId}", wrapper.GetNotesChange)
+	})
+	r.Group(func(r chi.Router) {
+		r.Delete(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.DeleteNoteDraft)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/api/v1/notes/{shortId}/draft", wrapper.SaveNoteDraft)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/tags", wrapper.GetTags)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/users/{shortId}", wrapper.GetUser)
+	})
+	r.Group(func(r chi.Router) {
+		r.Put(options.BaseURL+"/api/v1/users/{shortId}", wrapper.UpdateUser)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/users/{shortId}/activity", wrapper.GetUserActivity)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/users/{shortId}/insights", wrapper.GetInsights)
+	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/api/v1/ws/{user}", wrapper.ConnectWs)
+	})
 
 	return r
 }

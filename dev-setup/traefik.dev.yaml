@@ -81,7 +81,7 @@ http:
     apiRouter:
       entryPoints:
         - websecure
-      rule: 'Host(`local.the-zula.app`) && PathPrefix(`/`)'
+      rule: 'Host(`local.the-zula.app`) && PathPrefix(`/api`)'
       service: apiService
       tls:
         domains:
@@ -89,6 +89,18 @@ http:
             sans:
               - 'local.the-zula.app'
 
+    frontendRouter:
+      entryPoints:
+        - websecure
+      rule: 'Host(`local.the-zula.app`) && PathPrefix(`/`)'
+      service: frontendService
+      tls:
+        domains:
+          - main: 'local.the-zula.app'
+            sans:
+              - 'local.the-zula.app'
+
+  # Add the service
   services:
     zitadel:
       loadBalancer:
@@ -98,4 +110,8 @@ http:
     apiService:
       loadBalancer:
         servers:
-          - url: http://service-prod:8081
+          - url: http://service:8081
+    frontendService:
+      loadBalancer:
+        servers:
+          - url: http://frontend:3000
