@@ -1,10 +1,10 @@
 import React from 'react'
-import { FormattedMessage, useIntl } from 'react-intl'
 import Button from '../form/button'
 import TagsInput, { searchTags } from '../tagsInput'
 import modalStyles from '../modal/index.module.css'
 import styles from './index.module.css'
 import { Filter, Sort } from '../../contexts/queryContext'
+import { useTranslation } from 'react-i18next'
 
 export interface FilterSelectorModalProps {
   typeOfParent: string
@@ -17,7 +17,8 @@ export interface FilterSelectorModalProps {
 }
 
 const FilterSelector = (props: FilterSelectorModalProps) => {
-  const intl = useIntl()
+  const { t } = useTranslation()
+
   const [tags, setTags] = React.useState<string[]>(props?.tags || [])
   const [sortBy, setSortBy] = React.useState<string>(props?.sortBy || '')
   const [sortDirection, setSortDirection] = React.useState<string>(props?.sortDirection || '')
@@ -47,7 +48,7 @@ const FilterSelector = (props: FilterSelectorModalProps) => {
   return (
     <div>
       <div className={modalStyles.modalHeader}>
-        <FormattedMessage id='filter_selector_modal.title' />
+        {t('filter_selector_modal.title')}
       </div>
       <div className={modalStyles.modalBody}>
         {props?.tags && (
@@ -57,7 +58,7 @@ const FilterSelector = (props: FilterSelectorModalProps) => {
               onSearch={searchTags(props.typeOfParent)}
               onChange={handleTagsSelection}
               label='Tags'
-              placeholder={intl.formatMessage({ id: 'filter_selector_modal.tags.label' })}
+              placeholder={t('filter_selector_modal.tags.label')}
             />
           </div>
         )}
@@ -65,7 +66,7 @@ const FilterSelector = (props: FilterSelectorModalProps) => {
           <div>
             <div>
               <label>
-                <FormattedMessage id='filter_selector_modal.sort_by_label' />
+                {t('filter_selector_modal.sort_by_label')}
               </label>
               {props?.sortableFields.map((field: string, index: number) => (
                 <span
@@ -79,7 +80,7 @@ const FilterSelector = (props: FilterSelectorModalProps) => {
             </div>
             <div>
               <label>
-                <FormattedMessage id='filter_selector_modal.sort_direction_label' />
+                {t('filter_selector_modal.sort_direction_label')}
               </label>
               <span
                 className={`${styles.choice} ${'asc' === sortDirection ? styles.selectedChoice : ''}`}
@@ -100,15 +101,15 @@ const FilterSelector = (props: FilterSelectorModalProps) => {
 
       <div className={modalStyles.modalButtons}>
         <Button onClick={onApplyClick}>
-          <FormattedMessage id='common.buttons.apply' />
+          {t('common.buttons.apply')}
         </Button>
         {tags?.length > 0 ? (
           <Button outline onClick={onClearAllFiltersClick}>
-            <FormattedMessage id='filter_selector_modal.buttons.clear' />
+            {t('filter_selector_modal.buttons.clear')}
           </Button>
         ) : (
           <Button outline onClick={props.onModalClosed}>
-            <FormattedMessage id='common.buttons.cancel' />
+            {t('common.buttons.cancel')}
           </Button>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { FormattedMessage } from "react-intl";
+import { useTranslation } from "react-i18next";
 import Logo from "../../components/logo";
 import { useAuth } from "../../contexts/authContext";
 import styles from "./index.module.css";
@@ -17,6 +17,7 @@ function parseUrlParams() {
 const LoginCheck = () => {
   const auth = useAuth();
   const urlParams = parseUrlParams()
+  const { t } = useTranslation()
 
   return (<div className={styles.container}>
     <div className={styles.logoContainer}>
@@ -25,11 +26,11 @@ const LoginCheck = () => {
       </div>
     </div>
     <div className={styles.headline}>
-      <FormattedMessage id='login_page.headline' />
+      {t('login_page.headline')}
     </div>
     <div className={styles.authForm}>
       <button className={styles.button} onClick={() => auth.login(urlParams["redirectAfterLogin"])}>
-        <FormattedMessage id='login_page.buttons.submit' />
+        {t('login_page.buttons.submit')}
       </button>
     </div>
   </div>);

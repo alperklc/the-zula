@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useIntl } from 'react-intl';
+import { useTranslation } from 'react-i18next';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { UIProvider } from './contexts/uiContext';
 import { useAuth } from './contexts/authContext';
@@ -17,9 +17,10 @@ import { BookmarksListPage } from './pages/bookmarks/list';
 import { ActivitiesListPage } from './pages/activityLog';
 import { useToast } from './components/toast/toast-message-context';
 import { toStatusTextKey } from './components/toast/status-text-mapping';
-import './App.css';
+import Data from './pages/settings/data';
 import { NotesChangesListPage } from './pages/notes/changes';
 import { NoteChangePage } from './pages/notes/changes/change';
+import './App.css';
 
 function PrivateRoute({ path, element }: { path: string; element: React.ReactElement }) {
   const auth = useAuth();
@@ -37,8 +38,8 @@ function PrivateRoute({ path, element }: { path: string; element: React.ReactEle
 function App() {
   const { user, setSessionId } = useAuth();
   const { show: showToast } = useToast();
-  const intl = useIntl();
-  
+  const { t } = useTranslation();
+
   const webSocketConnection = React.useRef<WebSocket | null>(null);
 
   React.useEffect(() => {
@@ -83,7 +84,7 @@ function App() {
                   break;
               case 'msg':
                   if (statusTextKey) {
-                    const message = intl.formatMessage({ id: statusTextKey })
+                    const message = t(statusTextKey)
                     showToast(message, 'success');
                   }
                   break;
@@ -134,6 +135,7 @@ function App() {
           <Route path="/bookmarks/create" element={<PrivateRoute path={"/bookmarks/create"} element={<CreateBookmark />}/>}/>
           <Route path="/bookmarks/:shortId" element={<PrivateRoute path={"/bookmarks/:shortId"} element={<BookmarkDetails />}/>}/>
           <Route path="/settings/profile" element={<PrivateRoute path={"/settings/profile"} element={<Profile />}/>}/>
+          <Route path="/settings/data" element={<PrivateRoute path={"/settings/data"} element={<Data />}/>}/>
         </Routes>
       </Router>
       </UIProvider>

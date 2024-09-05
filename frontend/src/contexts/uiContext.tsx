@@ -1,6 +1,7 @@
 import React from 'react'
 import { User, UserProfile } from "oidc-client-ts";
 import { useAuth } from './authContext';
+import { useTranslation } from 'react-i18next';
 
 interface UIContext {
   language: string
@@ -42,8 +43,9 @@ function getTheme(user: User | null) {
 
 export const UIProvider = ({ children }: { children: React.ReactElement }) => {
   const { user } = useAuth();
+  const { i18n } = useTranslation()
+
   const defaultLocale = user?.profile.locale || 'en'
-  // TODO: read initial theme here
  
   const isMobileDevice = !!(navigator.userAgent || '').match(
     /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i,
@@ -57,7 +59,7 @@ export const UIProvider = ({ children }: { children: React.ReactElement }) => {
   const switchLanguage = (nextLanguage: string) => {
     document.documentElement.setAttribute('lang', nextLanguage)
     document.documentElement.lang = nextLanguage
-
+    i18n.changeLanguage(nextLanguage)
     setLanguage(nextLanguage)
   }
 

@@ -1,4 +1,3 @@
-import { MessageDescriptor } from 'react-intl'
 import Button from '../form/button'
 import styles from './index.module.css'
 import { Link } from 'react-router-dom'
@@ -7,7 +6,7 @@ interface SideMenuProps {
   visible: boolean
   setVisibility: (_: boolean) => void
   onLogoutClicked: () => void
-  t: (_: MessageDescriptor) => string
+  t: (_: string) => string
 }
 
 const SideMenu = ({ t, ...props }: SideMenuProps) => {
@@ -23,16 +22,16 @@ const SideMenu = ({ t, ...props }: SideMenuProps) => {
       <div className={`${styles.sideNav} ${props.visible ? styles.visible : ''}`}>
         <div className={styles.linksToPages}>
           <label>
-              <Link to='/'>{t({ id: 'dashboard.title' })}</Link>
+              <Link to='/'>{t('dashboard.title')}</Link>
           </label>
           <label>
-              <Link to='/settings/profile'>{t({ id: 'settings.title' })}</Link>
+              <Link to='/settings/profile'>{t('settings.title')}</Link>
           </label>
         </div>
 
         <div className={styles.bottom}>
           <Button onClick={props.onLogoutClicked} data-testid='logout-button'>
-            {t({ id: 'common.buttons.logout' })}
+            {t('common.buttons.logout')}
           </Button>
         </div>
       </div>

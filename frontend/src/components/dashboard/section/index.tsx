@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom'
-import { useIntl } from 'react-intl'
-import icons from '../../icons'
+import { useTranslation } from 'react-i18next'
 import { Insights, VisitingStatistics } from '../../../types/Api'
-
+import icons from '../../icons'
 import styles from './index.module.css'
 
 export type Content = {
@@ -62,7 +61,7 @@ export const ContentDisplay = (props: VisitingStatistics) => {
 }
 
 export const AllContentSection = ({ data: {numberOfBookmarks, numberOfNotes} } : { data: Insights} ) => {
-  const intl = useIntl()
+  const { t } = useTranslation()
 
   return (
     <div className={styles.dashboardSection}>
@@ -73,7 +72,7 @@ export const AllContentSection = ({ data: {numberOfBookmarks, numberOfNotes} } :
             <icons.Book height='1rem' width='1rem' />
           </span>
           <span className={styles.dashboardListItemTitle}>
-            {intl.formatMessage({ id: 'notes.title' })}
+            {t('notes.title')}
             <span data-testid='numberOfNotes'>
               {numberOfNotes ? ` (${numberOfNotes})` : ''}
             </span>
@@ -87,7 +86,7 @@ export const AllContentSection = ({ data: {numberOfBookmarks, numberOfNotes} } :
             <icons.Link height='1rem' width='1rem' />
           </span>
           <span className={styles.dashboardListItemTitle}>
-            {intl.formatMessage({ id: 'bookmarks.title' })}
+            {t('bookmarks.title')}
             <span data-testid='numberOfBookmarks'>
               {numberOfBookmarks ? ` (${numberOfBookmarks})` : ''}
             </span>

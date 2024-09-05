@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react'
-import { useIntl, FormattedMessage } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
 import Button from '../../../components/form/button'
 import MessageBox from '../../../components/messageBox'
@@ -35,18 +35,20 @@ const DeleteBookmarkConfirmation = (props: {
   onConfirm: () => void
   onModalClosed?: () => void
 }) => {
+  const { t } = useTranslation()
+
   return (
     <div>
       <div className={modalStyles.modalHeader}>&nbsp;</div>
       <div className={modalStyles.modalBody}>
-        <FormattedMessage id='delete_confirmation_modal.title' />
+        {t('delete_confirmation_modal.title')}
       </div>
       <div className={modalStyles.modalButtons}>
         <Button danger onClick={props.onConfirm}>
-          <FormattedMessage id='common.buttons.delete' />
+          {t('common.buttons.delete')}
         </Button>
         <Button outline onClick={props.onModalClosed}>
-          <FormattedMessage id='common.buttons.cancel' />
+          {t('common.buttons.cancel')}
         </Button>
       </div>
     </div>
@@ -54,7 +56,8 @@ const DeleteBookmarkConfirmation = (props: {
 }
 
 const BookmarkDetails = () => {
-  const intl = useIntl()
+  const { t } = useTranslation()
+
   const { isMobile } = useUI()
   const navigate = useNavigate()
   const { shortId }  = useParams()
@@ -122,7 +125,7 @@ const BookmarkDetails = () => {
       navigate(-1)
     } catch (e) {
       console.error(e);
-      showToast(intl.formatMessage({ id: 'messages.bookmarks.update_failure' }), 'error')
+      showToast(t('messages.bookmarks.update_failure'), 'error')
     }
     setFetching(false);
   }
@@ -137,7 +140,7 @@ const BookmarkDetails = () => {
       navigate(-2)
     } catch (e) {
       console.error(e);
-      showToast(intl.formatMessage({ id: 'messages.bookmarks.delete_failure' }), 'error')
+      showToast(t('messages.bookmarks.delete_failure'), 'error')
     }
     setFetching(false);
   }
@@ -146,7 +149,7 @@ const BookmarkDetails = () => {
 
   const onCopyLinkClick = (event: React.MouseEvent) => {
     navigator?.clipboard?.writeText(bookmark?.url || '').then(() => {
-      showToast(intl.formatMessage({ id: 'bookmarks.toast.copy_link' }), 'info')
+      showToast(t('bookmarks.toast.copy_link'), 'info')
     })
 
     event.stopPropagation()
@@ -181,7 +184,7 @@ const BookmarkDetails = () => {
               {!isMobile && (
                 <Input
                   type='text'
-                  placeholder={intl.formatMessage({ id: 'notes.form.label.title' })}
+                  placeholder={t('notes.form.label.title')}
                   value={bookmark.title}
                   onChange={handleTitleChange}
                   title={bookmark.title}
@@ -192,10 +195,10 @@ const BookmarkDetails = () => {
             {bookmark.url !== "" && (
               <div style={{ whiteSpace: 'nowrap' }}>
                 <Button danger onClick={openDeleteConfirmationModal}>
-                  <FormattedMessage id='common.buttons.delete' />
+                  {t('common.buttons.delete')}
                 </Button>
                 <Button primary onClick={save}>
-                  <FormattedMessage id='common.buttons.save' />
+                  {t('common.buttons.save')}
                 </Button>
               </div>
             )}
@@ -209,7 +212,7 @@ const BookmarkDetails = () => {
           {isMobile && bookmark.title && (
             <Input
               type='text'
-              placeholder={intl.formatMessage({ id: 'notes.form.label.title' })}
+              placeholder={t('notes.form.label.title')}
               value={bookmark.title}
               onChange={handleTitleChange}
               title={bookmark.title}
@@ -228,7 +231,7 @@ const BookmarkDetails = () => {
 
         <>
           <label className={layoutStyles.rightPanelSectionTitle}>
-            <FormattedMessage id='common.labels.updated_at' />
+            {t('common.labels.updated_at')}
           </label>
           <div className={layoutStyles.secondaryText}>
             <span>{bookmark?.updatedBy}, </span>
@@ -236,14 +239,14 @@ const BookmarkDetails = () => {
           </div>
           <hr />
           <label className={layoutStyles.rightPanelSectionTitle}>
-            <FormattedMessage id='bookmarks.form.label.url' />
+            {t('bookmarks.form.label.url')}
 
             {!isMobile && (
               <a
                 className={`${layoutStyles.copyLink} ${layoutStyles.labelLink}`}
                 onClick={onCopyLinkClick}
               >
-                <FormattedMessage id='bookmarks.overflow_menu.copy_link' />
+                {t('bookmarks.overflow_menu.copy_link')}
                 <icons.Link height='.6rem' />
               </a>
             )}
@@ -264,7 +267,7 @@ const BookmarkDetails = () => {
               <hr />
               <label className={layoutStyles.rightPanelSectionTitle} onClick={onShareClick}>
                 <span className={layoutStyles.truncatedText}>
-                  <FormattedMessage id='bookmarks.overflow_menu.share' />
+                  {t('bookmarks.overflow_menu.share')}
                 </span>
                 <span>
                   <icons.Share width='1rem' height='1rem' />
@@ -279,7 +282,7 @@ const BookmarkDetails = () => {
             tags={bookmark.tags ?? []}
             onChange={handleTagsChange}
             label='Tags'
-            placeholder={intl.formatMessage({ id: 'bookmarks.form.label.tags' })}
+            placeholder={t('bookmarks.form.label.tags')}
           />
         </>
       </PageContent>

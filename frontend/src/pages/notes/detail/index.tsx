@@ -1,5 +1,5 @@
 import React from 'react'
-import { FormattedMessage } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { GraphData } from 'react-force-graph-2d'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
@@ -21,6 +21,8 @@ import { Link } from 'react-router-dom'
 import icons from '../../../components/icons'
 
 export const EditNote = () => {
+  const { t } = useTranslation()
+
   const navigate = useNavigate()
   const { shortId } = useParams()
   const { isMobile } = useUI()
@@ -98,7 +100,7 @@ export const EditNote = () => {
 
             {!error && (
               <Button onClick={onEditClicked}>
-                <FormattedMessage id='common.buttons.edit' />
+                {t('common.buttons.edit')}
               </Button>
             )}
           </div>
@@ -124,7 +126,7 @@ export const EditNote = () => {
           <>
             <div>
               <label>
-                <FormattedMessage id='common.labels.updated_at' />
+                {t('common.labels.updated_at')}
               </label>
               <div className={layoutStyles.secondaryText}>
                 <span>{note?.updatedBy}, </span>
@@ -136,7 +138,7 @@ export const EditNote = () => {
                 <hr />
 
                 <label>
-                  <FormattedMessage id='notes.form.label.tags' />
+                  {t('notes.form.label.tags')}
                 </label>
                 <TagsDisplay tags={note.tags} />
               </>
@@ -146,10 +148,7 @@ export const EditNote = () => {
                 <hr />
                 <Link to={`/notes/${shortId}/changes`}>  
                   <label className={`${layoutStyles.labelLink} ${layoutStyles.historyLink}`}>
-                    <FormattedMessage
-                      id='notes.changes.label'
-                      values={{ number: note?.changesCount }}
-                    />
+                    {t('notes.changes.label', { number: note?.changesCount })}
                   </label>
                 </Link>
               </>
@@ -159,7 +158,7 @@ export const EditNote = () => {
                <hr />
                <div className={layoutStyles.refernencesLabel}>
                  <label>
-                   <FormattedMessage id='notes.form.label.referenced_by' />
+                   {t('notes.form.label.referenced_by')}
                  </label>
                  <label className={layoutStyles.labelLink} onClick={expandReferences}>
                    expand

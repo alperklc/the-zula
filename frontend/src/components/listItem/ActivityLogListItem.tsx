@@ -1,4 +1,4 @@
-import { useIntl } from "react-intl";
+import { useTranslation } from "react-i18next";
 import { BaseListItem } from "./BaseListItem";
 import { UserActivity } from "../../types/Api";
 import TimeDisplay from "../timeDisplay";
@@ -37,7 +37,7 @@ const mapActivityLogText = (resourceType: string, action: string) => {
 
 
 export const ActivityLogListItem = ({ item }: { item: UserActivity }) => {
-    const intl = useIntl()
+    const { t } = useTranslation()
 
     const getLink = (resourceType: string, action: string, uid: string) => {
         if (action === 'DELETE') {
@@ -55,13 +55,13 @@ export const ActivityLogListItem = ({ item }: { item: UserActivity }) => {
         return null
     }
 
-    const translationKey = mapActivityLogText(item.resourceType!, item.action!)
+    const translationKey = mapActivityLogText(item.resourceType!, item.action!)!
 
     return (
         <BaseListItem
             href={getLink(item.resourceType!, item.action!, item.objectId!) || '#'}
-            title={intl.formatMessage({ id: translationKey })}
-            description={intl.formatMessage({ id: translationKey })}
+            title={t(translationKey)}
+            description={t(translationKey)}
             sideInfo={
                 <a className={styles.updatedAt} href={getLink(item.resourceType!, item.action!, item.objectId!) || '#'}>
                     <TimeDisplay isoDate={item.timestamp ?? ""} />

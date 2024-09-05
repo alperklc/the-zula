@@ -1,19 +1,21 @@
 import { GraphData } from 'react-force-graph-2d'
-import { FormattedMessage } from 'react-intl'
 import { modalStyles } from '../modal'
 import { ReferencesGraph } from '../referencesGraph'
 import { ResizeWrapper } from '../referencesGraph/resizeWrapper'
 import styles from './index.module.css'
+import { useTranslation } from 'react-i18next'
 
 export const ReferencesModal = (props: {
   onModalClosed?: () => void
   references: GraphData
   noteUid: string
 }) => {
+  const { t } = useTranslation()
+
   return (
     <div>
       <div className={modalStyles.modalHeader}>
-        <FormattedMessage id='notes.form.label.referenced_by' />
+        {t('notes.form.label.referenced_by')}
       </div>
       <div>
         <ResizeWrapper fullScreen>

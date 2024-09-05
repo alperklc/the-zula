@@ -1,9 +1,9 @@
-import { useIntl } from 'react-intl'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 import Layout from '../../components/layout'
 import MessageBox from '../../components/messageBox'
 import PageContent from '../../components/pageContent'
 import AllContentSection, { DashboardSection } from '../../components/dashboard/section'
-import React from 'react'
 import { useUI } from '../../contexts/uiContext'
 import { useAuth } from '../../contexts/authContext'
 import { Api, Insights } from '../../types/Api'
@@ -18,7 +18,7 @@ const emptyInsights: Insights = {
 }
 
 const Dashboard = () => {
-  const { formatMessage } = useIntl()
+  const { t } = useTranslation()
   const { isMobile } = useUI()
 
   const [loading, setLoading] = React.useState(true);
@@ -61,13 +61,13 @@ const Dashboard = () => {
     <>
       {lastVisited?.length > 0 && (
         <DashboardSection
-          title={formatMessage({ id: 'dashboard.titles.last_visited' })}
+          title={t('dashboard.titles.last_visited')}
           rows={data?.lastVisited ?? []}
         />
       )}
       {mostVisited?.length > 0 && (
         <DashboardSection
-          title={formatMessage({ id: 'dashboard.titles.most_visited' })}
+          title={t('dashboard.titles.most_visited')}
           rows={data?.mostVisited ?? []}
         />
       )}
@@ -80,7 +80,7 @@ const Dashboard = () => {
         <MessageBox type='error'>Error</MessageBox>
       ) : (
         <>
-          <label>{formatMessage({ id: 'dashboard.titles.activity_graph' })}</label>
+          <label>{t('dashboard.titles.activity_graph')}</label>
 
           <ActivityGraph data={data?.activityGraph ?? []} />
 

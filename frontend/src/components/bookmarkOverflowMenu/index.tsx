@@ -1,15 +1,15 @@
 import * as React from 'react'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 import { useToast } from '../toast/toast-message-context'
 import styles from './index.module.css'
 
 const OverflowMenu = (props: any) => {
   const { show: showToast } = useToast()
-  const intl = useIntl()
+  const { t } = useTranslation()
 
   const onCopyLinkClick = (event: React.MouseEvent) => {
     navigator?.clipboard?.writeText(props.link || '').then(() => {
-      showToast(intl.formatMessage({ id: 'bookmarks.toast.copy_link' }), 'info')
+      {showToast(t('bookmarks.toast.copy_link'), 'info')}
     })
 
     event.stopPropagation()
@@ -32,11 +32,11 @@ const OverflowMenu = (props: any) => {
   return (
     <div className={`${props.className} ${styles.container}`}>
       <span className={styles.menuChoice} onClick={onCopyLinkClick}>
-        <FormattedMessage id='bookmarks.overflow_menu.copy_link' />
+        {t('bookmarks.overflow_menu.copy_link')}
       </span>
 
       <span className={styles.menuChoice} onClick={onShareClick}>
-        <FormattedMessage id='bookmarks.overflow_menu.share' />
+        {t('bookmarks.overflow_menu.share')}
       </span>
     </div>
   )

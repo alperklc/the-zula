@@ -1,145 +1,268 @@
 {
-  "login_page.headline": "Einloggen bei The Zula",
-  "login_page.buttons.submit": "Einloggen",
-  "common.buttons.delete": "Löschen",
-  "common.buttons.cancel": "Abbrechen",
-  "common.buttons.edit": "Editieren",
-  "common.buttons.move": "Verschieben",
-  "delete_confirmation_modal.title": "Bist du sicher dass du löschen möchtest?",
-  "common.buttons.new": "Neu",
-  "commons.search_placeholder": "Suchen",
-  "common.buttons.back": "Zurück",
-  "common.buttons.save": "Speichern",
-  "common.buttons.download": "Herunterladen",
-  "common.buttons.apply": "Apply",
-  "common.labels.created_by": "Erstellt von",
-  "common.labels.created_at": "Erstellt",
-  "common.labels.updated_by": "Aktualisiert von",
-  "common.labels.updated_at": "Aktualisiert",
-  "common.buttons.accept": "Akzeptieren",
-  "notes.table.columns.title": "Titel",
-  "files.overflow_menu.create_file": "Datei hochladen",
-  "files.overflow_menu.move_to_folder": "Ordner ziehen",
-  "files.overflow_menu.create_folder": "Ordner erstellen",
-  "files.overflow_menu.rename_folder": "Ordner umbenennen",
-  "files.overflow_menu.delete_folder": "Ordner löschen",
-  "notes.table.messages.nothing_found": "Nichts gefunden",
-  "notes.form.label.title": "Titel",
-  "notes.form.label.content": "Inhalt",
-  "notes.form.label.tags": "Tags",
-  "notes.form.label.files": "Dateien",
-  "notes.form.label.referenced_by": "References",
-  "notes.changes.label": "Änderungen ({number})",
-  "files.table.columns.type": "Typ",
-  "files.table.columns.file": "Name",
-  "files.form.label.file": "Datei hochladen",
-  "files.form.label.type": "Typ",
-  "files.form.label.size": "Größe",
-  "files.form.label.filename": "Datei name",
-  "files.form.label.select-file": "Datei wählen",
-  "files.table.messages.nothing_found": "Nichts gefunden",
-  "files.select.label": "Datei auswählen",
-  "bookmarks.form.label.url": "Url",
-  "bookmarks.form.label.title": "Titel",
-  "bookmarks.form.label.excerpt": "Zusammenfassung",
-  "bookmarks.form.label.content": "Inhalt",
-  "bookmarks.form.label.tags": "Tags",
-  "bookmarks.form.label.read": "Gelesen",
-  "bookmarks.overflow_menu.copy_link": "Kopieren",
-  "bookmarks.overflow_menu.share": "Teilen",
-  "bookmarks.toast.copy_link": "URL copied to clipboard",
-  "activity-log.title": "Verlauf",
-  "activity-log.table.columns.resource-type": "Resource Typ",
-  "activity-log.table.columns.action": "Action",
-  "activity-log.messages.bookmark_create": "Bookmark erstellt",
-  "activity-log.messages.bookmark_read": "Bookmark gelesen",
-  "activity-log.messages.bookmark_update": "Bookmark aktualisiert",
-  "activity-log.messages.bookmark_delete": "Bookmark gelöscht",
-  "activity-log.messages.note_create": "Notiz erstellt",
-  "activity-log.messages.note_read": "Notiz gelesen",
-  "activity-log.messages.note_update": "Notiz aktualisiert",
-  "activity-log.messages.note_delete": "Notiz gelöscht",
-  "activity-log.messages.file_create": "Datei erstellt",
-  "activity-log.messages.file_read": "Datei gelesen",
-  "activity-log.messages.file_update": "Datei aktualisiert",
-  "activity-log.messages.file_delete": "Datei gelöscht",
-  "activity-log.messages.user_create": "Nutzer erstellt ",
-  "activity-log.messages.user_update": "Nutzer aktualisiert",
-  "activity-log.messages.folder_create": "Ordner erstellt",
-  "activity-log.messages.folder_read": "Ordner gelesen",
-  "activity-log.messages.folder_update": "Ordner aktualisiert",
-  "activity-log.messages.folder_delete": "Ordner gelöscht",
-  "filter_selector_modal.title": "Filter auswählen",
-  "filter_selector_modal.file_types.label": "File typ",
-  "filter_selector_modal.tags.label": "Tags",
-  "filter_selector_modal.buttons.clear": "Filter löschen",
-  "filter_selector_modal.sort_by_label": "Sortieren nach",
-  "filter_selector_modal.sort_direction_label": "Richtung",
-  "folder_management_modal.create_folder.title": "Neuer Ordner",
-  "folder_management_modal.rename_folder.title": "Ordner Umbenennen",
-  "folder_management_modal.delete_folder.title": "Ordner Löschen",
-  "folder_management_modal.create_folder.body_text": "Bitte Ordner Name eingeben",
-  "folder_management_modal.rename_folder.body_text": "Bitte Ordner Name eingeben",
-  "folder_management_modal.delete_folder.body_text": "Bist du sicher dass du dieser Ordner löschen möchtest?",
-  "folder_management_modal.buttons.rename": "Umbenennen",
-  "folder_management_modal.buttons.create": "Create",
-  "folder_management_modal.buttons.delete": "Delete",
-  "folder_tree_modal.delete_folder.title": "Select new parent folder",
-  "folder_tree_modal.buttons.select": "Apply",
-  "dashboard.title": "Dashboard",
-  "dashboard.titles.activity_graph": "Aktivitätsgraphik",
-  "dashboard.titles.most_visited": "Die Meistgelesenen Eintäge dieser Woche",
-  "dashboard.titles.last_visited": "Zuletzt gelesen",
-  "dashboard.activity_graph.day_square_with_count": "{count} activities on {date}",
-  "dashboard.activity_graph.day_square_without_count": "No activities on {date}",
-  "dashboard.activity_graph.days.monday": "Mon",
-  "dashboard.activity_graph.days.tuesday": "Die",
-  "dashboard.activity_graph.days.wednesday": "Mit",
-  "dashboard.activity_graph.days.thursday": "Don",
-  "dashboard.activity_graph.days.friday": "Fre",
-  "dashboard.activity_graph.days.saturday": "Sam",
-  "dashboard.activity_graph.days.sunday": "Son",
-  "dashboard.messages.empty": "Leider nichts gefunden. Schreib was!",
-  "notes.title": "Einträge",
-  "files.title": "Dateien",
-  "files.upload": "Hochladen",
-  "images.title": "Bilder",
-  "bookmarks.title": "Bookmarks",
-  "common.buttons.logout": "Ausloggen",
-  "common.labels.timestamp": "Timestamp",
-  "settings.title": "Einstellungen",
-  "settings_page.tabs.profile": "Profil",
-  "settings_page.tabs.security": "Sicherheit",
-  "settings_page.security.active_sessions": "Aktive sitzungen",
-  "settings_page.security.change_password": "Passwort ändern",
-  "settings_page.security.this_session": "Diese sitzung",
-  "messages.user.create": "Welcome!",
-  "messages.user.update": "Profile updated",
-  "messages.notes.create": "Note created",
-  "messages.notes.update": "Note updated",
-  "messages.notes.delete": "Note deleted",
-  "messages.notes.create_failure": "Could not create note",
-  "messages.notes.update_failure": "Could not update note",
-  "messages.notes.delete_failure": "Could not delete note",
-  "messages.files.create": "File created",
-  "messages.files.update": "File updated",
-  "messages.files.move": "File moved",
-  "messages.files.delete": "File deleted",
-  "messages.files.create_failure": "Could not create",
-  "messages.files.update_failure": "Could not update",
-  "messages.files.delete_failure": "Could not delete",
-  "messages.folders.create": "Folder created",
-  "messages.folders.update": "Folder updated",
-  "messages.folders.move": "Folder moved",
-  "messages.folders.delete": "Folder deleted",
-  "messages.bookmarks.create": "Bookmark created",
-  "messages.bookmarks.update": "Bookmark updated",
-  "messages.bookmarks.delete": "Bookmark deleted",
-  "messages.bookmarks.create_failure": "Could not create",
-  "messages.bookmarks.update_failure": "Could not update",
-  "messages.bookmarks.delete_failure": "Could not delete",
-  "profile.form.firstname": "First name",
-  "profile.form.lastname": "Last name",
-  "profile.form.displayName": "Display name",
-  "profile.form.email": "Email"
+  "login_page": {
+    "headline": "Einloggen bei The Zula",
+    "buttons": {
+      "submit": "Einloggen"
+    }
+  },
+  "common": {
+    "buttons": {
+      "delete": "Löschen",
+      "cancel": "Abbrechen",
+      "edit": "Editieren",
+      "move": "Verschieben",
+      "new": "Neu",
+      "back": "Zurück",
+      "save": "Speichern",
+      "download": "Herunterladen",
+      "apply": "Apply",
+      "accept": "Akzeptieren",
+      "logout": "Ausloggen"
+    },
+    "labels": {
+      "created_by": "Erstellt von",
+      "created_at": "Erstellt",
+      "updated_by": "Aktualisiert von",
+      "updated_at": "Aktualisiert",
+      "timestamp": "Timestamp"
+    }
+  },
+  "delete_confirmation_modal": {
+    "title": "Bist du sicher dass du löschen möchtest?"
+  },
+  "commons": {
+    "search_placeholder": "Suchen"
+  },
+  "notes": {
+    "table": {
+      "columns": {
+        "title": "Titel"
+      },
+      "messages": {
+        "nothing_found": "Nichts gefunden"
+      }
+    },
+    "form": {
+      "label": {
+        "title": "Titel",
+        "content": "Inhalt",
+        "tags": "Tags",
+        "files": "Dateien",
+        "referenced_by": "References"
+      }
+    },
+    "changes": {
+      "label": "Änderungen ({{number}})"
+    },
+    "title": "Einträge"
+  },
+  "files": {
+    "overflow_menu": {
+      "create_file": "Datei hochladen",
+      "move_to_folder": "Ordner ziehen",
+      "create_folder": "Ordner erstellen",
+      "rename_folder": "Ordner umbenennen",
+      "delete_folder": "Ordner löschen"
+    },
+    "table": {
+      "columns": {
+        "type": "Typ",
+        "file": "Name"
+      },
+      "messages": {
+        "nothing_found": "Nichts gefunden"
+      }
+    },
+    "form": {
+      "label": {
+        "file": "Datei hochladen",
+        "type": "Typ",
+        "size": "Größe",
+        "filename": "Datei name",
+        "select-file": "Datei wählen"
+      }
+    },
+    "select": {
+      "label": "Datei auswählen"
+    },
+    "title": "Dateien",
+    "upload": "Hochladen"
+  },
+  "bookmarks": {
+    "form": {
+      "label": {
+        "url": "Url",
+        "title": "Titel",
+        "excerpt": "Zusammenfassung",
+        "content": "Inhalt",
+        "tags": "Tags",
+        "read": "Gelesen"
+      }
+    },
+    "overflow_menu": {
+      "copy_link": "Kopieren",
+      "share": "Teilen"
+    },
+    "toast": {
+      "copy_link": "URL copied to clipboard"
+    },
+    "title": "Bookmarks"
+  },
+  "activity-log": {
+    "title": "Verlauf",
+    "table": {
+      "columns": {
+        "resource-type": "Resource Typ",
+        "action": "Action"
+      }
+    },
+    "messages": {
+      "bookmark_create": "Bookmark erstellt",
+      "bookmark_read": "Bookmark gelesen",
+      "bookmark_update": "Bookmark aktualisiert",
+      "bookmark_delete": "Bookmark gelöscht",
+      "note_create": "Notiz erstellt",
+      "note_read": "Notiz gelesen",
+      "note_update": "Notiz aktualisiert",
+      "note_delete": "Notiz gelöscht",
+      "file_create": "Datei erstellt",
+      "file_read": "Datei gelesen",
+      "file_update": "Datei aktualisiert",
+      "file_delete": "Datei gelöscht",
+      "user_create": "Nutzer erstellt ",
+      "user_update": "Nutzer aktualisiert",
+      "folder_create": "Ordner erstellt",
+      "folder_read": "Ordner gelesen",
+      "folder_update": "Ordner aktualisiert",
+      "folder_delete": "Ordner gelöscht"
+    }
+  },
+  "filter_selector_modal": {
+    "title": "Filter auswählen",
+    "file_types": {
+      "label": "File typ"
+    },
+    "tags": {
+      "label": "Tags"
+    },
+    "buttons": {
+      "clear": "Filter löschen"
+    },
+    "sort_by_label": "Sortieren nach",
+    "sort_direction_label": "Richtung"
+  },
+  "folder_management_modal": {
+    "create_folder": {
+      "title": "Neuer Ordner",
+      "body_text": "Bitte Ordner Name eingeben"
+    },
+    "rename_folder": {
+      "title": "Ordner Umbenennen",
+      "body_text": "Bitte Ordner Name eingeben"
+    },
+    "delete_folder": {
+      "title": "Ordner Löschen",
+      "body_text": "Bist du sicher dass du dieser Ordner löschen möchtest?"
+    },
+    "buttons": {
+      "rename": "Umbenennen",
+      "create": "Create",
+      "delete": "Delete"
+    }
+  },
+  "folder_tree_modal": {
+    "delete_folder": {
+      "title": "Select new parent folder"
+    },
+    "buttons": {
+      "select": "Apply"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "titles": {
+      "activity_graph": "Aktivitätsgraphik",
+      "most_visited": "Die Meistgelesenen Eintäge dieser Woche",
+      "last_visited": "Zuletzt gelesen"
+    },
+    "activity_graph": {
+      "day_square_with_count": "{{count}} activities on {{date}}",
+      "day_square_without_count": "No activities on {{date}}",
+      "days": {
+        "monday": "Mon",
+        "tuesday": "Die",
+        "wednesday": "Mit",
+        "thursday": "Don",
+        "friday": "Fre",
+        "saturday": "Sam",
+        "sunday": "Son"
+      }
+    },
+    "messages": {
+      "empty": "Leider nichts gefunden. Schreib was!"
+    }
+  },
+  "images": {
+    "title": "Bilder"
+  },
+  "settings": {
+    "title": "Einstellungen"
+  },
+  "settings_page": {
+    "tabs": {
+      "profile": "Profil",
+      "data": "Data",
+      "security": "Sicherheit"
+    },
+    "security": {
+      "active_sessions": "Aktive sitzungen",
+      "change_password": "Passwort ändern",
+      "this_session": "Diese sitzung"
+    }
+  },
+  "messages": {
+    "user": {
+      "create": "Welcome!",
+      "update": "Profile updated"
+    },
+    "notes": {
+      "create": "Note created",
+      "update": "Note updated",
+      "delete": "Note deleted",
+      "create_failure": "Could not create note",
+      "update_failure": "Could not update note",
+      "delete_failure": "Could not delete note"
+    },
+    "files": {
+      "create": "File created",
+      "update": "File updated",
+      "move": "File moved",
+      "delete": "File deleted",
+      "create_failure": "Could not create",
+      "update_failure": "Could not update",
+      "delete_failure": "Could not delete"
+    },
+    "folders": {
+      "create": "Folder created",
+      "update": "Folder updated",
+      "move": "Folder moved",
+      "delete": "Folder deleted"
+    },
+    "bookmarks": {
+      "create": "Bookmark created",
+      "update": "Bookmark updated",
+      "delete": "Bookmark deleted",
+      "create_failure": "Could not create",
+      "update_failure": "Could not update",
+      "delete_failure": "Could not delete"
+    }
+  },
+  "profile": {
+    "form": {
+      "firstname": "First name",
+      "lastname": "Last name",
+      "displayName": "Display name",
+      "email": "Email"
+    }
+  }
 }

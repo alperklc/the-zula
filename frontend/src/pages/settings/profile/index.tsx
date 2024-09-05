@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FormattedMessage, useIntl } from 'react-intl'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
 import MessageBox from '../../../components/messageBox'
 import icons from '../../../components/icons'
@@ -13,25 +12,30 @@ import Tabs, { SettingsTabs } from '../../../components/tabs'
 import { useUI } from '../../../contexts/uiContext'
 import { Api, User } from '../../../types/Api'
 import { useAuth } from '../../../contexts/authContext'
+import { useTranslation } from 'react-i18next'
 
 const Profile = () => {
   const { user } = useAuth()
   const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}` } } })
   
   const navigate = useNavigate()
-  const { formatMessage } = useIntl()
+  const { t } = useTranslation()
+
   const { switchLanguage, switchTheme, isMobile } = useUI()
 
   const [loading, setLoading] = React.useState(true);
   const [userData, setUserData] = React.useState<User>();
   const [error, setError] = React.useState<string | null>(null);
 
-  const [firstName, setFirstName] = React.useState<string>('')
-  const [lastName, setLastName] = React.useState<string>('')
-  const [displayName, setDisplayName] = React.useState<string>('')
+  const [firstname, setFirstName] = React.useState<string>('')
+  const [lastname, setLastName] = React.useState<string>('')
+  const [displayname, setDisplayName] = React.useState<string>('')
   const [email, setEmail] = React.useState<string>('')
   const [language, setLanguage] = React.useState<string>('')
   const [theme, setTheme] = React.useState<string>('')
+
+  const [saving, setSaving] = React.useState(false);
+  const [errorSaving, setErrorSaving] = React.useState<string>("");
 
   const fetchUserProfile = async () => {
     if (!user) {
@@ -72,28 +76,27 @@ const Profile = () => {
     setTheme(userData?.theme || '')
   }, [userData])
 
-/*  const [{ fetching: saving, error }, saveSettings] = useMutation(
-    `
-      mutation(
-        $Firstname: String
-        $username: String
-        $email: String
-        $language: String
-        $theme: String
-        $profilePictureUid: String
-      ) {
-        updateSettings(
-          Firstname: $Firstname
-          username: $username
-          email: $email
-          language: $language
-          theme: $theme
-          profilePictureUid: $profilePictureUid
-        )
-      }
-    `,
-  )
-*/
+  const onSubmitClicked = async () => {
+    setSaving(true);
+    setErrorSaving("");
+
+    try {
+      await api.api.updateUser(user!.profile.sub, {
+        firstname, 
+        lastname,
+        displayname,
+        email,
+        language,
+        theme,  
+      })
+
+      setSaving(false);
+    } catch (e) {
+      console.error(e);
+    }
+    setSaving(false);
+  }
+
   const handleFirstnameInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFirstName(event.currentTarget.value)
   }
@@ -108,16 +111,6 @@ const Profile = () => {
 
   const handleDisplayName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDisplayName(event.currentTarget.value)
-  }
-  
-  const onSubmitClicked = () => {
-   /* saveSettings({
-      Firstname,
-      username,
-      email,
-      language,
-      theme,
-    }) */
   }
 
   const handleLanguageInput = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -141,7 +134,7 @@ const Profile = () => {
               <icons.ArrowLeft />
             </Button>
             <Button primary onClick={onSubmitClicked}>
-              <FormattedMessage id='common.buttons.save' />
+              {t('common.buttons.save')}
             </Button>
           </div>
         </>
@@ -149,7 +142,7 @@ const Profile = () => {
     >
       {/* !saving && */ error && <MessageBox type='error'>Error</MessageBox>}
       <PageContent
-        loading={loading}
+        loading={loading || saving}
         isMobile={isMobile}
         tabs={<Tabs selectedTab={SettingsTabs.PROFILE} />}
       >
@@ -157,32 +150,32 @@ const Profile = () => {
           <Input
             name='firstname'
             type='text'
-            label={formatMessage({ id: 'profile.form.firstname' })}
-            placeholder={formatMessage({ id: 'profile.form.firstname' })}
-            value={firstName}
+            label={t('profile.form.firstname')}
+            placeholder={t('profile.form.firstname')}
+            value={firstname}
             onChange={handleFirstnameInput}
           />
           <Input
             name='lastname'
             type='text'
-            label={formatMessage({ id: 'profile.form.lastname' })}
-            placeholder={formatMessage({ id: 'profile.form.lastname' })}
-            value={lastName}
+            label={t('profile.form.lastname')}
+            placeholder={t('profile.form.lastname')}
+            value={lastname}
             onChange={handleLastNameInput}
           />
           <Input
             name='displayName'
             type='text'
-            label={formatMessage({ id: 'profile.form.displayName' })}
-            placeholder={formatMessage({ id: 'profile.form.displayName' })}
-            value={displayName}
+            label={t('profile.form.displayName')}
+            placeholder={t('profile.form.displayName')}
+            value={displayname}
             onChange={handleDisplayName}
           />
           <Input
             name='email'
             type='text'
-            label={formatMessage({ id: 'profile.form.email' })}
-            placeholder={formatMessage({ id: 'profile.form.email' })}
+            label={t('profile.form.email')}
+            placeholder={t('profile.form.email')}
             value={email}
             onChange={handleEmailInput}
           />
@@ -190,8 +183,9 @@ const Profile = () => {
             <>
               <label htmlFor='language'>Language</label>
               <select name='language' value={language} onChange={handleLanguageInput}>
-                <option value='de'>de</option>
                 <option value='en'>en</option>
+                <option value='tr'>tr</option>
+                <option value='de'>de</option>
               </select>
               <label htmlFor='theme'>Theme</label>
               <select name='theme' value={theme} onChange={handleThemeInput}>
@@ -204,7 +198,7 @@ const Profile = () => {
               <label>&nbsp;</label>
               <Link to='/activity-log'>
                 <Button className={layoutStyles.topMargin}>
-                  <FormattedMessage id='activity-log.title' />
+                  {t('activity-log.title')}
                   <icons.History height='.8rem' />
                 </Button>
               </Link>
@@ -216,8 +210,9 @@ const Profile = () => {
           <>
             <label htmlFor='language'>Language</label>
             <select name='language' value={language} onChange={handleLanguageInput}>
-              <option value='de'>de</option>
               <option value='en'>en</option>
+              <option value='tr'>tr</option>
+              <option value='de'>de</option>
             </select>
             <label htmlFor='theme'>Theme</label>
             <select name='theme' value={theme} onChange={handleThemeInput}>
@@ -232,7 +227,7 @@ const Profile = () => {
 
             <Link to='/activity-log'>
               <Button className={layoutStyles.truncatedText}>
-                <FormattedMessage id='activity-log.title' />
+                {t('activity-log.title')}
                 <icons.History height='.8rem' />
               </Button>
             </Link>

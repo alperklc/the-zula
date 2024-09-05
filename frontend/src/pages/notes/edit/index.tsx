@@ -1,5 +1,5 @@
 import React from 'react'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
 import Button from '../../../components/form/button'
@@ -24,7 +24,7 @@ const emptyNote: Note = {
 }
 
 export const EditNote = () => {
-  const intl = useIntl()
+  const { t } = useTranslation()
 
   const navigate = useNavigate()
   const { shortId } = useParams()
@@ -150,7 +150,7 @@ export const EditNote = () => {
               {!isMobile && (
                 <Input
                   type='text'
-                  placeholder={intl.formatMessage({ id: 'notes.form.label.title' })}
+                  placeholder={t('notes.form.label.title')}
                   value={note?.title}
                   onChange={handleTitleChange}
                   title={note?.title}
@@ -162,10 +162,10 @@ export const EditNote = () => {
             {!errorLoading && (
               <div style={{ whiteSpace: 'nowrap' }}>
                 <Button danger onClick={openDeleteConfirmationModal}>
-                  <FormattedMessage id='common.buttons.delete' />
+                  {t('common.buttons.delete')}
                 </Button>
                 <Button primary onClick={save}>
-                  <FormattedMessage id='common.buttons.save' />
+                  {t('common.buttons.save')}
                 </Button>
               </div>
             )}
@@ -182,7 +182,7 @@ export const EditNote = () => {
             {isMobile && (
               <Input
                 type='text'
-                placeholder={intl.formatMessage({ id: 'notes.form.label.title' })}
+                placeholder={t('notes.form.label.title')}
                 value={note?.title}
                 onChange={handleTitleChange}
                 className={layoutStyles.title}
@@ -200,7 +200,7 @@ export const EditNote = () => {
               tags={note?.tags || []}
               onChange={handleTagsChange}
               label='Tags'
-              placeholder={intl.formatMessage({ id: 'notes.form.label.tags' })}
+              placeholder={t('notes.form.label.tags')}
             />
           </>
         </PageContent>

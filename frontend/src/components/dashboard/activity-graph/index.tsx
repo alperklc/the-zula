@@ -1,18 +1,18 @@
-import { useIntl } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 import { getGraphDataKeyValuePairs, getDaysSequenceOfPastYear } from './utils'
 import styles from './index.module.css'
 import { ActivityOnDate } from '../../../types/Api'
 
 const DaySquare = ({ data, isoDate }: any) => {
-  const intl = useIntl()
+  const { t } = useTranslation()
 
   const title = data?.count
-    ? intl.formatMessage(
-        { id: 'dashboard.activity_graph.day_square_with_count' },
+    ? t(
+        'dashboard.activity_graph.day_square_with_count',
         { count: data.count, date: isoDate },
       )
-    : intl.formatMessage(
-        { id: 'dashboard.activity_graph.day_square_without_count' },
+    : t(
+        'dashboard.activity_graph.day_square_without_count',
         { date: isoDate },
       )
 
@@ -36,7 +36,7 @@ export const ActivityGraph = ({
   data: ActivityOnDate[]
   currentDate?: Date
 }) => {
-  const intl = useIntl()
+  const { t } = useTranslation()
 
   const daysPastYear = getDaysSequenceOfPastYear(currentDate)
   const dateCountKeyValue = getGraphDataKeyValuePairs(data)
@@ -48,13 +48,13 @@ export const ActivityGraph = ({
     <div className={styles.container}>
       <div className={styles.graph}>
         <ul className={styles.days}>
-          <li>{intl.formatMessage({ id: 'dashboard.activity_graph.days.monday' })}</li>
-          <li>{intl.formatMessage({ id: 'dashboard.activity_graph.days.tuesday' })}</li>
-          <li>{intl.formatMessage({ id: 'dashboard.activity_graph.days.wednesday' })}</li>
-          <li>{intl.formatMessage({ id: 'dashboard.activity_graph.days.thursday' })}</li>
-          <li>{intl.formatMessage({ id: 'dashboard.activity_graph.days.friday' })}</li>
-          <li>{intl.formatMessage({ id: 'dashboard.activity_graph.days.saturday' })}</li>
-          <li>{intl.formatMessage({ id: 'dashboard.activity_graph.days.sunday' })}</li>
+          <li>{t('dashboard.activity_graph.days.monday')}</li>
+          <li>{t('dashboard.activity_graph.days.tuesday')}</li>
+          <li>{t('dashboard.activity_graph.days.wednesday')}</li>
+          <li>{t('dashboard.activity_graph.days.thursday')}</li>
+          <li>{t('dashboard.activity_graph.days.friday')}</li>
+          <li>{t('dashboard.activity_graph.days.saturday')}</li>
+          <li>{t('dashboard.activity_graph.days.sunday')}</li>
         </ul>
         <ul className={styles.squares} data-testid='squares'>
           {Array(lengthOfEmptySquares)

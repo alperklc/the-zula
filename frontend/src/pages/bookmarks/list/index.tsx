@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { FormattedMessage } from "react-intl";
+import { useTranslation } from "react-i18next";
 import Layout, { styles as layoutStyles } from "../../../components/layout";
 import List from "../../../components/list";
 import SearchInput from "../../../components/search";
@@ -17,6 +17,7 @@ import FilterSelector, { FilterSelectorModalProps } from "../../../components/fi
 import Icons from "../../../components/icons";
 
 function BookmarksList() {
+  const { t } = useTranslation()
   const { isMobile } = useUI()
   const [FilterSelectionModal, openFilterSelection] =
     useModal<FilterSelectorModalProps>(FilterSelector)
@@ -87,7 +88,7 @@ function BookmarksList() {
 
               <Link to='/bookmarks/create'>
                 <Button>
-                  <FormattedMessage id='common.buttons.new' />
+                  {t('common.buttons.new')}
                 </Button>
               </Link>
             </div>

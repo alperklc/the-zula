@@ -1,5 +1,5 @@
 import React from 'react'
-import { useIntl, FormattedMessage } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
 import Button from '../../../components/form/button'
 import Input from '../../../components/form/input'
@@ -28,7 +28,7 @@ const initialBookmark: Bookmark = {
 }
 
 const CreateBookmark = () => {
-  const intl = useIntl()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { show: showToast } = useToast()
   const { isMobile } = useUI()
@@ -69,7 +69,7 @@ const CreateBookmark = () => {
         
     } catch (e) {
       console.error(e);
-      showToast(intl.formatMessage({ id: 'messages.bookmarks.create_failure' }), 'error')
+      showToast(t('messages.bookmarks.create_failure'), 'error')
     }
     setSaving(false);
   }
@@ -85,7 +85,7 @@ const CreateBookmark = () => {
               <icons.ArrowLeft />
             </Button>
             <Button primary onClick={save}>
-              <FormattedMessage id='common.buttons.save' />
+              {t('common.buttons.save')}
             </Button>
           </div>
         </>
@@ -97,20 +97,20 @@ const CreateBookmark = () => {
             type='text'
             value={bookmark.url}
             onChange={handleUrlChange}
-            label={intl.formatMessage({ id: 'bookmarks.form.label.url' })}
+            label={t('bookmarks.form.label.url')}
           />
           <Input
             type='text'
             value={bookmark.title}
             onChange={handleTitleChange}
-            label={intl.formatMessage({ id: 'bookmarks.form.label.title' })}
+            label={t('bookmarks.form.label.title')}
           />
           <TagsInput
             onSearch={searchTags('bookmark')}
             tags={bookmark.tags}
             onChange={handleTagsChange}
             label='Tags'
-            placeholder={intl.formatMessage({ id: 'bookmarks.form.label.tags' })}
+            placeholder={t('bookmarks.form.label.tags')}
           />
         </>
       </PageContent>

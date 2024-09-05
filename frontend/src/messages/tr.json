@@ -1,0 +1,269 @@
+{
+    "login_page": {
+      "headline": "The Zula'ya Giriş Yap",
+      "buttons": {
+        "submit": "Giriş Yap"
+      }
+    },
+    "common": {
+      "buttons": {
+        "delete": "Sil",
+        "cancel": "İptal",
+        "edit": "Düzenle",
+        "move": "Taşı",
+        "new": "Yeni",
+        "back": "Geri",
+        "save": "Kaydet",
+        "download": "İndir",
+        "apply": "Uygula",
+        "accept": "Kabul Et",
+        "logout": "Çıkış Yap"
+      },
+      "labels": {
+        "created_by": "Oluşturan",
+        "created_at": "Oluşturulma Tarihi",
+        "updated_by": "Güncelleyen",
+        "updated_at": "Güncelleme Tarihi",
+        "timestamp": "Zaman Damgası"
+      }
+    },
+    "delete_confirmation_modal": {
+      "title": "Bu notu silmek istediğinize emin misiniz?"
+    },
+    "commons": {
+      "search_placeholder": "Ara"
+    },
+    "notes": {
+      "table": {
+        "columns": {
+          "title": "Başlık"
+        },
+        "messages": {
+          "nothing_found": "Hiçbir şey bulunamadı"
+        }
+      },
+      "form": {
+        "label": {
+          "title": "Başlık",
+          "content": "İçerik",
+          "tags": "Etiketler",
+          "files": "Dosyalar",
+          "referenced_by": "Referanslar"
+        }
+      },
+      "changes": {
+        "label": "Değişiklikler ({{number}})"
+      },
+      "title": "Notlar"
+    },
+    "files": {
+      "table": {
+        "columns": {
+          "type": "Tür",
+          "name": "İsim"
+        },
+        "messages": {
+          "nothing_found": "Hiçbir şey bulunamadı"
+        }
+      },
+      "form": {
+        "label": {
+          "file": "Dosya Yükle",
+          "type": "Tür",
+          "filename": "Dosya Adı",
+          "size": "Boyut",
+          "select-file": "Dosya Seç"
+        }
+      },
+      "overflow_menu": {
+        "create_file": "Dosya Yükle",
+        "create_folder": "Klasör Oluştur",
+        "move_to_folder": "Taşı",
+        "rename_folder": "Klasörü Yeniden Adlandır",
+        "delete_folder": "Klasörü Sil"
+      },
+      "select": {
+        "label": "Dosya Seç"
+      },
+      "title": "Dosyalar",
+      "upload": "Yükle"
+    },
+    "bookmarks": {
+      "form": {
+        "label": {
+          "url": "Url",
+          "title": "Başlık",
+          "content": "İçerik",
+          "excerpt": "Alıntı",
+          "tags": "Etiketler",
+          "read": "Oku"
+        }
+      },
+      "overflow_menu": {
+        "copy_link": "Kopyala",
+        "share": "Paylaş"
+      },
+      "toast": {
+        "copy_link": "URL panoya kopyalandı"
+      },
+      "title": "Yer İmleri"
+    },
+    "activity-log": {
+      "title": "Aktivite Günlüğü",
+      "table": {
+        "columns": {
+          "resource-type": "Kaynak Türü",
+          "action": "Eylem"
+        }
+      },
+      "messages": {
+        "bookmark_create": "Yer imi oluşturuldu",
+        "bookmark_read": "Yer imi okundu",
+        "bookmark_update": "Yer imi güncellendi",
+        "bookmark_delete": "Yer imi silindi",
+        "note_create": "Not oluşturuldu",
+        "note_read": "Not okundu",
+        "note_update": "Not güncellendi",
+        "note_delete": "Not silindi",
+        "file_create": "Dosya oluşturuldu",
+        "file_read": "Dosya okundu",
+        "file_update": "Dosya güncellendi",
+        "file_delete": "Dosya silindi",
+        "user_create": "Kullanıcı oluşturuldu",
+        "user_update": "Kullanıcı güncellendi",
+        "folder_create": "Klasör oluşturuldu",
+        "folder_read": "Klasör okundu",
+        "folder_update": "Klasör güncellendi",
+        "folder_delete": "Klasör silindi"
+      }
+    },
+    "filter_selector_modal": {
+      "title": "Filtre Seç",
+      "file_types": {
+        "label": "Dosya Türü"
+      },
+      "tags": {
+        "label": "Etiketler"
+      },
+      "buttons": {
+        "clear": "Filtreleri Temizle"
+      },
+      "sort_by_label": "Sırala",
+      "sort_direction_label": "Yön"
+    },
+    "folder_management_modal": {
+      "create_folder": {
+        "title": "Klasör Oluştur",
+        "body_text": "Lütfen klasörün adını girin"
+      },
+      "rename_folder": {
+        "title": "Klasörü Yeniden Adlandır",
+        "body_text": "Lütfen klasörün adını girin"
+      },
+      "delete_folder": {
+        "title": "Klasörü Sil",
+        "body_text": "Bu klasörü silmek istediğinize emin misiniz?"
+      },
+      "buttons": {
+        "rename": "Yeniden Adlandır",
+        "create": "Oluştur",
+        "delete": "Sil"
+      }
+    },
+    "folder_tree_modal": {
+      "delete_folder": {
+        "title": "Hedef Klasörü Seçin"
+      },
+      "buttons": {
+        "select": "Seç"
+      }
+    },
+    "dashboard": {
+      "title": "Gösterge Paneli",
+      "titles": {
+        "activity_graph": "Aktivite Grafiği",
+        "most_visited": "Bu Hafta En Çok Ziyaret Edilenler",
+        "last_visited": "Son Ziyaret Edilenler"
+      },
+      "activity_graph": {
+        "day_square_with_count": "{{date}} tarihinde {{count}} aktivite",
+        "day_square_without_count": "{{date}} tarihinde aktivite yok",
+        "days": {
+          "monday": "Pzt",
+          "tuesday": "Sal",
+          "wednesday": "Çar",
+          "thursday": "Per",
+          "friday": "Cum",
+          "saturday": "Cmt",
+          "sunday": "Paz"
+        }
+      },
+      "messages": {
+        "empty": "Burada bir şey yok, bir şeyler oluşturmaya başlama zamanı!"
+      }
+    },
+    "images": {
+      "title": "Görseller"
+    },
+    "settings": {
+      "title": "Ayarlar"
+    },
+    "settings_page": {
+      "tabs": {
+        "profile": "Profil",
+        "data": "Veri",
+        "security": "Güvenlik"
+      },
+      "security": {
+        "active_sessions": "Aktif Oturumlar",
+        "change_password": "Şifreyi Değiştir",
+        "this_session": "Bu Oturum"
+      }
+    },
+    "messages": {
+      "user": {
+        "create": "Hoş geldiniz!",
+        "update": "Profil güncellendi"
+      },
+      "notes": {
+        "create": "Not oluşturuldu",
+        "update": "Not güncellendi",
+        "delete": "Not silindi",
+        "create_failure": "Not oluşturulamadı",
+        "update_failure": "Not güncellenemedi",
+        "delete_failure": "Not silinemedi"
+      },
+      "files": {
+        "create": "Dosya oluşturuldu",
+        "update": "Dosya güncellendi",
+        "move": "Dosya taşındı",
+        "delete": "Dosya silindi",
+        "create_failure": "Dosya oluşturulamadı",
+        "update_failure": "Dosya güncellenemedi",
+        "delete_failure": "Dosya silinemedi"
+      },
+      "folders": {
+        "create": "Klasör oluşturuldu",
+        "update": "Klasör güncellendi",
+        "move": "Klasör taşındı",
+        "delete": "Klasör silindi"
+      },
+      "bookmarks": {
+        "create": "Bağlantı oluşturuldu",
+        "update": "Bağlantı güncellendi",
+        "delete": "Bağlantı silindi",
+        "create_failure": "Bağlantı oluşturulamadı",
+        "update_failure": "Bağlantı güncellenemedi",
+        "delete_failure": "Bağlantı silinemedi"
+      }
+    },
+    "profile": {
+      "form": {
+        "firstname": "Ad",
+        "lastname": "Soyad",
+        "displayName": "Tercih edilen isim",
+        "email": "E-posta"
+      }
+    }
+  }
+  

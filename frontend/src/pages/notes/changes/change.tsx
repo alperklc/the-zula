@@ -1,5 +1,5 @@
 import React from 'react'
-import { FormattedMessage } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
 import Button from '../../../components/form/button'
 import MessageBox from '../../../components/messageBox'
@@ -19,6 +19,7 @@ export const NoteChangePage = () => {
   const { isMobile } = useUI()
   const { shortId, timestamp } = useParams()
   const { user } = useAuth()
+  const { t } = useTranslation()
 
   const changeArea = React.useRef<HTMLDivElement>(null);
   const [noteChange, setNoteChange] = React.useState<NoteChange>()
@@ -112,7 +113,7 @@ export const NoteChangePage = () => {
           <>
             <div>
               <label>
-                <FormattedMessage id='common.labels.updated_at' />
+                {t('common.labels.updated_at')}
               </label>
               <div className={layoutStyles.secondaryText}>
                 <span>{noteChange?.updatedBy}, </span>

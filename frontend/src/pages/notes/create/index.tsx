@@ -1,5 +1,5 @@
 import React from 'react'
-import { useIntl, FormattedMessage } from 'react-intl'
+import { useTranslation } from 'react-i18next'
 import Layout, { styles as layoutStyles } from '../../../components/layout'
 import Button from '../../../components/form/button'
 import Input from '../../../components/form/input'
@@ -28,7 +28,7 @@ const initialNote: Note = {
 }
 
 const CreateNote = () => {
-  const intl = useIntl()
+  const { t } = useTranslation()
   const { isMobile } = useUI()
   const navigate = useNavigate()
   const { show: showToast } = useToast()
@@ -86,7 +86,7 @@ const CreateNote = () => {
         
     } catch (e) {
       console.error(e);
-      showToast(intl.formatMessage({ id: 'messages.notes.create_failure' }), 'error')
+      showToast(t('messages.notes.create_failure'), 'error')
     }
     setSaving(false);
   }
@@ -106,7 +106,7 @@ const CreateNote = () => {
               {!isMobile && (
                 <Input
                   type='text'
-                  placeholder={intl.formatMessage({ id: 'notes.form.label.title' })}
+                  placeholder={t('notes.form.label.title')}
                   value={note.title}
                   onChange={handleTitleChange}
                   title={note.title}
@@ -115,7 +115,7 @@ const CreateNote = () => {
               )}
             </div>
             <Button primary onClick={save}>
-              <FormattedMessage id='common.buttons.save' />
+              {t('common.buttons.save')}
             </Button>
           </div>
         </>
@@ -127,7 +127,7 @@ const CreateNote = () => {
             <div className={layoutStyles.flex}>
               <Input
                 type='text'
-                placeholder={intl.formatMessage({ id: 'notes.form.label.title' })}
+                placeholder={t('notes.form.label.title')}
                 value={note.title}
                 onChange={handleTitleChange}
                 className={layoutStyles.title}
@@ -142,7 +142,7 @@ const CreateNote = () => {
             tags={note.tags}
             onChange={handleTagsChange}
             label='Tags'
-            placeholder={intl.formatMessage({ id: 'notes.form.label.tags' })}
+            placeholder={t('notes.form.label.tags')}
           />
         </>
       </PageContent>

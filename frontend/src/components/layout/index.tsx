@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react'
-import { useIntl } from 'react-intl'
 import StandardHeader from '../header'
 import SideMenu from '../sideMenu'
 import { useAuth } from '../../contexts/authContext'
@@ -9,6 +8,7 @@ import ScrollUpButton from '../scrollUpButton'
 import { useToast } from '../toast/toast-message-context'
 import Animation from '../animations'
 import styles from './index.module.css'
+import { useTranslation } from 'react-i18next'
 
 interface LayoutProps {
   narrow?: boolean
@@ -21,7 +21,8 @@ interface LayoutProps {
 
 const Layout = (props: LayoutProps) => {
   const { logout, user } = useAuth()
-  const intl = useIntl()
+  const { t } = useTranslation()
+
   const { isVisible, message, type } = useToast()
   const { backdropActive, toggleBackdrop } = useUI()
   const [menuVisible, setVisibilityOfMenu] = React.useState(false)
@@ -36,7 +37,7 @@ const Layout = (props: LayoutProps) => {
           visible={menuVisible}
           setVisibility={setVisibilityOfMenu}
           onLogoutClicked={logout}
-          t={intl.formatMessage}
+          t={t}
         />
       )}
       {backdropActive && <div className={styles.backdropOverlay} onClick={toggleBackdrop} />}

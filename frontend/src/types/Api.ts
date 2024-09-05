@@ -38,10 +38,10 @@ export interface BookmarkInput {
 }
 
 export interface UserInput {
-  fullname?: string;
-  username?: string;
+  firstname?: string;
+  lastname?: string;
+  displayname?: string;
   email?: string;
-  createdAt?: string;
   language?: string;
   theme?: string;
 }
@@ -405,6 +405,32 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<void, any>({
         path: `/api/v1/ws/${user}`,
         method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @name ImportData
+     * @summary Imports notes and bookmarks from a zip file, containing json files
+     * @request POST:/api/v1/import
+     */
+    importData: (
+      data: {
+        /**
+         * The file to upload
+         * @format binary
+         */
+        file?: File;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<boolean, any>({
+        path: `/api/v1/import`,
+        method: "POST",
+        body: data,
+        type: ContentType.FormData,
+        format: "json",
         ...params,
       }),
 

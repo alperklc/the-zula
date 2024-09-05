@@ -1,14 +1,15 @@
-import { useIntl } from 'react-intl'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import styles from './index.module.css'
 
 export enum SettingsTabs {
   PROFILE = 'profile',
+  DATA = 'data',
 }
 
 const Tabs = (props: { selectedTab: SettingsTabs }) => {
-  const intl = useIntl()
+  const { t } = useTranslation()
 
   return (
     <nav className={styles.container}>
@@ -19,7 +20,7 @@ const Tabs = (props: { selectedTab: SettingsTabs }) => {
             key={index}
           >
             <Link to={`/settings/${tab}`}>
-              {intl.formatMessage({ id: `settings_page.tabs.${tab}` })}
+              {t(`settings_page.tabs.${tab}`)}
             </Link>
           </li>
         ))}

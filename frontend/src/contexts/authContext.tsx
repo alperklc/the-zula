@@ -2,6 +2,7 @@
 import React from 'react'
 import { ZitadelConfig, createZitadelAuth } from '@zitadel/react'
 import { User, UserManager } from "oidc-client-ts";
+import { useTranslation } from 'react-i18next';
 
 interface State {
   user: User | null
@@ -34,6 +35,8 @@ const config: ZitadelConfig = {
 };
 
 export const AuthContextProvider = ({ children }: { children: JSX.Element }) => {
+  const { i18n } = useTranslation()
+  
   const [initialized, setInitialized] = React.useState<boolean>(false)
   const [sessionId, setSessionId] = React.useState<string>("")
   const [user, setUser] = React.useState<User | null>(null)
@@ -47,10 +50,15 @@ export const AuthContextProvider = ({ children }: { children: JSX.Element }) => 
     zitadel.signout();
   }
 
+  const setUserProfile = (user: User | null) => {
+    setUser(!user?.expired ? user : null);
+    i18n.changeLanguage(user?.profile.locale)
+  }
+
   React.useEffect(() => {
-    zitadel.userManager.getUser().then((user) => {
-      setUser(!user?.expired ? user : null);
-    }).finally(() => {
+    zitadel.userManager.getUser()
+      .then(setUserProfile)
+      .finally(() => {
       setInitialized(true)
     });
   }, []);
