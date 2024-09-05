@@ -17,6 +17,7 @@ type Collection interface {
 	GetLastVisitedContent(userID string, daysSince int, idsOfExcludedEntries []string) ([]UsageStatisticsEntry, error)
 	GetIdsOfDeletedEntries(userID string, daysAgo int) ([]string, error)
 	GroupActivitiesByDate(userID string) ([]ActivityGraphEntry, error)
+	ImportMany(refs []UserActivityDocument) error
 }
 
 type useractivity struct {
@@ -218,4 +219,14 @@ func (db *useractivity) GroupActivitiesByDate(userID string) ([]ActivityGraphEnt
 	cursor.Close(context.TODO())
 
 	return result, nil
+}
+
+func (db *useractivity) ImportMany(uas []UserActivityDocument) error {
+	var itemsToInsert []interface{} = make([]interface{}, 0, len(uas))
+	for _, ua := range uas {
+		itemsToInsert = append(itemsToInsert, ua)
+	}
+
+	_, err := db.collection.InsertMany(context.TODO(), itemsToInsert)
+	return err
 }

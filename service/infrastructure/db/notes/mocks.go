@@ -48,3 +48,8 @@ func (m *MockedNotes) DeleteOne(id string) error {
 
 	return args.Error(0)
 }
+func (m *MockedNotes) ImportMany(notes []NoteDocument) error {
+	args := m.Called(notes)
+
+	return args.Error(0)
+}

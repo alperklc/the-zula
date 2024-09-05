@@ -15,6 +15,7 @@ const collectionName = "page-content"
 type Collection interface {
 	InsertOne(id string, input PageContent) error
 	GetLatest(url string) (PageContentDocument, error)
+	ImportMany(pageContent []PageContentDocument) error
 }
 
 type db struct {
@@ -71,4 +72,14 @@ func (d *db) GetLatest(url string) (PageContentDocument, error) {
 	cursor.Close(context.TODO())
 
 	return entry, err
+}
+
+func (d *db) ImportMany(pageContent []PageContentDocument) error {
+	var itemsToInsert []interface{} = make([]interface{}, 0, len(pageContent))
+	for _, pc := range pageContent {
+		itemsToInsert = append(itemsToInsert, pc)
+	}
+
+	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
+	return err
 }

@@ -1,14 +1,17 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 
 	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
+	importerService "github.com/alperklc/the-zula/service/services/importer"
 	notesService "github.com/alperklc/the-zula/service/services/notes"
 	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
 	usersService "github.com/alperklc/the-zula/service/services/users"
@@ -21,11 +24,12 @@ type a struct {
 	userActivities userActivityService.UserActivityService
 	bookmarks      bookmarksService.BookmarkService
 	notes          notesService.NoteService
+	importer       importerService.ImporterService
 	clientHub      Hub
 }
 
-func NewApi(u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService, clientHub Hub) ServerInterface {
-	return &a{users: u, userActivities: ua, bookmarks: bs, notes: n, clientHub: clientHub}
+func NewApi(u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService, is importerService.ImporterService, clientHub Hub) ServerInterface {
+	return &a{users: u, userActivities: ua, bookmarks: bs, notes: n, importer: is, clientHub: clientHub}
 }
 
 func sendResponse(w http.ResponseWriter, code int, data any) {
@@ -401,7 +405,6 @@ func (s *a) GetInsights(w http.ResponseWriter, r *http.Request, id string) {
 }
 
 func (s *a) ConnectWs(w http.ResponseWriter, r *http.Request, user string) {
-
 	var upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
@@ -415,4 +418,28 @@ func (s *a) ConnectWs(w http.ResponseWriter, r *http.Request, user string) {
 	}
 
 	CreateNewSocketUser(&s.clientHub, connection, user)
+}
+
+func (s *a) ImportData(w http.ResponseWriter, r *http.Request) {
+	file, _, errFormFile := r.FormFile("file")
+	if errFormFile != nil {
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not read file uploaded, %s", errFormFile))
+		return
+	}
+	defer file.Close()
+
+	buf := new(bytes.Buffer)
+	_, errCopy := io.Copy(buf, file)
+	if errCopy != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not copy file to buffer, %s", errCopy))
+		return
+	}
+
+	importErr := s.importer.ProcessZipFile(buf.Bytes())
+	if importErr != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not import data from the zip file, %s", importErr))
+		return
+	}
+
+	sendResponse(w, http.StatusOK, "ok")
 }

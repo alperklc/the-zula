@@ -192,12 +192,12 @@ type UserActivityResult struct {
 
 // UserInput defines model for userInput.
 type UserInput struct {
-	CreatedAt *string `json:"createdAt,omitempty"`
-	Email     *string `json:"email,omitempty"`
-	Fullname  *string `json:"fullname,omitempty"`
-	Language  *string `json:"language,omitempty"`
-	Theme     *string `json:"theme,omitempty"`
-	Username  *string `json:"username,omitempty"`
+	Displayname *string `json:"displayname,omitempty"`
+	Email       *string `json:"email,omitempty"`
+	Firstname   *string `json:"firstname,omitempty"`
+	Language    *string `json:"language,omitempty"`
+	Lastname    *string `json:"lastname,omitempty"`
+	Theme       *string `json:"theme,omitempty"`
 }
 
 // VisitingStatistics defines model for visitingStatistics.
@@ -216,6 +216,12 @@ type GetBookmarksParams struct {
 	SortBy        *string   `form:"sortBy,omitempty" json:"sortBy,omitempty"`
 	SortDirection *string   `form:"sortDirection,omitempty" json:"sortDirection,omitempty"`
 	Tags          *[]string `form:"tags,omitempty" json:"tags,omitempty"`
+}
+
+// ImportDataMultipartBody defines parameters for ImportData.
+type ImportDataMultipartBody struct {
+	// File The file to upload
+	File *openapi_types.File `json:"file,omitempty"`
 }
 
 // GetNotesParams defines parameters for GetNotes.
@@ -261,6 +267,9 @@ type CreateBookmarkJSONRequestBody = BookmarkInput
 // UpdateBookmarkJSONRequestBody defines body for UpdateBookmark for application/json ContentType.
 type UpdateBookmarkJSONRequestBody = BookmarkInput
 
+// ImportDataMultipartRequestBody defines body for ImportData for multipart/form-data ContentType.
+type ImportDataMultipartRequestBody ImportDataMultipartBody
+
 // CreateNoteJSONRequestBody defines body for CreateNote for application/json ContentType.
 type CreateNoteJSONRequestBody = NoteInput
 
@@ -290,6 +299,9 @@ type ServerInterface interface {
 	// Update a bookmark by shortId
 	// (PUT /api/v1/bookmarks/{shortId})
 	UpdateBookmark(w http.ResponseWriter, r *http.Request, shortId string)
+	// Imports notes and bookmarks from a zip file, containing json files
+	// (POST /api/v1/import)
+	ImportData(w http.ResponseWriter, r *http.Request)
 	// List notes
 	// (GET /api/v1/notes)
 	GetNotes(w http.ResponseWriter, r *http.Request, params GetNotesParams)
@@ -368,6 +380,12 @@ func (_ Unimplemented) GetBookmark(w http.ResponseWriter, r *http.Request, short
 // Update a bookmark by shortId
 // (PUT /api/v1/bookmarks/{shortId})
 func (_ Unimplemented) UpdateBookmark(w http.ResponseWriter, r *http.Request, shortId string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// Imports notes and bookmarks from a zip file, containing json files
+// (POST /api/v1/import)
+func (_ Unimplemented) ImportData(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -622,6 +640,21 @@ func (siw *ServerInterfaceWrapper) UpdateBookmark(w http.ResponseWriter, r *http
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.UpdateBookmark(w, r, shortId)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// ImportData operation middleware
+func (siw *ServerInterfaceWrapper) ImportData(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ImportData(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1281,6 +1314,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Put(options.BaseURL+"/api/v1/bookmarks/{shortId}", wrapper.UpdateBookmark)
 	})
 	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/api/v1/import", wrapper.ImportData)
+	})
+	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/api/v1/notes", wrapper.GetNotes)
 	})
 	r.Group(func(r chi.Router) {
@@ -1332,35 +1368,37 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"uNgZ0zQAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

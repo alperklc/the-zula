@@ -26,6 +26,7 @@ import (
 	mqpublisher "github.com/alperklc/the-zula/service/infrastructure/messageQueue/publisher"
 	"github.com/alperklc/the-zula/service/infrastructure/webScraper"
 	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
+	importerService "github.com/alperklc/the-zula/service/services/importer"
 	notesService "github.com/alperklc/the-zula/service/services/notes"
 	referencesService "github.com/alperklc/the-zula/service/services/references"
 	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
@@ -80,10 +81,10 @@ func main() {
 
 	us := usersService.NewService(ac, ums, mqp)
 	bs := bookmarksService.NewService(l, us, b, pc, wsc, mqp)
-
 	nrs := referencesService.NewService(nr, nrr)
 	ns := notesService.NewService(us, nr, ncr, ndr, nrs, mqp)
 	uas := userActivityService.NewService(*uams, *usms, us, uad, ns, bs)
+	is := importerService.NewService(nr, nrr, b, pc, uad)
 
 	uasmq := userActivityService.NewMqConsumer(l, uad, mq)
 	uasmq.Start()
@@ -97,7 +98,7 @@ func main() {
 	ws := api.NewNotifier(l, mq, *hub)
 	ws.SendNotification()
 
-	a := api.NewApi(us, uas, bs, ns, *hub)
+	a := api.NewApi(us, uas, bs, ns, is, *hub)
 	r := chi.NewRouter()
 
 	r.Use(api.GetLoggingMiddleware(l))

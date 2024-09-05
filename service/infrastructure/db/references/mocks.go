@@ -31,3 +31,8 @@ func (m *MockedReferences) DeleteAllReferencesToNote(noteId string) error {
 
 	return args.Error(0)
 }
+func (m *MockedReferences) ImportMany(refs []ReferencesDocument) error {
+	args := m.Called(refs)
+
+	return args.Error(0)
+}

@@ -25,6 +25,28 @@ paths:
         '200':
           description: Successful response
   
+  /api/v1/import:
+    post:
+      operationId: importData
+      summary: Imports notes and bookmarks from a zip file, containing json files
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: boolean    
+
   /api/v1/users/{shortId}:
     get:
       operationId: getUser
@@ -522,13 +544,13 @@ components:
     userInput:
       type: object
       properties:
-        fullname:
+        firstname:
           type: string
-        username:
+        lastname:
+          type: string
+        displayname:
           type: string
         email:
-          type: string
-        createdAt:
           type: string
         language:
           type: string

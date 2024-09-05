@@ -21,6 +21,7 @@ type Collection interface {
 	InsertOne(userId, URL, title string, tags []string) (BookmarkDocument, error)
 	UpdateOne(userId, id string, update interface{}) error
 	DeleteOne(id string) error
+	ImportMany(bookmarks []BookmarkDocument) error
 }
 
 type db struct {
@@ -199,5 +200,15 @@ func (d *db) UpdateOne(userId, id string, updates interface{}) error {
 
 func (d *db) DeleteOne(id string) error {
 	_, err := d.collection.DeleteOne(context.TODO(), bson.M{"shortId": id})
+	return err
+}
+
+func (d *db) ImportMany(bookmarks []BookmarkDocument) error {
+	var itemsToInsert []interface{} = make([]interface{}, 0, len(bookmarks))
+	for _, bookmark := range bookmarks {
+		itemsToInsert = append(itemsToInsert, bookmark)
+	}
+
+	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert, &opts)
 	return err
 }

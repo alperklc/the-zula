@@ -21,6 +21,7 @@ type Collection interface {
 	InsertOne(userId, title, content string, tags []string) (NoteDocument, error)
 	UpdateOne(userId, Id string, update interface{}) error
 	DeleteOne(Id string) error
+	ImportMany(notes []NoteDocument) error
 }
 
 type db struct {
@@ -207,5 +208,15 @@ func (d *db) UpdateOne(userId, Id string, updates interface{}) error {
 
 func (d *db) DeleteOne(Id string) error {
 	_, err := d.collection.DeleteOne(context.TODO(), bson.M{"shortId": Id})
+	return err
+}
+
+func (d *db) ImportMany(notes []NoteDocument) error {
+	var itemsToInsert []interface{} = make([]interface{}, 0, len(notes))
+	for _, bookmark := range notes {
+		itemsToInsert = append(itemsToInsert, bookmark)
+	}
+
+	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
 	return err
 }

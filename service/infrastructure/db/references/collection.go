@@ -14,6 +14,7 @@ type Collection interface {
 	InsertMany(from string, to []string) error
 	DeleteAllReferencesFromNote(noteId string) error
 	DeleteAllReferencesToNote(noteId string) error
+	ImportMany(pageContent []ReferencesDocument) error
 }
 
 type db struct {
@@ -73,5 +74,15 @@ func (d *db) DeleteAllReferencesFromNote(noteId string) error {
 
 func (d *db) DeleteAllReferencesToNote(noteId string) error {
 	_, err := d.collection.DeleteMany(context.TODO(), bson.M{"to": noteId})
+	return err
+}
+
+func (d *db) ImportMany(refs []ReferencesDocument) error {
+	var itemsToInsert []interface{} = make([]interface{}, 0, len(refs))
+	for _, pc := range refs {
+		itemsToInsert = append(itemsToInsert, pc)
+	}
+
+	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
 	return err
 }
