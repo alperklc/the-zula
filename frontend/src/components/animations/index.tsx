@@ -5,6 +5,7 @@ import styles from './index.module.css'
 interface AnimationProps {
   className?: string
   visible: boolean
+  time?: number
   type: 'fadeIn' | 'slideFromRight'
   children: React.ReactNode
 }
@@ -21,7 +22,7 @@ function getKeyframes(type: string) {
 }
 
 export const Animation = (props: AnimationProps) => {
-  const { visible, className } = props
+  const { visible, className, time = 250 } = props
 
   const [render, setRender] = React.useState(visible);
   const [animate, setAnimate] = React.useState(visible);
@@ -34,7 +35,7 @@ export const Animation = (props: AnimationProps) => {
       setTimeout(() => setAnimate(true), 1);
     }  else {
       setAnimate(false);
-      setTimeout(() => setRender(false), 300);
+      setTimeout(() => setRender(false), time);
     }
   }, [visible]);
 
@@ -42,7 +43,7 @@ export const Animation = (props: AnimationProps) => {
     <div
       className={`${styles.container} ${className}`}
       style={{
-        animation: `${animate ? animationIn : animationOut} 0.3s`,
+        animation: `${animate ? animationIn : animationOut} ${time / 1000}s`,
       }}
     >
       {props.children}

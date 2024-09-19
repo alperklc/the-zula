@@ -13,7 +13,6 @@ export enum Action {
 export const toStatusTextKey = (resource: ResourceType, action: Action): string => {
   if (resource === ResourceType.USER) {
     const statusLookup: Map<Action, string> = new Map([
-      [Action.CREATE, 'messages.user.create'],
       [Action.UPDATE, 'messages.user.update'],
     ])
 

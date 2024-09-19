@@ -30,7 +30,9 @@ const Callback = () => {
 
   useEffect(() => {
     redirectAfterLogin(user, userManager)
-      .then(user => setUser(user ?? null))
+      .then(user => { 
+        setUser(user ?? null)
+      })
       .catch(err => {
         console.error(err)
         setUser(null)

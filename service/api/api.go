@@ -358,7 +358,28 @@ func (s *a) GetUser(w http.ResponseWriter, r *http.Request, id string) {
 }
 
 func (s *a) UpdateUser(w http.ResponseWriter, r *http.Request, id string) {
+	user := authorization.UserID(r.Context())
+	sessionId := r.Header.Get("sessionId")
 
+	if user != id {
+		sendErrorResponse(w, http.StatusForbidden, "could not get user: not allowed")
+		return
+	}
+
+	var input UserInput
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		sendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("could not create bookmark, %s", err.Error()))
+		return
+	}
+
+	errUpdateUser := s.users.UpdateUser(id, sessionId, *input.Email, *input.Firstname, *input.Lastname, *input.Displayname, input.Language, input.Theme)
+	if errUpdateUser != nil {
+		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not get user, %s", errUpdateUser.Error()))
+		return
+	}
+
+	sendResponse(w, http.StatusOK, "ok")
 }
 
 func (s *a) GetUserActivity(w http.ResponseWriter, r *http.Request, id string, params GetUserActivityParams) {

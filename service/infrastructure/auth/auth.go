@@ -30,7 +30,6 @@ func (c *AuthClient) Authenticate() error {
 
 	req, newRequestErr := http.NewRequest("POST", fmt.Sprintf("%soauth/v2/token", c.authURL), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
 	if newRequestErr != nil {
 		return newRequestErr
 	}
@@ -74,10 +73,9 @@ func (c *AuthClient) GetUser(userId string) (*User, error) {
 		}
 	}
 
-	req, newRequestErr := http.NewRequest("GET", fmt.Sprintf("%s/management/v1/users/%s", c.authURL, userId), nil)
+	req, newRequestErr := http.NewRequest("GET", fmt.Sprintf("%smanagement/v1/users/%s", c.authURL, userId), nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
 	if newRequestErr != nil {
 		return nil, newRequestErr
 	}
@@ -106,10 +104,9 @@ func (c *AuthClient) GetUserMetadata(userId, key string) (string, error) {
 		}
 	}
 
-	req, newRequestErr := http.NewRequest("GET", fmt.Sprintf("%s/management/v1/users/%s/metadata/%s", c.authURL, userId, key), nil)
+	req, newRequestErr := http.NewRequest("GET", fmt.Sprintf("%smanagement/v1/users/%s/metadata/%s", c.authURL, userId, key), nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
 	if newRequestErr != nil {
 		return "", newRequestErr
 	}
@@ -152,17 +149,16 @@ func (c *AuthClient) SetUserProfile(userId string, userinput UserInput) error {
 		return marshalErr
 	}
 
-	req, newRequestErr := http.NewRequest("PUT", fmt.Sprintf("%s/management/v1/users/%s/profile", c.authURL, userId), bytes.NewBuffer(requestBody))
+	req, newRequestErr := http.NewRequest(http.MethodPut, fmt.Sprintf("%smanagement/v1/users/%s/profile", c.authURL, userId), bytes.NewBuffer(requestBody))
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
+	req.Header.Set("Content-Type", "application/json")
 	if newRequestErr != nil {
 		return newRequestErr
 	}
 
-	resp, httpGetErr := c.client.Do(req)
-	if httpGetErr != nil || resp.StatusCode != http.StatusOK {
-		return httpGetErr
+	resp, httpPutErr := c.client.Do(req)
+	if httpPutErr != nil || resp.StatusCode != http.StatusOK {
+		return httpPutErr
 	}
 	defer resp.Body.Close()
 
@@ -178,16 +174,14 @@ func (c *AuthClient) SetUserMetadata(userId, key, value string) error {
 	}
 
 	decodedMetadataValue := base64.StdEncoding.EncodeToString([]byte(value))
-
 	requestBody, marshalErr := json.Marshal(MetadataInput{Value: decodedMetadataValue})
 	if marshalErr != nil {
 		return marshalErr
 	}
 
-	req, newRequestErr := http.NewRequest("POST", fmt.Sprintf("%s/management/v1/users/%s/metadata/%s", c.authURL, userId, key), bytes.NewBuffer(requestBody))
+	req, newRequestErr := http.NewRequest("POST", fmt.Sprintf("%smanagement/v1/users/%s/metadata/%s", c.authURL, userId, key), bytes.NewBuffer(requestBody))
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
 	if newRequestErr != nil {
 		return newRequestErr
 	}

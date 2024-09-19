@@ -15,8 +15,8 @@ import { useAuth } from '../../../contexts/authContext'
 import { useTranslation } from 'react-i18next'
 
 const Profile = () => {
-  const { user } = useAuth()
-  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}` } } })
+  const { user, sessionId } = useAuth()
+  const api = new Api({ baseApiParams: { headers: { authorization: `Bearer ${user?.access_token}`, sessionId } } })
   
   const navigate = useNavigate()
   const { t } = useTranslation()

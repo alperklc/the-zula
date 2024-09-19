@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
@@ -201,9 +200,6 @@ func HandleUserDisconnectEvent(hub *Hub, client *Client) {
 
 // EmitToSpecificClient will emit the socket event to specific socket user
 func EmitToSpecificClient(hub *Hub, payload SocketEventStruct, sessionID string) {
-	fmt.Println(sessionID)
-	fmt.Println(hub.clients)
-	fmt.Println(payload)
 	for client := range hub.clients {
 		if client.sessionID == sessionID {
 			select {

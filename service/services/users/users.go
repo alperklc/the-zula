@@ -10,7 +10,7 @@ import (
 
 type UsersService interface {
 	GetUser(id string) (User, error)
-	UpdateUser(id, firstName, lastname, displayName string, language, theme *string) error
+	UpdateUser(id, clientId, email, firstName, lastname, displayName string, language, theme *string) error
 }
 
 type datasources struct {
@@ -40,11 +40,6 @@ func (d *datasources) GetUser(id string) (User, error) {
 	if errGetTheme != nil {
 		return User{}, errGetTheme
 	}
-	language, errGetLanguage := d.Auth.GetUserMetadata(id, "language")
-	if errGetLanguage != nil {
-		return User{}, errGetLanguage
-	}
-
 	creationDate, creationDateParseErr := time.Parse(time.RFC3339Nano, user.Details.CreationDate)
 	if creationDateParseErr != nil {
 		return User{}, creationDateParseErr
@@ -62,7 +57,7 @@ func (d *datasources) GetUser(id string) (User, error) {
 		LastName:    user.Human.Profile.LastName,
 		DisplayName: user.Human.Profile.DisplayName,
 		Email:       user.Human.Email.Email,
-		Language:    language,
+		Language:    user.Human.Profile.PreferredLanguage,
 		Theme:       theme,
 	}
 
@@ -71,26 +66,20 @@ func (d *datasources) GetUser(id string) (User, error) {
 	return response, nil
 }
 
-func (d *datasources) UpdateUser(id, firstName, lastname, displayName string, language, theme *string) error {
+func (d *datasources) UpdateUser(id, clientId, email, firstName, lastname, displayName string, language, theme *string) error {
 	if theme != nil {
 		errGetTheme := d.Auth.SetUserMetadata(id, "theme", *theme)
 		if errGetTheme != nil {
 			return errGetTheme
 		}
 	}
-	if language != nil {
-		errGetLanguage := d.Auth.SetUserMetadata(id, "language", *language)
-		if errGetLanguage != nil {
-			return errGetLanguage
-		}
-	}
-	errSetUser := d.Auth.SetUserProfile(id, auth.UserInput{FirstName: firstName, LastName: lastname, DisplayName: displayName})
+	errSetUser := d.Auth.SetUserProfile(id, auth.UserInput{FirstName: firstName, LastName: lastname, DisplayName: displayName, PreferredLanguage: *language})
 	if errSetUser != nil {
 		return errSetUser
 	}
 
 	d.Cache.Reset(id)
-	go d.mqpublisher.Publish(mqpublisher.UserUpdated(id, "clientId", nil))
+	go d.mqpublisher.Publish(mqpublisher.UserUpdated(id, clientId, nil))
 
 	return nil
 }

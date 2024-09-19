@@ -50,7 +50,7 @@ const Layout = (props: LayoutProps) => {
         >
           {props?.fixedSubHeader ? props.subHeaderContent : <></>}
         </div>
-        <Animation className={styles.toastContainer} type='fadeIn' visible={isVisible}>
+        <Animation className={styles.toastContainer} type='fadeIn' visible={isVisible} time={500}>
           <BaseToast message={message} type={type} />
         </Animation>
         <div

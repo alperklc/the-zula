@@ -34,7 +34,7 @@ type ExtendedProfile = UserProfile & {
 function getTheme(user: User | null) {
   const metadata = (user?.profile as ExtendedProfile)?.["urn:zitadel:iam:user:metadata"]
   if (!metadata || metadata.length === 0) {
-    return "light"
+    return "lightTheme"
   }
 
   const theme = metadata[0].theme ?? ""
@@ -81,6 +81,10 @@ export const UIProvider = ({ children }: { children: React.ReactElement }) => {
     setBackdropActive(true)
     setOverflowMenuId(id)
   }
+  
+  React.useEffect(() => {
+    switchTheme(theme)
+  }, [theme]);
 
   React.useEffect(() => {
     if (!isMobileDevice) {

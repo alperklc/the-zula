@@ -72,7 +72,8 @@ type MetadataInput struct {
 }
 
 type UserInput struct {
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
-	DisplayName string `json:"displayName"`
+	FirstName         string `json:"firstName"`
+	LastName          string `json:"lastName"`
+	DisplayName       string `json:"displayName"`
+	PreferredLanguage string `json:"preferredLanguage"`
 }
