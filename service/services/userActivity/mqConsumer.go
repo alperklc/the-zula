@@ -49,16 +49,16 @@ func (ds *dataSources) Start() {
 		for d := range deliveries {
 			incomingMessage := mqpublisher.ActivityMessage{}
 			if err := json.Unmarshal(d.Body, &incomingMessage); err != nil {
-				ds.logger.Error().Msgf("userActivityService: error parsing incoming message: ", err.Error())
+				ds.logger.Error().Msgf("userActivityService: error parsing incoming message: %s", err.Error())
 				break
 			}
 
 			if _, dbWriteErr := dbCollection.InsertOne(incomingMessage.UserID, incomingMessage.ResourceType, incomingMessage.Action, incomingMessage.ObjectID); dbWriteErr != nil {
-				ds.logger.Error().Msgf("userActivityService: error writing incoming message into the database: ", dbWriteErr.Error())
+				ds.logger.Error().Msgf("userActivityService: error writing incoming message into the database: %s", dbWriteErr.Error())
 				break
 			}
 
-			ds.logger.Info().Msgf("userActivityService: received message %s - tag: %s, length: %d", d.Body, d.DeliveryTag, len(d.Body))
+			ds.logger.Info().Msgf("userActivityService: received message %s - tag: %d, length: %d", d.Body, d.DeliveryTag, len(d.Body))
 			d.Ack(false)
 		}
 		ds.logger.Debug().Msg("userActivityService: deliveries channel closed")
