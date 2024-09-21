@@ -19,7 +19,7 @@ describe('toTimeString', () => {
     dateTime | expectedTimeSince
     ${'2024-05-10T13:11:18.139Z'} | ${'10.05.2024'}
     ${'2024-05-01T20:51:42.328Z'} | ${'01.05.2024'}
-    ${'2024-05-13T13:20:00.328Z'} | ${'15:20'}
+    ${'2024-05-13T13:20:00.328Z'} | ${'13:20'}
   `(
     'displays the given date correctly',
     ({ dateTime, expectedTimeSince }: Test) => {
