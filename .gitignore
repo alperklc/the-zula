@@ -1,6 +1,9 @@
+/frontend/dist
 /frontend/node_modules
 /dev-setup/certs
 /dev-setup/mongodb
 /dev-setup/postgres-certs
 /service/tmp
 /service/certs
+/service/static
+/service/tmp
