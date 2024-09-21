@@ -209,6 +209,6 @@ func (d *db) ImportMany(bookmarks []BookmarkDocument) error {
 		itemsToInsert = append(itemsToInsert, bookmark)
 	}
 
-	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert, &opts)
+	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
 	return err
 }
