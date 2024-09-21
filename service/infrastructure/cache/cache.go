@@ -10,6 +10,15 @@ type Cache[T any] struct {
 	store *ttlcache.Cache[string, T]
 }
 
+type CacheInterface[T any] interface {
+	Reset(id string)
+	Write(id string, obj T)
+	Read(id string) *T
+}
+
+// Ensure Cache implements CacheInterface
+var _ CacheInterface[any] = (*Cache[any])(nil)
+
 func NewCache[T any](ttl time.Duration) (*Cache[T], error) {
 	store := ttlcache.New[string, T](
 		ttlcache.WithTTL[string, T](ttl),

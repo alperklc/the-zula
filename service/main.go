@@ -83,7 +83,7 @@ func main() {
 	bs := bookmarksService.NewService(l, us, b, pc, wsc, mqp)
 	nrs := referencesService.NewService(nr, nrr)
 	ns := notesService.NewService(us, nr, ncr, ndr, nrs, mqp)
-	uas := userActivityService.NewService(*uams, *usms, us, uad, ns, bs)
+	uas := userActivityService.NewService(uams, usms, us, uad, ns, bs)
 	is := importerService.NewService(nr, nrr, b, pc, uad)
 
 	uasmq := userActivityService.NewMqConsumer(l, uad, mq)

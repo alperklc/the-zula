@@ -25,15 +25,15 @@ type UserActivityService interface {
 }
 
 type datasources struct {
-	activityGraphCache cache.Cache[[]useractivity.ActivityGraphEntry]
-	mostVisitedCache   cache.Cache[[]useractivity.UsageStatisticsEntry]
+	activityGraphCache cache.CacheInterface[[]useractivity.ActivityGraphEntry]
+	mostVisitedCache   cache.CacheInterface[[]useractivity.UsageStatisticsEntry]
 	user               usersService.UsersService
 	notes              notesService.NoteService
 	bookmarks          bookmarksService.BookmarkService
 	useractivity       useractivity.Collection
 }
 
-func NewService(agc cache.Cache[[]useractivity.ActivityGraphEntry], mvc cache.Cache[[]useractivity.UsageStatisticsEntry], u usersService.UsersService, ua useractivity.Collection, n notesService.NoteService, b bookmarksService.BookmarkService) UserActivityService {
+func NewService(agc cache.CacheInterface[[]useractivity.ActivityGraphEntry], mvc cache.CacheInterface[[]useractivity.UsageStatisticsEntry], u usersService.UsersService, ua useractivity.Collection, n notesService.NoteService, b bookmarksService.BookmarkService) UserActivityService {
 	return &datasources{
 		activityGraphCache: agc,
 		mostVisitedCache:   mvc,
