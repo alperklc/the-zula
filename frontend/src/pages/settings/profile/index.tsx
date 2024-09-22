@@ -140,7 +140,7 @@ const Profile = () => {
         </>
       }
     >
-      {/* !saving && */ error && <MessageBox type='error'>Error</MessageBox>}
+      {!errorSaving &&  error && <MessageBox type='error'>{errorSaving}</MessageBox>}
       <PageContent
         loading={loading || saving}
         isMobile={isMobile}

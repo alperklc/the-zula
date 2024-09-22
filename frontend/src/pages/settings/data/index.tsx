@@ -22,11 +22,14 @@ const Data = () => {
   const { t } = useTranslation()
   const { isMobile } = useUI()
 
-  const [file, setFile] = React.useState(null);
+  const [file, setFile] = React.useState<File | null>(null);
   const [uploading, setUploading] = React.useState(false);
 
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    const [file] = event.target.files || []
+    if (file) {
+      setFile(file);
+    }
   };
 
   const handleSubmit = async () => {
