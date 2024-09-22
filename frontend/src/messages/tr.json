@@ -47,7 +47,6 @@
           "title": "Başlık",
           "content": "İçerik",
           "tags": "Etiketler",
-          "files": "Dosyalar",
           "referenced_by": "Referanslar"
         }
       },
@@ -55,38 +54,6 @@
         "label": "Değişiklikler ({{number}})"
       },
       "title": "Notlar"
-    },
-    "files": {
-      "table": {
-        "columns": {
-          "type": "Tür",
-          "name": "İsim"
-        },
-        "messages": {
-          "nothing_found": "Hiçbir şey bulunamadı"
-        }
-      },
-      "form": {
-        "label": {
-          "file": "Dosya Yükle",
-          "type": "Tür",
-          "filename": "Dosya Adı",
-          "size": "Boyut",
-          "select-file": "Dosya Seç"
-        }
-      },
-      "overflow_menu": {
-        "create_file": "Dosya Yükle",
-        "create_folder": "Klasör Oluştur",
-        "move_to_folder": "Taşı",
-        "rename_folder": "Klasörü Yeniden Adlandır",
-        "delete_folder": "Klasörü Sil"
-      },
-      "select": {
-        "label": "Dosya Seç"
-      },
-      "title": "Dosyalar",
-      "upload": "Yükle"
     },
     "bookmarks": {
       "form": {
@@ -125,23 +92,11 @@
         "note_read": "Not okundu",
         "note_update": "Not güncellendi",
         "note_delete": "Not silindi",
-        "file_create": "Dosya oluşturuldu",
-        "file_read": "Dosya okundu",
-        "file_update": "Dosya güncellendi",
-        "file_delete": "Dosya silindi",
-        "user_create": "Kullanıcı oluşturuldu",
-        "user_update": "Kullanıcı güncellendi",
-        "folder_create": "Klasör oluşturuldu",
-        "folder_read": "Klasör okundu",
-        "folder_update": "Klasör güncellendi",
-        "folder_delete": "Klasör silindi"
+        "user_update": "Kullanıcı güncellendi"
       }
     },
     "filter_selector_modal": {
       "title": "Filtre Seç",
-      "file_types": {
-        "label": "Dosya Türü"
-      },
       "tags": {
         "label": "Etiketler"
       },
@@ -233,21 +188,6 @@
         "update_failure": "Not güncellenemedi",
         "delete_failure": "Not silinemedi"
       },
-      "files": {
-        "create": "Dosya oluşturuldu",
-        "update": "Dosya güncellendi",
-        "move": "Dosya taşındı",
-        "delete": "Dosya silindi",
-        "create_failure": "Dosya oluşturulamadı",
-        "update_failure": "Dosya güncellenemedi",
-        "delete_failure": "Dosya silinemedi"
-      },
-      "folders": {
-        "create": "Klasör oluşturuldu",
-        "update": "Klasör güncellendi",
-        "move": "Klasör taşındı",
-        "delete": "Klasör silindi"
-      },
       "bookmarks": {
         "create": "Bağlantı oluşturuldu",
         "update": "Bağlantı güncellendi",
@@ -263,6 +203,18 @@
         "lastname": "Soyad",
         "displayName": "Tercih edilen isim",
         "email": "E-posta"
+      }
+    },
+    "data": {
+      "import": {
+        "label": "İçe aktarım",
+        "info": "Buradan, JSON dosyalarını içeren bir ZIP dosyası yükleyebilirsiniz. ZIP dosyası aşağıdaki klasör yapısına uygun olmalıdır",
+        "filenames": "Her klasörün içinde dosyalar şu formatta adlandırılmalıdır:",
+        "button": "Dosya yükle"
+      },
+      "export": {
+        "label": "Dışa aktarım",
+        "button": "Tüm verileri dışa aktar"
       }
     }
   }

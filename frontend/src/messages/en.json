@@ -48,7 +48,6 @@
         "title": "Title",
         "content": "Content",
         "tags": "Tags",
-        "files": "Files",
         "referenced_by": "References"
       }
     },
@@ -56,38 +55,6 @@
       "label": "Changes ({{number}})"
     },
     "title": "Notes"
-  },
-  "files": {
-    "table": {
-      "columns": {
-        "type": "Type",
-        "name": "Name"
-      },
-      "messages": {
-        "nothing_found": "Nothing found"
-      }
-    },
-    "form": {
-      "label": {
-        "file": "File upload",
-        "type": "Type",
-        "filename": "File name",
-        "size": "Size",
-        "select-file": "Select file"
-      }
-    },
-    "overflow_menu": {
-      "create_file": "Upload file",
-      "create_folder": "Create folder",
-      "move_to_folder": "Move to",
-      "rename_folder": "Rename folder",
-      "delete_folder": "Delete folder"
-    },
-    "select": {
-      "label": "Select file"
-    },
-    "title": "Files",
-    "upload": "Upload"
   },
   "bookmarks": {
     "form": {
@@ -126,23 +93,11 @@
       "note_read": "Note read",
       "note_update": "Note updated",
       "note_delete": "Note deleted",
-      "file_create": "File created",
-      "file_read": "File read",
-      "file_update": "File updated",
-      "file_delete": "File deleted",
-      "user_create": "User created",
-      "user_update": "User updated",
-      "folder_create": "Folder created",
-      "folder_read": "Folder read",
-      "folder_update": "Folder updated",
-      "folder_delete": "Folder deleted"
+      "user_update": "User updated"
     }
   },
   "filter_selector_modal": {
     "title": "Select filter",
-    "file_types": {
-      "label": "File type"
-    },
     "tags": {
       "label": "Tags"
     },
@@ -234,21 +189,6 @@
       "update_failure": "Could not update note",
       "delete_failure": "Could not delete note"
     },
-    "files": {
-      "create": "File created",
-      "update": "File updated",
-      "move": "File moved",
-      "delete": "File deleted",
-      "create_failure": "Could not create",
-      "update_failure": "Could not update",
-      "delete_failure": "Could not delete"
-    },
-    "folders": {
-      "create": "Folder created",
-      "update": "Folder updated",
-      "move": "Folder moved",
-      "delete": "Folder deleted"
-    },
     "bookmarks": {
       "create": "Bookmark created",
       "update": "Bookmark updated",
@@ -264,6 +204,18 @@
       "lastname": "Last name",
       "displayName": "Display name",
       "email": "Email"
+    }
+  },
+  "data": {
+    "import": {
+      "label": "Import Data",
+      "info": "Here, you can upload a ZIP file containing JSON files for import. The ZIP file should follow the folder structure below:",
+      "filenames": "Inside each folder, the files should be named using this format:",
+      "button": "Upload File"
+    },
+    "export": {
+      "label": "Export Data",
+      "button": "Request data export"
     }
   }
 }
