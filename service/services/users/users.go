@@ -1,6 +1,7 @@
 package usersService
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/alperklc/the-zula/service/infrastructure/auth"
@@ -9,6 +10,7 @@ import (
 )
 
 type UsersService interface {
+	RefreshUserInCache(id string) error
 	GetUser(id string) (User, error)
 	UpdateUser(id, clientId, email, firstName, lastname, displayName string, language, theme *string) error
 }
@@ -25,6 +27,13 @@ func NewService(a *auth.AuthClient, c *cache.Cache[User], mqp mqpublisher.Messag
 		Cache:       *c,
 		mqpublisher: mqp,
 	}
+}
+
+func (d *datasources) RefreshUserInCache(id string) error {
+	d.Cache.Reset(id)
+	a, err := d.GetUser(id)
+	fmt.Println(a)
+	return err
 }
 
 func (d *datasources) GetUser(id string) (User, error) {
@@ -78,7 +87,6 @@ func (d *datasources) UpdateUser(id, clientId, email, firstName, lastname, displ
 		return errSetUser
 	}
 
-	d.Cache.Reset(id)
 	go d.mqpublisher.Publish(mqpublisher.UserUpdated(id, clientId, nil))
 
 	return nil

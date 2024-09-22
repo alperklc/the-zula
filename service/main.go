@@ -92,6 +92,9 @@ func main() {
 	rsmq := referencesService.NewMqConsumer(l, nrs, mq)
 	rsmq.Start()
 
+	usmq := usersService.NewMqConsumer(l, us, mq)
+	usmq.Start()
+
 	hub := api.NewHub()
 	go hub.Run()
 
