@@ -13,6 +13,7 @@ RUN apk update && apk add --no-cache git ca-certificates
 WORKDIR /go/zula/service
 
 COPY ./service ./
+COPY --from=frontendBuilder /go/zula/client/dist ./static
 RUN go get -d -v
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 ENV=production go build -ldflags="-w -s" -o bin .
 RUN ls -la /go/zula/service/bin
@@ -21,7 +22,6 @@ RUN ls -la /go/zula/service/bin
 FROM golang:alpine
 WORKDIR /root/
 COPY --from=builder /go/zula/service/bin /root/bin
-COPY --from=frontendBuilder /go/zula/client/dist ./static
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 EXPOSE 8081
