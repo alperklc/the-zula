@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/alperklc/the-zula/service/infrastructure/environment"
 	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
 	importerService "github.com/alperklc/the-zula/service/services/importer"
 	notesService "github.com/alperklc/the-zula/service/services/notes"
@@ -20,6 +21,7 @@ import (
 )
 
 type a struct {
+	env            *environment.Config
 	users          usersService.UsersService
 	userActivities userActivityService.UserActivityService
 	bookmarks      bookmarksService.BookmarkService
@@ -28,8 +30,8 @@ type a struct {
 	clientHub      Hub
 }
 
-func NewApi(u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService, is importerService.ImporterService, clientHub Hub) ServerInterface {
-	return &a{users: u, userActivities: ua, bookmarks: bs, notes: n, importer: is, clientHub: clientHub}
+func NewApi(c *environment.Config, u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService, is importerService.ImporterService, clientHub Hub) ServerInterface {
+	return &a{env: c, users: u, userActivities: ua, bookmarks: bs, notes: n, importer: is, clientHub: clientHub}
 }
 
 func sendResponse(w http.ResponseWriter, code int, data any) {
@@ -42,6 +44,16 @@ func sendErrorResponse(w http.ResponseWriter, code int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(APIErrorResponse{Message: message})
+}
+
+func (s *a) GetFrontendConfig(w http.ResponseWriter, r *http.Request) {
+
+	sendResponse(w, http.StatusOK, FrontendConfig{
+		Authority:             &s.env.FEAuthority,
+		ClientId:              &s.env.FEClientId,
+		PostLogoutRedirectUri: &s.env.FEPostLogoutRedirectUri,
+		RedirectUri:           &s.env.FERedirectUri,
+	})
 }
 
 func (s *a) DeleteNoteDraft(w http.ResponseWriter, r *http.Request, id string) {

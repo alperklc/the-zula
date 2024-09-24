@@ -9,6 +9,13 @@
  * ---------------------------------------------------------------
  */
 
+export interface FrontendConfig {
+  authority?: string;
+  client_id?: string;
+  redirect_uri?: string;
+  post_logout_redirect_uri?: string;
+}
+
 export interface Tag {
   typeOfParent?: string;
   value?: string;
@@ -394,6 +401,20 @@ export class HttpClient<SecurityDataType = unknown> {
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   api = {
+    /**
+     * No description
+     *
+     * @name GetFrontendConfig
+     * @request GET:/api/v1/frontend-config
+     */
+    getFrontendConfig: (params: RequestParams = {}) =>
+      this.request<FrontendConfig, any>({
+        path: `/api/v1/frontend-config`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
     /**
      * No description
      *

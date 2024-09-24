@@ -110,7 +110,7 @@ func main() {
 	ws := api.NewNotifier(l, mq, *hub)
 	ws.SendNotification()
 
-	a := api.NewApi(us, uas, bs, ns, is, *hub)
+	a := api.NewApi(config, us, uas, bs, ns, is, *hub)
 	r := chi.NewRouter()
 
 	r.Use(api.GetLoggingMiddleware(l))

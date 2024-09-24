@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
-import { ZitadelConfig, createZitadelAuth } from '@zitadel/react'
+import { createZitadelAuth, ZitadelAuth } from '@zitadel/react'
 import { User, UserManager, UserProfile } from "oidc-client-ts";
 import { useTranslation } from 'react-i18next';
+import { FrontendConfig } from '../types/Api';
 
 interface State {
   user: User | null
@@ -27,13 +28,6 @@ export const AuthContext = React.createContext<State>({
 
 export const useAuth = () => React.useContext(AuthContext)
 
-const config: ZitadelConfig = {
-  authority: "https://auth.local.the-zula.app:8080",
-  client_id: "275817766735380486@zula",
-  redirect_uri: "https://local.the-zula.app/callback",
-  post_logout_redirect_uri: "https://local.the-zula.app",
-};
-
 type ExtendedProfile = UserProfile & {
   "urn:zitadel:iam:user:metadata"?: {theme?: string}[]
 }
@@ -48,21 +42,25 @@ function getTheme(user: User | null) {
   return atob(theme)
 }
 
-export const AuthContextProvider = ({ children }: { children: JSX.Element }) => {
+export const AuthContextProvider = ({ children, initialConfig }: { children: JSX.Element, initialConfig: FrontendConfig }) => {
   const { i18n } = useTranslation()
-  
+
   const [initialized, setInitialized] = React.useState<boolean>(false)
   const [sessionId, setSessionId] = React.useState<string>("")
   const [user, setuser] = React.useState<User | null>(null)
-  const zitadel = createZitadelAuth(config);
+  const zitadel = React.useRef<ZitadelAuth>()
+  
+  React.useEffect(() => {
+    zitadel.current = createZitadelAuth(initialConfig);
+  }, [initialConfig]);
   
   function login(redirectTo: string) {
-    zitadel.userManager.signinRedirect({redirect_uri: config.redirect_uri, url_state: redirectTo, scope: "openid profile email urn:zitadel:iam:user:metadata"});
-    zitadel.userManager.startSilentRenew()
+    zitadel.current?.userManager.signinRedirect({redirect_uri: initialConfig.redirect_uri, url_state: redirectTo, scope: "openid profile email urn:zitadel:iam:user:metadata"});
+    zitadel.current?.userManager.startSilentRenew()
   }
 
   function logout() {
-    zitadel.signout();
+    zitadel.current?.signout();
   }
 
   const setUserProfile = (user: User | null) => {
@@ -78,12 +76,12 @@ export const AuthContextProvider = ({ children }: { children: JSX.Element }) => 
   }
 
   React.useEffect(() => {
-    zitadel.userManager.getUser()
+    zitadel.current?.userManager.getUser()
       .then(setUserProfile)
       .finally(() => {
       setInitialized(true)
     });
-  }, []);
+  }, [zitadel.current]);
  
   return (
     <AuthContext.Provider
@@ -95,7 +93,7 @@ export const AuthContextProvider = ({ children }: { children: JSX.Element }) => 
         setUser,
         login,
         logout,
-        userManager: zitadel.userManager,
+        userManager: zitadel.current?.userManager,
       }}
     >
       {initialized ? children : <></>}

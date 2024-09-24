@@ -11,6 +11,17 @@ info:
   version: 1.0.0
   
 paths:
+  /api/v1/frontend-config:
+    get:
+      operationId: getFrontendConfig
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/frontendConfig' 
+
   /api/v1/ws/{user}:
     get:
       operationId: connectWs
@@ -487,6 +498,18 @@ paths:
 
 components:
   schemas:
+    frontendConfig:
+      type: object
+      properties:
+        authority:
+          type: string
+        client_id:
+          type: string
+        redirect_uri:
+          type: string
+        post_logout_redirect_uri:
+          type: string
+
     tag:
       type: object
       properties:

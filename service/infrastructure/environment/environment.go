@@ -15,7 +15,6 @@ type Config struct {
 	Environment              string `env:"ENVIRONMENT"`
 	Version                  string `env:"VERSION"`
 	Port                     int    `env:"PORT,required"`
-	AuthClientId             string `env:"AUTH_CLIENT_ID"`
 	AuthKeyFilePath          string `env:"AUTH_KEY_FILE_PATH"`
 	AuthDomain               string `env:"AUTH_DOMAIN"`
 	AuthServiceAccountUser   string `env:"AUTH_SERVICE_ACCOUNT_USER"`
@@ -23,6 +22,10 @@ type Config struct {
 	RabbitMqUser             string `env:"RABBIT_MQ_USER"`
 	RabbitMqPassword         string `env:"RABBIT_MQ_PASSWORD"`
 	RabbitMqUri              string `env:"RABBIT_MQ_URI"`
+	FEAuthority              string `env:"FE_AUTHORITY"`
+	FEClientId               string `env:"FE_CLIENT_ID"`
+	FERedirectUri            string `env:"FE_REDIRECT_URI"`
+	FEPostLogoutRedirectUri  string `env:"FE_POST_LOGOUT_REDIRECT_URI"`
 }
 
 func Read() *Config {
