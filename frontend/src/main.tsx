@@ -7,11 +7,11 @@ import './i18n'
 import './index.css'
 
 const api = new Api()
-const configResponse = await api.api.getFrontendConfig()
-const feConfig = await configResponse.json()
+api.api.getFrontendConfig()
+  .then((res) => res.json()).then((feConfig) => {
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <>
+    ReactDOM.createRoot(document.getElementById('root')!).render(
+      <>
     <AuthContextProvider initialConfig={feConfig}>
         <ToastMessageProvider>
           <App />
@@ -19,3 +19,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </AuthContextProvider>
   </>,
 )
+})
