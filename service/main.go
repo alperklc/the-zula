@@ -3,10 +3,10 @@ package main
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
-	"path/filepath"
 	"time"
 
 	"github.com/alperklc/the-zula/service/api"
@@ -37,6 +37,12 @@ import (
 
 //go:embed static/*
 var staticFiles embed.FS
+
+func clientHandler() http.Handler {
+	fsys := fs.FS(staticFiles)
+	contentStatic, _ := fs.Sub(fsys, "static")
+	return http.FileServer(http.FS(contentStatic))
+}
 
 func main() {
 	config := environment.Read()
@@ -111,19 +117,8 @@ func main() {
 	r.Use(api.GetAuthorizationMiddleware(l, config.AuthDomain, config.AuthKeyFilePath))
 	r.Use(api.GetAuthenticationMiddleware(nr, config.AuthDomain, config.AuthKeyFilePath))
 
-	staticFileServer := http.FileServer(http.FS(staticFiles))
-
 	r.Group(func(r chi.Router) {
-		r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-			filePath := r.URL.Path
-
-			_, err := staticFiles.Open(filepath.Join("static", filePath))
-			if err == nil {
-				staticFileServer.ServeHTTP(w, r)
-			} else {
-				http.ServeFile(w, r, "static/index.html")
-			}
-		})
+		r.Get("/*", clientHandler().ServeHTTP)
 	})
 
 	r.Group(func(r chi.Router) {
