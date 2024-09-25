@@ -3,10 +3,12 @@ package main
 import (
 	"embed"
 	"fmt"
+	"io"
 	"io/fs"
 	"log"
 	"net"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/alperklc/the-zula/service/api"
@@ -41,7 +43,31 @@ var staticFiles embed.FS
 func clientHandler() http.Handler {
 	fsys := fs.FS(staticFiles)
 	contentStatic, _ := fs.Sub(fsys, "static")
-	return http.FileServer(http.FS(contentStatic))
+
+	fileServer := http.FileServer(http.FS(contentStatic))
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Get the requested file path
+		filePath := filepath.Join("static", r.URL.Path)
+
+		// Try to open the file in the embedded filesystem
+		_, err := staticFiles.Open(filePath)
+
+		if err == nil {
+			// File exists, serve it
+			fileServer.ServeHTTP(w, r)
+		} else {
+			// File doesn't exist, serve index.html (for React client-side routing)
+			indexFile, err := staticFiles.Open("static/index.html")
+			if err != nil {
+				http.Error(w, "index.html not found", http.StatusInternalServerError)
+				return
+			}
+			// Serve the index.html file
+			w.Header().Set("Content-Type", "text/html")
+			io.Copy(w, indexFile)
+		}
+	})
 }
 
 func main() {
