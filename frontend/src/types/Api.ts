@@ -458,6 +458,26 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
+     * @name ExportData
+     * @summary Exports notes and bookmarks from a zip file, containing json files
+     * @request GET:/api/v1/export
+     */
+    exportData: (params: RequestParams = {}) =>
+      this.request<
+        File,
+        {
+          /** @example "Internal Server Error" */
+          error?: string;
+        }
+      >({
+        path: `/api/v1/export`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @name GetUser
      * @summary Get a user by ID
      * @request GET:/api/v1/users/{shortId}

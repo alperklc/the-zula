@@ -56,8 +56,9 @@ const Data = () => {
     }
   };
 
-  const requestDataExport = () => {
-
+  const requestDataExport = async () => {
+    const response = await api.api.exportData();
+    console.log(response)
   }
 
   return (
