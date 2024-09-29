@@ -28,7 +28,7 @@ import (
 	mqpublisher "github.com/alperklc/the-zula/service/infrastructure/messageQueue/publisher"
 	"github.com/alperklc/the-zula/service/infrastructure/webScraper"
 	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
-	importerService "github.com/alperklc/the-zula/service/services/importer"
+	importExportService "github.com/alperklc/the-zula/service/services/importExport"
 	notesService "github.com/alperklc/the-zula/service/services/notes"
 	referencesService "github.com/alperklc/the-zula/service/services/references"
 	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
@@ -119,7 +119,7 @@ func main() {
 	nrs := referencesService.NewService(nr, nrr)
 	ns := notesService.NewService(us, nr, ncr, ndr, nrs, mqp)
 	uas := userActivityService.NewService(uams, usms, us, uad, ns, bs)
-	is := importerService.NewService(nr, nrr, b, pc, uad)
+	is := importExportService.NewService(nr, ncr, nrr, b, pc, uad)
 
 	uasmq := userActivityService.NewMqConsumer(l, uad, mq)
 	uasmq.Start()

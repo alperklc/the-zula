@@ -14,7 +14,8 @@ type Collection interface {
 	InsertMany(from string, to []string) error
 	DeleteAllReferencesFromNote(noteId string) error
 	DeleteAllReferencesToNote(noteId string) error
-	ImportMany(pageContent []ReferencesDocument) error
+	ImportMany(pageContent []ReferencesDocument) (int, error)
+	Export(noteIds []string) ([]ReferencesDocument, error)
 }
 
 type db struct {
@@ -77,12 +78,35 @@ func (d *db) DeleteAllReferencesToNote(noteId string) error {
 	return err
 }
 
-func (d *db) ImportMany(refs []ReferencesDocument) error {
+func (d *db) ImportMany(refs []ReferencesDocument) (int, error) {
 	var itemsToInsert []interface{} = make([]interface{}, 0, len(refs))
 	for _, pc := range refs {
 		itemsToInsert = append(itemsToInsert, pc)
 	}
 
-	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
-	return err
+	result, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
+	return len(result.InsertedIDs), err
+}
+
+func (d *db) Export(noteIds []string) ([]ReferencesDocument, error) {
+	var referencesDocuments []ReferencesDocument
+	filter := bson.M{
+		"$or": []bson.M{
+			{"from": bson.M{"$in": noteIds}},
+			{"to": bson.M{"$in": noteIds}},
+		},
+	}
+
+	cursor, findErr := d.collection.Find(context.TODO(), filter)
+	if findErr != nil {
+		return nil, findErr
+	}
+
+	if decodeError := cursor.All(context.TODO(), &referencesDocuments); decodeError != nil {
+		return nil, decodeError
+	}
+
+	defer cursor.Close(context.TODO())
+
+	return referencesDocuments, nil
 }

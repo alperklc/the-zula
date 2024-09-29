@@ -15,7 +15,8 @@ const collectionName = "page-content"
 type Collection interface {
 	InsertOne(id string, input PageContent) error
 	GetLatest(url string) (PageContentDocument, error)
-	ImportMany(pageContent []PageContentDocument) error
+	ImportMany(pageContent []PageContentDocument) (int, error)
+	ExportContent(urls []string) ([]PageContentDocument, error)
 }
 
 type db struct {
@@ -74,12 +75,38 @@ func (d *db) GetLatest(url string) (PageContentDocument, error) {
 	return entry, err
 }
 
-func (d *db) ImportMany(pageContent []PageContentDocument) error {
+func (d *db) ImportMany(pageContent []PageContentDocument) (int, error) {
 	var itemsToInsert []interface{} = make([]interface{}, 0, len(pageContent))
 	for _, pc := range pageContent {
 		itemsToInsert = append(itemsToInsert, pc)
 	}
 
-	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
-	return err
+	result, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
+	return len(result.InsertedIDs), err
+}
+
+func (d *db) ExportContent(urls []string) ([]PageContentDocument, error) {
+	ctx := context.TODO()
+	pipeline := mongo.Pipeline{
+		{{"$match", bson.D{{"url", bson.D{{"$in", urls}}}}}},
+		{{"$sort", bson.D{{"_id", -1}}}},
+		{{"$group", bson.D{
+			{"_id", "$url"},
+			{"latestDocument", bson.D{{"$first", "$$ROOT"}}},
+		}}},
+		{{"$replaceRoot", bson.D{{"newRoot", "$latestDocument"}}}},
+	}
+
+	cursor, err := d.collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var results []PageContentDocument
+	if err = cursor.All(ctx, &results); err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }

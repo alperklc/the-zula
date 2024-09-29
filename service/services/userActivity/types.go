@@ -3,6 +3,7 @@ package userActivityService
 import "time"
 
 type UserActivityDocument struct {
+	Id           string    `bson:"_id,omitempty"`
 	UserID       string    `json:"userID"`
 	ResourceType string    `json:"resourceType"`
 	Action       string    `json:"action"`

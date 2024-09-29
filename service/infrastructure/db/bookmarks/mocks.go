@@ -46,8 +46,13 @@ func (m *MockedBookmarks) DeleteOne(Id string) error {
 
 	return args.Error(0)
 }
-func (m *MockedBookmarks) ImportMany(bookmarks []BookmarkDocument) error {
+func (m *MockedBookmarks) ImportMany(bookmarks []BookmarkDocument) (int, error) {
 	args := m.Called(bookmarks)
 
-	return args.Error(0)
+	return args.Int(0), args.Error(1)
+}
+func (m *MockedBookmarks) ExportForUser(userId string) ([]BookmarkDocument, error) {
+	args := m.Called(userId)
+
+	return args.Get(0).([]BookmarkDocument), args.Error(1)
 }

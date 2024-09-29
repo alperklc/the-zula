@@ -15,6 +15,10 @@ type BookmarkDocument struct {
 	Tags       []string  `bson:"tags"`
 }
 
+func (n BookmarkDocument) GetId() string {
+	return n.Id
+}
+
 type BookmarkFacets struct {
 	Count int `json:"count"`
 }

@@ -17,7 +17,8 @@ type Collection interface {
 	GetLastVisitedContent(userID string, daysSince int, idsOfExcludedEntries []string) ([]UsageStatisticsEntry, error)
 	GetIdsOfDeletedEntries(userID string, daysAgo int) ([]string, error)
 	GroupActivitiesByDate(userID string) ([]ActivityGraphEntry, error)
-	ImportMany(refs []UserActivityDocument) error
+	ImportMany(refs []UserActivityDocument) (int, error)
+	ExportForUser(userId string) ([]UserActivityDocument, error)
 }
 
 type useractivity struct {
@@ -221,12 +222,30 @@ func (db *useractivity) GroupActivitiesByDate(userID string) ([]ActivityGraphEnt
 	return result, nil
 }
 
-func (db *useractivity) ImportMany(uas []UserActivityDocument) error {
+func (db *useractivity) ImportMany(uas []UserActivityDocument) (int, error) {
 	var itemsToInsert []interface{} = make([]interface{}, 0, len(uas))
 	for _, ua := range uas {
 		itemsToInsert = append(itemsToInsert, ua)
 	}
 
-	_, err := db.collection.InsertMany(context.TODO(), itemsToInsert)
-	return err
+	result, err := db.collection.InsertMany(context.TODO(), itemsToInsert)
+	return len(result.InsertedIDs), err
+}
+
+func (d *useractivity) ExportForUser(userId string) ([]UserActivityDocument, error) {
+	var activityDocuments []UserActivityDocument
+	filter := bson.M{"userID": userId}
+
+	cursor, findErr := d.collection.Find(context.TODO(), filter)
+	if findErr != nil {
+		return nil, findErr
+	}
+
+	if decodeError := cursor.All(context.TODO(), &activityDocuments); decodeError != nil {
+		return nil, decodeError
+	}
+
+	defer cursor.Close(context.TODO())
+
+	return activityDocuments, nil
 }

@@ -3,6 +3,7 @@ package useractivity
 import "time"
 
 type UserActivityDocument struct {
+	Id           string    `bson:"_id,omitempty"`
 	UserID       string    `json:"userID" bson:"userID"`
 	ResourceType string    `json:"resourceType" bson:"resourceType"`
 	Action       string    `json:"action" bson:"action"`
@@ -35,4 +36,8 @@ type UsageStatisticsEntry struct {
 type ActivityGraphEntry struct {
 	Date  string `json:"date" bson:"_id"`
 	Count int    `json:"count" bson:"count"`
+}
+
+func (n UserActivityDocument) GetId() string {
+	return n.Id
 }

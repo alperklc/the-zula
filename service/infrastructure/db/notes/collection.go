@@ -21,7 +21,8 @@ type Collection interface {
 	InsertOne(userId, title, content string, tags []string) (NoteDocument, error)
 	UpdateOne(userId, Id string, update interface{}) error
 	DeleteOne(Id string) error
-	ImportMany(notes []NoteDocument) error
+	ImportMany(notes []NoteDocument) (int, error)
+	ExportForUser(userId string) ([]NoteDocument, error)
 }
 
 type db struct {
@@ -211,12 +212,30 @@ func (d *db) DeleteOne(Id string) error {
 	return err
 }
 
-func (d *db) ImportMany(notes []NoteDocument) error {
+func (d *db) ImportMany(notes []NoteDocument) (int, error) {
 	var itemsToInsert []interface{} = make([]interface{}, 0, len(notes))
 	for _, bookmark := range notes {
 		itemsToInsert = append(itemsToInsert, bookmark)
 	}
 
-	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
-	return err
+	result, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
+	return len(result.InsertedIDs), err
+}
+
+func (d *db) ExportForUser(userId string) ([]NoteDocument, error) {
+	var noteDocuments []NoteDocument
+	filter := bson.M{"createdBy": userId}
+
+	cursor, findErr := d.collection.Find(context.TODO(), filter)
+	if findErr != nil {
+		return nil, findErr
+	}
+
+	if decodeError := cursor.All(context.TODO(), &noteDocuments); decodeError != nil {
+		return nil, decodeError
+	}
+
+	defer cursor.Close(context.TODO())
+
+	return noteDocuments, nil
 }

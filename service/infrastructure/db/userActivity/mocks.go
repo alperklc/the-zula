@@ -37,8 +37,12 @@ func (m *MockedUserActivity) GroupActivitiesByDate(userID string) ([]ActivityGra
 	args := m.Called(userID)
 	return args.Get(0).([]ActivityGraphEntry), args.Error(1)
 }
-func (m *MockedUserActivity) ImportMany(refs []UserActivityDocument) error {
+func (m *MockedUserActivity) ImportMany(refs []UserActivityDocument) (int, error) {
 	args := m.Called(refs)
 
-	return args.Error(0)
+	return args.Int(0), args.Error(1)
+}
+func (m *MockedUserActivity) ExportForUser(userId string) ([]UserActivityDocument, error) {
+	args := m.Called(userId)
+	return args.Get(0).([]UserActivityDocument), args.Error(1)
 }

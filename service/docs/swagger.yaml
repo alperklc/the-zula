@@ -56,7 +56,30 @@ paths:
           content:
             application/json:
               schema:
-                type: boolean    
+                type: boolean 
+
+  /api/v1/export:
+    get:
+      operationId: exportData
+      summary: Exports notes and bookmarks from a zip file, containing json files
+      responses:
+        '200':
+          description: Successful file download
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal Server Error
 
   /api/v1/users/{shortId}:
     get:

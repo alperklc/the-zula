@@ -29,3 +29,7 @@ type PageContent struct {
 	HTMLContent string `json:"htmlContent"`
 	MDContent   string `json:"mdContent"`
 }
+
+func (n PageContentDocument) GetId() string {
+	return n.Id
+}

@@ -16,6 +16,8 @@ type Collection interface {
 	GetCountOfChanges(noteId string) (int64, error)
 	GetOne(shortId string) (NotesChangesDocument, error)
 	InsertOne(noteId string, updatedAt time.Time, updatedBy, change string) error
+	ImportMany(items []NotesChangesDocument) (int, error)
+	Export(noteIds []string) ([]NotesChangesDocument, error)
 }
 
 type db struct {
@@ -104,4 +106,32 @@ func (d *db) InsertOne(noteId string, updatedAt time.Time, updatedBy, change str
 	_, err := d.collection.InsertOne(context.TODO(), noteObject)
 
 	return err
+}
+
+func (d *db) ImportMany(items []NotesChangesDocument) (int, error) {
+	var itemsToInsert []interface{} = make([]interface{}, 0, len(items))
+	for _, notesChanges := range items {
+		itemsToInsert = append(itemsToInsert, notesChanges)
+	}
+
+	result, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
+	return len(result.InsertedIDs), err
+}
+
+func (d *db) Export(noteIds []string) ([]NotesChangesDocument, error) {
+	var notesChangesDocuments []NotesChangesDocument
+	filter := bson.M{"noteId": bson.M{"$in": noteIds}}
+
+	cursor, findErr := d.collection.Find(context.TODO(), filter)
+	if findErr != nil {
+		return nil, findErr
+	}
+
+	if decodeError := cursor.All(context.TODO(), &notesChangesDocuments); decodeError != nil {
+		return nil, decodeError
+	}
+
+	defer cursor.Close(context.TODO())
+
+	return notesChangesDocuments, nil
 }

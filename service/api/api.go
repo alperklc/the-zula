@@ -7,12 +7,13 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/alperklc/the-zula/service/infrastructure/environment"
 	bookmarksService "github.com/alperklc/the-zula/service/services/bookmarks"
-	importerService "github.com/alperklc/the-zula/service/services/importer"
+	importExportService "github.com/alperklc/the-zula/service/services/importExport"
 	notesService "github.com/alperklc/the-zula/service/services/notes"
 	userActivityService "github.com/alperklc/the-zula/service/services/userActivity"
 	usersService "github.com/alperklc/the-zula/service/services/users"
@@ -26,11 +27,11 @@ type a struct {
 	userActivities userActivityService.UserActivityService
 	bookmarks      bookmarksService.BookmarkService
 	notes          notesService.NoteService
-	importer       importerService.ImporterService
+	importer       importExportService.ImportExportService
 	clientHub      Hub
 }
 
-func NewApi(c *environment.Config, u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService, is importerService.ImporterService, clientHub Hub) ServerInterface {
+func NewApi(c *environment.Config, u usersService.UsersService, ua userActivityService.UserActivityService, bs bookmarksService.BookmarkService, n notesService.NoteService, is importExportService.ImportExportService, clientHub Hub) ServerInterface {
 	return &a{env: c, users: u, userActivities: ua, bookmarks: bs, notes: n, importer: is, clientHub: clientHub}
 }
 
@@ -47,7 +48,6 @@ func sendErrorResponse(w http.ResponseWriter, code int, message string) {
 }
 
 func (s *a) GetFrontendConfig(w http.ResponseWriter, r *http.Request) {
-
 	sendResponse(w, http.StatusOK, FrontendConfig{
 		Authority:             &s.env.FEAuthority,
 		ClientId:              &s.env.FEClientId,
@@ -468,11 +468,45 @@ func (s *a) ImportData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	importErr := s.importer.ProcessZipFile(buf.Bytes())
+	result, importErr := s.importer.ProcessIncomingZipFile(buf.Bytes())
 	if importErr != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("could not import data from the zip file, %s", importErr))
 		return
 	}
 
-	sendResponse(w, http.StatusOK, "ok")
+	sendResponse(w, http.StatusOK, result)
+}
+
+func (s *a) ExportData(w http.ResponseWriter, r *http.Request) {
+	user := authorization.UserID(r.Context())
+
+	file, errExport := s.importer.MakeZipFile(user)
+	if errExport != nil {
+		http.Error(w, fmt.Sprintf("could not create file, %s", errExport), http.StatusNotFound)
+		return
+	}
+
+	file, err := os.Open("exports/zula-" + user + ".zip")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("File not found %s", err), http.StatusNotFound)
+		return
+	}
+	defer file.Close()
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Unable to get file info %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileInfo.Name()))
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
+
+	// Stream the file to the client
+	_, err = io.Copy(w, file) // Sends the file content to the client
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to send file %s", err), http.StatusInternalServerError)
+		return
+	}
 }

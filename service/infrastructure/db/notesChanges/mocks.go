@@ -33,3 +33,15 @@ func (m *MockedNotesChanges) InsertOne(noteId string, updatedAt time.Time, updat
 
 	return args.Error(0)
 }
+
+func (m *MockedNotesChanges) ImportMany(items []NotesChangesDocument) (int, error) {
+	args := m.Called(items)
+
+	return args.Int(0), args.Error(1)
+}
+
+func (m *MockedNotesChanges) Export(noteIds []string) ([]NotesChangesDocument, error) {
+	args := m.Called(noteIds)
+
+	return args.Get(0).([]NotesChangesDocument), args.Error(1)
+}

@@ -18,6 +18,10 @@ type NoteDocument struct {
 	Tags      []string  `bson:"tags"`
 }
 
+func (n NoteDocument) GetId() string {
+	return n.Id
+}
+
 func (nd *NoteDocument) IsDifferent(otherNote NoteDocument) bool {
 	titleChanged := otherNote.Title != nd.Title
 	contentChanged := otherNote.Content != nd.Content

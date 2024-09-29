@@ -19,3 +19,7 @@ type NotesChangesAggregation struct {
 	Facets NotesChangesFacets     `json:"facets"`
 	Items  []NotesChangesDocument `json:"items"`
 }
+
+func (n NotesChangesDocument) GetId() string {
+	return n.Id
+}

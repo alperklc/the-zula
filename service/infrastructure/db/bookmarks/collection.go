@@ -21,7 +21,8 @@ type Collection interface {
 	InsertOne(userId, URL, title string, tags []string) (BookmarkDocument, error)
 	UpdateOne(userId, id string, update interface{}) error
 	DeleteOne(id string) error
-	ImportMany(bookmarks []BookmarkDocument) error
+	ImportMany(bookmarks []BookmarkDocument) (int, error)
+	ExportForUser(userId string) ([]BookmarkDocument, error)
 }
 
 type db struct {
@@ -203,12 +204,30 @@ func (d *db) DeleteOne(id string) error {
 	return err
 }
 
-func (d *db) ImportMany(bookmarks []BookmarkDocument) error {
+func (d *db) ImportMany(bookmarks []BookmarkDocument) (int, error) {
 	var itemsToInsert []interface{} = make([]interface{}, 0, len(bookmarks))
 	for _, bookmark := range bookmarks {
 		itemsToInsert = append(itemsToInsert, bookmark)
 	}
 
-	_, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
-	return err
+	result, err := d.collection.InsertMany(context.TODO(), itemsToInsert)
+	return len(result.InsertedIDs), err
+}
+
+func (d *db) ExportForUser(userId string) ([]BookmarkDocument, error) {
+	var bookmarkDocuments []BookmarkDocument
+	filter := bson.M{"createdBy": userId}
+
+	cursor, findErr := d.collection.Find(context.TODO(), filter)
+	if findErr != nil {
+		return nil, findErr
+	}
+
+	if decodeError := cursor.All(context.TODO(), &bookmarkDocuments); decodeError != nil {
+		return nil, decodeError
+	}
+
+	defer cursor.Close(context.TODO())
+
+	return bookmarkDocuments, nil
 }
