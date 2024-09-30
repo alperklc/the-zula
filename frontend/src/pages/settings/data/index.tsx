@@ -23,7 +23,7 @@ const Data = () => {
   const { isMobile } = useUI()
 
   const [file, setFile] = React.useState<File | null>(null);
-  const [uploading, setUploading] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
 
   const handleFileChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     const [file] = event.target.files || []
@@ -42,7 +42,7 @@ const Data = () => {
     formData.append('file', file);
 
     try {
-      setUploading(true);
+      setBusy(true);
       const response = await api.api.importData({ file });
       if (response.status === 200) {
         showToast('File uploaded successfully!', "success");
@@ -52,13 +52,24 @@ const Data = () => {
     } catch (error) {
       showToast('Error during upload: ' + error, "error");
     } finally {
-      setUploading(false);
+      setBusy(false);
     }
   };
 
   const requestDataExport = async () => {
-    const response = await api.api.exportData();
-    console.log(response)
+    try {
+      setBusy(true);
+      const response = await api.api.exportData();
+      if (response.status === 200) {
+        showToast('Data dump successfully created!', "success");
+      } else {
+        showToast('Creation of data dump failed.', "error");
+      }
+    } catch (error) {
+      showToast('Error during upload: ' + error, "error");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -76,7 +87,7 @@ const Data = () => {
       }
     >
       <PageContent
-        loading={false}
+        loading={busy}
         isMobile={isMobile}
         tabs={<Tabs selectedTab={SettingsTabs.DATA} />}
       >
@@ -107,14 +118,14 @@ const Data = () => {
             id='file'
             accept=".zip"
             onChange={handleFileChange}
-            disabled={uploading}
+            disabled={busy}
           />
 
           <div><Button 
             onClick={handleSubmit} 
-            disabled={uploading} 
+            disabled={busy} 
             style={{ marginTop: '20px' }}>
-            {uploading ? 'Uploading...' : t('data.import.button')}
+            {busy ? 'Uploading...' : t('data.import.button')}
           </Button></div>
 
           {isMobile && (<>
